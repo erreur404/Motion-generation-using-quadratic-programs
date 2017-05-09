@@ -1,0 +1,8 @@
+loadComponent("filereporter", "OCL::FileReporting")
+loadService("filereporter", "marshalling")
+connectPeers("filereporter","robot_gazebo")
+connectPeers("filereporter","myTorqueController")
+filereporter.reportPort("robot_gazebo", "full_arm_JointFeedback")
+filereporter.reportPort("myTorqueController", "out_torques_port")
+filereporter.configure
+filereporter.start

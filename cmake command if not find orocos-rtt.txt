@@ -1,0 +1,1 @@
+sudo cmake ../CMakeLists.txt -DCMAKE_PREFIX_PATH="$HOME/citk/systems/cogimon-minimal-nightly/lib/cmake/orocos-rtt;$HOME/citk/systems/cogimon-minimal-nightly/share/rtt-core-extensions-0.1;$HOME/citk/systems/cogimon-minimal-nightly/share/rst-rt-0.1" -DCMAKE_INSTALL_PREFIX=./install

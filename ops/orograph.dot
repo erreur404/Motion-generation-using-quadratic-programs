@@ -1,0 +1,17 @@
+digraph G { 
+rankdir=TB; 
+"gazebo"[style=filled,width=1.8,height=1.8,color=green];
+"myTorqueController"[style=filled,width=1.8,height=1.8,color=green];
+"robot_gazebofull_arm_JointFeedbackmyTorqueControllerin_robotstatus_port"[shape=box,label="data"];
+"robot_gazebo"->"robot_gazebofull_arm_JointFeedbackmyTorqueControllerin_robotstatus_port"[ label="full_arm_JointFeedback"];
+"robot_gazebofull_arm_JointFeedbackmyTorqueControllerin_robotstatus_port"->myTorqueController[ label="in_robotstatus_port"];
+"robot_gazebo"[style=filled,width=1.8,height=1.8,color=lightblue];
+"full_arm_JointPositionCtrl"[shape=point];
+"full_arm_JointPositionCtrl"->robot_gazebo[ label="full_arm_JointPositionCtrl"];
+"full_arm_JointImpedanceCtrl"[shape=point];
+"full_arm_JointImpedanceCtrl"->robot_gazebo[ label="full_arm_JointImpedanceCtrl"];
+"myTorqueControllerout_torques_portrobot_gazebofull_arm_JointTorqueCtrl"[shape=box,label="data"];
+"myTorqueController"->"myTorqueControllerout_torques_portrobot_gazebofull_arm_JointTorqueCtrl"[ label="out_torques_port"];
+"myTorqueControllerout_torques_portrobot_gazebofull_arm_JointTorqueCtrl"->robot_gazebo[ label="full_arm_JointTorqueCtrl"];
+"Deployer"[style=filled,width=1.8,height=1.8,color=lightblue];
+}
