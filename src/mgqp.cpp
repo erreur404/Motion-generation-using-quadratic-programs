@@ -13,12 +13,32 @@
                     CONSTRAINT DEFINITION
 ========================================================== */
 
-Constraint::Constraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference)
+Constraint::Constraint (ConstraintType type, ConstraintIty type2, int jointNumber)
 {
   this->type = type;
   this->ity = type2;
-  this->refValue = valueOfReference;
   this->target = jointNumber;
+}
+
+Constraint Constraint::newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference)
+{
+  Constraint c = Constraint(type, type2, jointNumber);
+  c.refValue = valueOfReference;
+  return c;
+}
+
+Constraint Constraint::newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Vector3f valueOfReference)
+{
+  Constraint c = Constraint(type, type2, jointNumber);
+  c.refValueP = valueOfReference;
+  return c;
+}
+
+Constraint Constraint::newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Matrix3f valueOfReference)
+{
+  Constraint c = Constraint(type, type2, jointNumber);
+  c.refValueO = valueOfReference;
+  return c;
 }
 
 /*
@@ -59,6 +79,7 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     // constructor
     addOperation("setDOFsize", &MotionGenerationQuadraticProgram::setDOFsize, this, RTT::ClientThread).doc("set DOF size");
     addOperation("printCurrentState", &MotionGenerationQuadraticProgram::printCurrentState, this, RTT::ClientThread).doc("print current state");
+    addOperation("addConstraint", &MotionGenerationQuadraticProgram::addConstraint, this, RTT::ClientThread).doc("addConstraint(ConstraintType:POSITION=1|SPEED=2|TORQUE=3|ACCELERATION=3, ConstraintIty:EQ=1|SUP=2|INF=3, targetJoint:int, targetValue: float|Vector3f|Matrix3f");
 
     magnitude = 1.0;
     addProperty("trajectory_magnitude", magnitude).doc("Magnitude of sinusoidal trajectory");
@@ -83,11 +104,33 @@ bool MotionGenerationQuadraticProgram::startHook() {
     return true;
 }
 
-Constraint MotionGenerationQuadraticProgram::desiredPositionToConstraint(Eigen::Vector3f position)
+void MotionGenerationQuadraticProgram::desiredPositionToConstraint(Eigen::Vector3f position)
 {
-
-
+      if (this->constraints.size() > 3)
+      {
+        this->constraints.pop_back();
+        this->constraints.pop_back();
+        this->constraints.pop_back();
+      }
+      this->constraints.push_back(Constraint::newConstraint(POSITION, EQ, this->DOFsize-1, position(0)));
+      this->constraints.push_back(Constraint::newConstraint(POSITION, EQ, this->DOFsize-1, position(1)));
+      this->constraints.push_back(Constraint::newConstraint(POSITION, EQ, this->DOFsize-1, position(2)));
 }
+/*
+void MotionGenerationQuadraticProgram::addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference)
+{
+  this->constraints.push_back(Constraint(type, type2, jointNumber, valueOfReference));
+} // */
+
+void MotionGenerationQuadraticProgram::addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Vector3f valueOfReference)
+{
+  this->constraints.push_back(Constraint::newConstraint(type, type2, jointNumber, valueOfReference));
+}
+/*
+void MotionGenerationQuadraticProgram::addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Matrix3f valueOfReference)
+{
+  this->constraints.push_back(Constraint(type, type2, jointNumber, valueOfReference));
+} // */
 
 void MotionGenerationQuadraticProgram::updateHook() {
     // this is the actual body of a component. it is called on each cycle

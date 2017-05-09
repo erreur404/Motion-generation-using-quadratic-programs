@@ -12,6 +12,7 @@
 #include <rtt/TaskContext.hpp>
 #include <string>
 #include <vector>
+#include <Eigen/Dense>
 
 // Joint value datatype:
 #include <rst-rt/kinematics/JointAngles.hpp>
@@ -44,12 +45,19 @@ class Constraint {
   private:
     ConstraintType type;
     ConstraintIty ity;
-    float refValue;
+    float refValue; // for simple variables
+    Eigen::Vector3f refValueP;// for position vector
+    Eigen::Matrix3f refValueO;// for orientation Matrix
     int target;
 
   public:
-    Constraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference);
+    static Constraint newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference);
+    static Constraint newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Vector3f valueOfReference);
+    static Constraint newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Matrix3f valueOfReference);
     float getError(Robot* robot);
+
+  private:
+    Constraint (ConstraintType type, ConstraintIty type2, int jointNumber);
 };
 
 /* =======================================================
@@ -71,6 +79,7 @@ public:
     void setGains(float kp, float kd);
     void setGainsOrientation(float kp, float kd);
     void computeTranslationError(
+            // executed by each constraint
             Eigen::Vector3f const & cart_desiredPosition,
             Eigen::Vector3f const & cart_currentPosition,
             Eigen::Vector3f const & desiredVelocity,
@@ -107,7 +116,10 @@ private:
 
     void setDOFsize(unsigned int DOFsize);
     void printCurrentState();
-    Constraint desiredPositionToConstraint(Eigen::Vector3f position);
+    void desiredPositionToConstraint(Eigen::Vector3f position);
+    //void addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference);
+    void addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Vector3f valueOfReference);
+    //void addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Matrix3f valueOfReference);
 
     // helpers:
     double getSimulationTime();
