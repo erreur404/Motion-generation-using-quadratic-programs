@@ -19,6 +19,7 @@
 #include <rst-rt/kinematics/JointVelocities.hpp>
 #include <rst-rt/dynamics/JointTorques.hpp>
 #include <rst-rt/robot/JointState.hpp>
+#include "QuaternionHelper.hpp"
 
 
 /* =======================================================
@@ -32,6 +33,7 @@ typedef struct {
   Array of Jacobians Dot
   */
   float * jointPositions;
+  std::string toString();
 } Robot;
 
 /* =======================================================
@@ -46,8 +48,8 @@ class Constraint {
     ConstraintType type;
     ConstraintIty ity;
     float refValue; // for simple variables
-    Eigen::Vector3f refValueP;// for position vector
-    Eigen::Matrix3f refValueO;// for orientation Matrix
+    Eigen::Vector3f * refValueP;// for position vector
+    Eigen::Matrix3f * refValueO;// for orientation Matrix
     int target;
 
   public:
@@ -55,7 +57,7 @@ class Constraint {
     static Constraint newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Vector3f valueOfReference);
     static Constraint newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Matrix3f valueOfReference);
     float getError(Robot* robot);
-
+    std::string toString();
   private:
     Constraint (ConstraintType type, ConstraintIty type2, int jointNumber);
 };
@@ -97,29 +99,97 @@ public:
 
 private:
     // Declare ports and their datatypes
+    RTT::InputPort<Eigen::VectorXf> in_desiredTaskSpacePosition_port;
+    RTT::InputPort<Eigen::VectorXf> in_desiredTaskSpaceVelocity_port;
+    RTT::InputPort<Eigen::VectorXf> in_desiredTaskSpaceAcceleration_port;
+
+    RTT::InputPort<Eigen::VectorXf> in_currentTaskSpacePosition_port;
+    RTT::InputPort<Eigen::VectorXf> in_currentTaskSpaceVelocity_port;
     RTT::InputPort<rstrt::robot::JointState> in_robotstatus_port;
+
+    RTT::InputPort<Eigen::MatrixXf> in_jacobian_port;
+    RTT::InputPort<Eigen::MatrixXf> in_jacobianDot_port;
+    RTT::InputPort<Eigen::VectorXf> in_h_port;
+    RTT::InputPort<Eigen::MatrixXf> in_constraintMinvP_port;
+    RTT::InputPort<Eigen::MatrixXf> in_constraintC_port;
+
+    // Declare output ports and their datatypes
     RTT::OutputPort<rstrt::dynamics::JointTorques> out_torques_port;
+    RTT::OutputPort<Eigen::VectorXf> out_force_port;
 
     // Data flow:
     RTT::FlowStatus in_robotstatus_flow;
+    RTT::FlowStatus in_desiredTaskSpacePosition_flow;
+    RTT::FlowStatus in_desiredTaskSpaceVelocity_flow;
+    RTT::FlowStatus in_desiredTaskSpaceAcceleration_flow;
+
+    RTT::FlowStatus in_currentTaskSpacePosition_flow;
+    RTT::FlowStatus in_currentTaskSpaceVelocity_flow;
+
+    RTT::FlowStatus in_jacobian_flow;
+    RTT::FlowStatus in_jacobianDot_flow;
+    RTT::FlowStatus in_h_flow;
 
     // Actuall joint command to be sent over port:
-    rstrt::robot::JointState in_robotstatus_var;
-    rstrt::dynamics::JointTorques out_torques_var;
     rstrt::kinematics::JointAngles q_des;
     rstrt::kinematics::JointVelocities qDot_des;
 
-    unsigned int DOFsize;
-    double magnitude;
+    // variables
     bool portsPrepared;
     std::vector<Constraint> constraints;
+      // for the purpose of debug, will use later only the inner constraints
+      Eigen::VectorXf in_desiredTaskSpacePosition_var;
+      Eigen::VectorXf in_desiredTaskSpaceVelocity_var;
+      Eigen::VectorXf in_desiredTaskSpaceAcceleration_var;
 
+    // for the sake of receiving feedback !
+    Eigen::VectorXf in_currentTaskSpacePosition_var;
+    Eigen::VectorXf in_currentTaskSpaceVelocity_var;
+    rstrt::robot::JointState in_robotstatus_var;
+
+    Eigen::MatrixXf in_jacobian_var;
+    Eigen::MatrixXf in_jacobianDot_var;
+    Eigen::VectorXf in_h_var;
+
+    rstrt::dynamics::JointTorques out_torques_var;
+    Eigen::VectorXf out_force_var;
+
+    Eigen::Vector4f quaternion_desired, quaternion_current, quaternion_current_conj, quaternion_diff;
+    Eigen::Quaternionf quat_target,quat_current,quat_diff;
+    Eigen::Vector3f errorTranslationPosition, errorTranslationVelocity;
+    Eigen::Vector3f errorOrientationPosition, errorOrientationVelocity;
+    Eigen::VectorXf errorPosition, errorVelocity;
+    Eigen::Vector3f desiredPosition, currentPosition, desiredVelocity, currentVelocity;
+
+    unsigned int DOFsize;
+    bool receiveTranslationOnly;
+    bool add_TSgravitycompensation;
+    unsigned int TaskSpaceDimension;
+    float gainTranslationP, gainTranslationD, gainOrientationP, gainOrientationD;
+    unsigned int numEndEffectors;
+    unsigned int WorkspaceDimension;
+    float velocityLimit;
+    Eigen::MatrixXf identityTSdimTSdim, tmpeyeTSdimTSdim, tmpeye33;
+    Eigen::MatrixXf lambdaTranslation, lambdaOrientation;
+    Eigen::VectorXf pseudoVelocity;
+    Eigen::MatrixXf limiter;
+    Eigen::VectorXf ref_Acceleration, constraintForce;
+    QuaternionHelper qh;
+    Eigen::Vector4f quaternion_desired1, quaternion_current1, quaternion_desired2, quaternion_current2;
+
+
+
+
+
+
+
+    // methods
     void setDOFsize(unsigned int DOFsize);
     void printCurrentState();
     void desiredPositionToConstraint(Eigen::Vector3f position);
-    //void addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference);
-    void addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Vector3f valueOfReference);
-    //void addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Matrix3f valueOfReference);
+    void addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference);
+    void addConstraintP (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Vector3f valueOfReference);
+    void addConstraintO (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Matrix3f valueOfReference);
 
     // helpers:
     double getSimulationTime();
