@@ -23,62 +23,39 @@ std::string Robot::toString ()
                     CONSTRAINT DEFINITION
 ========================================================== */
 
-Constraint::Constraint (ConstraintType type, ConstraintIty type2, int jointNumber)
+Constraint(int tasks, Eigen::VectorXf goal)
 {
-  this->type = type;
-  this->ity = type2;
-  this->target = jointNumber;
+  this->task = tasks;
+  this->a = goal;
 }
 
-Constraint Constraint::newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference)
+Constraint(Eigen::Matrix<bool, Eigen::Dynamic, Eigein::Dynamic> JacobianMask, Eigen::VectorXf goal)
 {
-  Constraint c = Constraint(type, type2, jointNumber);
-  c.refValue = valueOfReference;
-  return c;
+  this->A = JacobianMask;
+  this->a = goal;
 }
 
-Constraint Constraint::newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Vector3f valueOfReference)
+static void createMask(int nbRobotDoF, int jointNumber)
 {
-  Constraint c = Constraint(type, type2, jointNumber);
-  *c.refValueP = valueOfReference;
-  return c;
+
 }
 
-Constraint Constraint::newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Matrix3f valueOfReference)
+Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> createTaskMask(int nbTaskDoF, int task)
 {
-  Constraint c = Constraint(type, type2, jointNumber);
-  *c.refValueO = valueOfReference;
-  return c;
-}
-
-/*
-  returns the error made to a constraint.
-  for not violated inequalities, the error is zero
-*/
-float Constraint::getError(Robot* robot)
-{
-  if (this->ity == EQ || this->ity == _SUP || this->ity == _INF)
+  this->A = Eigen::Matrix<bool, nbTaskDoF, nbTaskDoF>();
+  this->task = task;
+  //this->A.resize(nbTaskDoF, nbTaskDoF);
+  this->A.setZero();
+  for (int i=0; i<nbTaskDoF; ++i)
   {
-    if (this->type == POSITION)
+    if (task & 1<<i)
     {
-      return robot->jointPositions[this->target]-this->refValue;
+      this->A(i,i) = true;
     }
-  }
-  if (this->ity == SUP)
-  {
-    if (this->type == POSITION)
+    else
     {
-      // if a constraint is violated, we change its type to violated which will make it being evaluater as an equality.
-      if (robot->jointPositions[this->target] > this->refValue)
-      {
-        this->ity = _SUP;
-        return this->getError(robot);
-      }
+      this->a(i) = 0; // so that there won't be a goal impossible to reach because of the "deficiency of the masked matrix"
     }
-  }
-  else
-  {
-    return 0;
   }
 }
 
@@ -221,7 +198,9 @@ void MotionGenerationQuadraticProgram::desiredPositionToConstraint(Eigen::Vector
       {
         this->constraints.pop_back();
       }
-      this->addConstraintP(POSITION, EQ, this->DOFsize-1, position);
+      this->constraints.push_back(Constraint(Constraint::taskMask.posX |
+                                              Constraint::taskMask.posY|
+                                              Constraint::taskMask.posZ))
 }
 //*
 void MotionGenerationQuadraticProgram::addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference)

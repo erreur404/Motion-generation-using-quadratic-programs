@@ -40,27 +40,47 @@ typedef struct {
                     CONSTRAINT DEFINITION
 ========================================================== */
 
-enum ConstraintIty { EQ=1, SUP=2, INF=3, _SUP=4, _INF=5 };
-enum ConstraintType { POSITION=1, SPEED=2, TORQUE=3, ACCELERATION=3};
-
 class Constraint {
   private:
-    ConstraintType type;
-    ConstraintIty ity;
-    float refValue; // for simple variables
-    Eigen::Vector3f * refValueP;// for position vector
-    Eigen::Matrix3f * refValueO;// for orientation Matrix
-    int target;
+    Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> A;
+    Eigen::VectorXf a;
+    int task;
 
   public:
-    static Constraint newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference);
-    static Constraint newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Vector3f valueOfReference);
-    static Constraint newConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Matrix3f valueOfReference);
-    float getError(Robot* robot);
-    std::string toString();
-  private:
-    Constraint (ConstraintType type, ConstraintIty type2, int jointNumber);
-};
+    Constraint(int tasks, Eigen::VectorXf goal);
+    Constraint(Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> JacobianMask, Eigen::VectorXf goal);
+    enum taskMask {
+                    posX=1<<0,
+                    posY=1<<1,
+                    posZ=1<<2,
+                    oriX=1<<3,
+                    oriY=1<<4,
+                    oriZ=1<<5,
+                    speX=1<<6,
+                    speY=1<<7,
+                    speZ=1<<8,
+                    angX=1<<9,
+                    angY=1<<10,
+                    angZ=1<<11,
+                    accX=1<<12,
+                    accY=1<<13,
+                    accZ=1<<14,
+                    aacX=1<<15,
+                    aacY=1<<16,
+                    aacZ=1<<17,
+                    torX=1<<18,
+                    torY=1<<19,
+                    torZ=1<<20,
+                    momX=1<<21,
+                    momY=1<<22,
+                    momZ=1<<23,
+                    cartP=1<<0 | 1<<1 | 1<<2,
+                    cartS=7<<6
+                  }
+    static void createMask(int nbRobotDoF, int jointNumber);
+    void createTaskMask(int nbTaskDoF, int task);
+    std::string Constraint::toString();
+}
 
 /* =======================================================
              MotionGenerationQuadraticProgram
@@ -80,21 +100,7 @@ public:
 
     void setGains(float kp, float kd);
     void setGainsOrientation(float kp, float kd);
-    void computeTranslationError(
-            // executed by each constraint
-            Eigen::Vector3f const & cart_desiredPosition,
-            Eigen::Vector3f const & cart_currentPosition,
-            Eigen::Vector3f const & desiredVelocity,
-            Eigen::Vector3f const & cart_cart_currentVelocity,
-            Eigen::Vector3f & cart_errorPosition,
-            Eigen::Vector3f & cart_errorVelocity);
-    void computeOrientationError(
-            Eigen::Vector3f const & axisangle_desiredPosition,
-            Eigen::Vector3f const & axisangle_currentPosition,
-            Eigen::Vector3f const & axisangle_desiredVelocity,
-            Eigen::Vector3f const & axisangle_currentVelocity,
-            Eigen::Vector3f & axisangle_errorPosition,
-            Eigen::Vector3f & axisangle_errorVelocity);
+
     void preparePorts();
 
 private:
