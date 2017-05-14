@@ -10,6 +10,8 @@ import("rst-rt_typekit")
 import("rtt_gazebo_embedded")
 import("rtt-gazebo-robot-sim")
 import("rtt-core-extensions")
+import("ProjectedDynamics")
+import("CosimaUtilities")
 
 require("os")
 require("print")
@@ -95,16 +97,16 @@ trajectorygenerator.setWaitTime(10)
 trajectorygenerator.preparePorts()
 trajectorygenerator.configure()
 # for debug : generates points to follow the trajectory
-loadComponent("positioncontroller", "PositionController")
-setActivity("positioncontroller",0.01,10,ORO_SCHED_OTHER)
-positioncontroller.setTranslationOnly(translationOnly);
-positioncontroller.setDOFsize(DOFsize);
-positioncontroller.addTSgravitycompensation(true);
-positioncontroller.setTaskSpaceDimension(TaskSpaceDimension);
-positioncontroller.setGains(200,10);
-positioncontroller.setGainsOrientation(450,10);
-positioncontroller.preparePorts();
-positioncontroller.configure();
+#loadComponent("positioncontroller", "PositionController")
+#setActivity("positioncontroller",0.01,10,ORO_SCHED_OTHER)
+#positioncontroller.setTranslationOnly(translationOnly);
+#positioncontroller.setDOFsize(DOFsize);
+#positioncontroller.addTSgravitycompensation(true);
+#positioncontroller.setTaskSpaceDimension(TaskSpaceDimension);
+#positioncontroller.setGains(200,10);
+#positioncontroller.setGainsOrientation(450,10);
+#positioncontroller.preparePorts();
+#positioncontroller.configure();
 
 import("MotionGenerationQuadraticProgram")
 # you can do displayComponentTypes
