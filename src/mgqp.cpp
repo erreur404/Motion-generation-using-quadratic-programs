@@ -231,6 +231,11 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
     qDot_des.velocities.setZero();
 }
 
+Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(Eigen::MatrixXf JG)
+{
+
+}
+
 void MotionGenerationQuadraticProgram::updateHook() {
     // this is the actual body of a component. it is called on each cycle
     in_desiredTaskSpacePosition_flow = in_desiredTaskSpacePosition_port.read(in_desiredTaskSpacePosition_var);
@@ -266,14 +271,27 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     // Dev : setting the EE desired position as a constraint
     desiredPositionToConstraint(desiredPosition);
-    // actual controller!
-    for(int i=0; i<DOFsize; ++i){
-      q_des.angles(i)        = 1*sin(getSimulationTime());
-      qDot_des.velocities(i) = 1*cos(getSimulationTime());
-    }
 
-    out_torques_var.torques = 1*(q_des.angles - in_robotstatus_var.angles) + 100*(qDot_des.velocities - in_robotstatus_var.velocities);
+    int n = this->DOFsize;
+    Eigen::MatrixXf JG(6,3*n);
+    /*
+        The Matrix GF contains all the Jacobians needed for the Quadrati program
+        With n = DOFsize
+        J(position)nx3        J(orientation)nx3
+        Jdot(position)nx3     Jdot(orientation)nx3
+        Jdotdot(position)nx3  Jdotdot(orientation)nx3
+    */
+    JG.block<0,0>(3,n) = in_jacobian_var;
+    //JG.block<3,0>(3,n) = in_rotJacobian_var;
+    JG.block<0,n>(3, n) = in_jacobianDot_var;
+    //JG.block<3,n>(3,n) = in_rotJacobianDot_var;
+    //JG.block<0,2*n>(3, n) = in_jacobianDotDot_var;
+    //JG.block<3,2*n>(3,n) = in_rotJacobianDotDot_var;
 
+
+
+
+    out_torques_var = this->solveNextStep
 
 
     // write it to port
