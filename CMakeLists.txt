@@ -6,7 +6,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 
 message("===========================================================================")
-message(${CMAKE_PREFIX_PATH})
  
 #
 # This creates a standard cmake project. You may extend this file with
@@ -17,6 +16,7 @@ project(MotionGenerationQuadraticProgram)
 # current source and include:
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/src)
+include_directories(${PROJECT_SOURCE_DIR}/../QuadProgpp/src)
  
 # Set the CMAKE_PREFIX_PATH in case you're not using Orocos through ROS
 # for helping these find commands find RTT.

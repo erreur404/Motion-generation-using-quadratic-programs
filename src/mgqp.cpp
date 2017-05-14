@@ -23,26 +23,26 @@ std::string Robot::toString ()
                     CONSTRAINT DEFINITION
 ========================================================== */
 
-Constraint(int tasks, Eigen::VectorXf goal)
+Constraint::Constraint(int tasks, Eigen::VectorXf goal)
 {
   this->task = tasks;
   this->a = goal;
 }
 
-Constraint(Eigen::Matrix<bool, Eigen::Dynamic, Eigein::Dynamic> JacobianMask, Eigen::VectorXf goal)
+Constraint::Constraint(Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> JacobianMask, Eigen::VectorXf goal)
 {
   this->A = JacobianMask;
   this->a = goal;
 }
 
-static void createMask(int nbRobotDoF, int jointNumber)
+void Constraint::createMask(int nbRobotDoF, int jointNumber)
 {
 
 }
 
-Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> createTaskMask(int nbTaskDoF, int task)
+void Constraint::createTaskMask(int nbTaskDoF, int task)
 {
-  this->A = Eigen::Matrix<bool, nbTaskDoF, nbTaskDoF>();
+  this->A = Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>(nbTaskDoF, nbTaskDoF);
   this->task = task;
   //this->A.resize(nbTaskDoF, nbTaskDoF);
   this->A.setZero();
@@ -64,16 +64,7 @@ std::string Constraint::toString()
   // type EQ|INEQ ----- Activated*|Inactivated ----- target ----- type POS|OR ----- value
   std::ostringstream stringStream;
   stringStream  << "Constraint["
-                << (this->ity == EQ ? "Equality  " : "Inequality")<<"\t"
-                << (this->ity == EQ ||this->ity == _SUP || this->ity == _INF ? "*" : " ")<<"\t"
-                << (this->target)<<"\t"
-                << (this->refValueP != 0 ? "Position   " :
-                    (this->refValueO != 0 ?"Orientation" :
-                                              "Value      "))<<"\t"
-                /*<< (this->refValueP != 0 ?  *this->refValueP :
-                    (this->refValueO != 0 ? *this->refValueO :
-                                               this->refValue))*/
-                << this->refValue
+                << this->a
                 <<"]"<<std::endl;
   return stringStream.str(); //"%s \t %c \t %d \t %s"
 }
@@ -85,12 +76,14 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     // constructor
     addOperation("setDOFsize", &MotionGenerationQuadraticProgram::setDOFsize, this, RTT::ClientThread).doc("set DOF size");
     addOperation("printCurrentState", &MotionGenerationQuadraticProgram::printCurrentState, this, RTT::ClientThread).doc("print current state");
+    /*
     addOperation("addConstraint",
     &MotionGenerationQuadraticProgram::addConstraint, this, RTT::ClientThread).doc("addConstraint(ConstraintType:POSITION=1|SPEED=2|TORQUE=3|ACCELERATION=3, ConstraintIty:EQ=1|SUP=2|INF=3, targetJoint:int, targetValue: float");
     addOperation("addConstraintP",
     &MotionGenerationQuadraticProgram::addConstraintP, this, RTT::ClientThread).doc("addConstraint(ConstraintType:POSITION=1|SPEED=2|TORQUE=3|ACCELERATION=3, ConstraintIty:EQ=1|SUP=2|INF=3, targetJoint:int, targetValue: Vector3f");
     addOperation("addConstraintO",
     &MotionGenerationQuadraticProgram::addConstraintO, this, RTT::ClientThread).doc("addConstraint(ConstraintType:POSITION=1|SPEED=2|TORQUE=3|ACCELERATION=3, ConstraintIty:EQ=1|SUP=2|INF=3, targetJoint:int, targetValue: Matrix3f");
+    */
 
     portsPrepared = false;
 
@@ -198,25 +191,12 @@ void MotionGenerationQuadraticProgram::desiredPositionToConstraint(Eigen::Vector
       {
         this->constraints.pop_back();
       }
-      this->constraints.push_back(Constraint(Constraint::taskMask.posX |
-                                              Constraint::taskMask.posY|
-                                              Constraint::taskMask.posZ))
+      this->constraints.push_back(Constraint(taskMask::posX |
+                                              taskMask::posY|
+                                              taskMask::posZ,
+                                            position));
 }
-//*
-void MotionGenerationQuadraticProgram::addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference)
-{
-  this->constraints.push_back(Constraint::newConstraint(type, type2, jointNumber, valueOfReference));
-} // */
 
-void MotionGenerationQuadraticProgram::addConstraintP (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Vector3f valueOfReference)
-{
-  this->constraints.push_back(Constraint::newConstraint(type, type2, jointNumber, valueOfReference));
-}
-//*
-void MotionGenerationQuadraticProgram::addConstraintO (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Matrix3f valueOfReference)
-{
-  this->constraints.push_back(Constraint::newConstraint(type, type2, jointNumber, valueOfReference));
-} // */
 
 void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
     this->DOFsize = DOFsize;
@@ -294,6 +274,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     out_torques_var.torques = 1*(q_des.angles - in_robotstatus_var.angles) + 100*(qDot_des.velocities - in_robotstatus_var.velocities);
 
+
+
     // write it to port
     out_torques_port.write(out_torques_var);
 }
@@ -322,6 +304,18 @@ void MotionGenerationQuadraticProgram::printCurrentState(){
     {
       std::cout << this->constraints[i].toString() << '\n';
     }
+    Matrix<double> J(1, 1, 1);
+    Matrix<double> A(1, 1, 0);
+    Matrix<double> B(1, 1, 1);
+    Vector<double> y(1);
+    Vector<double> a(1, 0);
+    Vector<double> b(1, 3);
+    Vector<double> g0(1, 0);
+    solve_quadprog(J, g0, A, a, B, b, y);
+
+
+
+    std::cout << "min (x)²; x>=3 -> x=" << y  <<'\n';
     std::cout << "############## MotionGenerationQuadraticProgram State end " << std::endl;
 }
 

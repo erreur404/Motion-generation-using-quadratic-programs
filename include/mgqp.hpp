@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <Eigen/Dense>
+#include "QuadProg++.hh"
 
 // Joint value datatype:
 #include <rst-rt/kinematics/JointAngles.hpp>
@@ -39,6 +40,35 @@ typedef struct {
 /* =======================================================
                     CONSTRAINT DEFINITION
 ========================================================== */
+class taskMask {
+  public:
+      static const int posX=1<<0;
+      static const int posY=1<<1;
+      static const int posZ=1<<2;
+      static const int oriX=1<<3;
+      static const int oriY=1<<4;
+      static const int oriZ=1<<5;
+      static const int speX=1<<6;
+      static const int speY=1<<7;
+      static const int speZ=1<<8;
+      static const int angX=1<<9;
+      static const int angY=1<<10;
+      static const int angZ=1<<11;
+      static const int accX=1<<12;
+      static const int accY=1<<13;
+      static const int accZ=1<<14;
+      static const int aacX=1<<15;
+      static const int aacY=1<<16;
+      static const int aacZ=1<<17;
+      static const int torX=1<<18;
+      static const int torY=1<<19;
+      static const int torZ=1<<20;
+      static const int momX=1<<21;
+      static const int momY=1<<22;
+      static const int momZ=1<<23;
+      static const int cartP=1<<0 | 1<<1 | 1<<2;
+      static const int cartS=7<<6;
+};
 
 class Constraint {
   private:
@@ -49,38 +79,10 @@ class Constraint {
   public:
     Constraint(int tasks, Eigen::VectorXf goal);
     Constraint(Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> JacobianMask, Eigen::VectorXf goal);
-    enum taskMask {
-                    posX=1<<0,
-                    posY=1<<1,
-                    posZ=1<<2,
-                    oriX=1<<3,
-                    oriY=1<<4,
-                    oriZ=1<<5,
-                    speX=1<<6,
-                    speY=1<<7,
-                    speZ=1<<8,
-                    angX=1<<9,
-                    angY=1<<10,
-                    angZ=1<<11,
-                    accX=1<<12,
-                    accY=1<<13,
-                    accZ=1<<14,
-                    aacX=1<<15,
-                    aacY=1<<16,
-                    aacZ=1<<17,
-                    torX=1<<18,
-                    torY=1<<19,
-                    torZ=1<<20,
-                    momX=1<<21,
-                    momY=1<<22,
-                    momZ=1<<23,
-                    cartP=1<<0 | 1<<1 | 1<<2,
-                    cartS=7<<6
-                  }
-    static void createMask(int nbRobotDoF, int jointNumber);
+    void createMask(int nbRobotDoF, int jointNumber);
     void createTaskMask(int nbTaskDoF, int task);
-    std::string Constraint::toString();
-}
+    std::string toString();
+};
 
 /* =======================================================
              MotionGenerationQuadraticProgram
@@ -193,9 +195,6 @@ private:
     void setDOFsize(unsigned int DOFsize);
     void printCurrentState();
     void desiredPositionToConstraint(Eigen::Vector3f position);
-    void addConstraint (ConstraintType type, ConstraintIty type2, int jointNumber, float valueOfReference);
-    void addConstraintP (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Vector3f valueOfReference);
-    void addConstraintO (ConstraintType type, ConstraintIty type2, int jointNumber, Eigen::Matrix3f valueOfReference);
 
     // helpers:
     double getSimulationTime();
