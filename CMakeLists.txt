@@ -88,7 +88,12 @@ orocos_component(${CMAKE_PROJECT_NAME}
 # You may add multiple orocos_plugin/orocos_service statements.
 
 # target_link_libraries()
-target_link_libraries(${CMAKE_PROJECT_NAME} ${RST-RT_LIBRARIES} ${RTT-CORE-EXTENSIONS_LIBRARIES})
+message("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+message(${CMAKE_PROJECT_NAME})
+message(${RST-RT_LIBRARIES})
+message(${RTT-CORE-EXTENSIONS_LIBRARIES})
+#/usr/local/lib/libquadprog.a
+target_link_libraries(${CMAKE_PROJECT_NAME} ${RST-RT_LIBRARIES} ${RTT-CORE-EXTENSIONS_LIBRARIES} "/usr/local/lib/libquadprog.a")
  
 #
 # Additional headers (not in typekit):
