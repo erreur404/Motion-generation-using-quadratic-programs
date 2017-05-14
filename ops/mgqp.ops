@@ -62,6 +62,17 @@ robot_gazebo.setControlMode("full_arm", "JointTorqueCtrl")
 gazebo.toggleDynamicsSimulation(true)
 
 #   Compute forward dynamics for all links
+#var array jointsFkin = (0)*DOFsize
+#for (var int i = 0; i < DOFsize; i = i + 1 ) {
+#      jointsFkin[i] = i
+#      loadComponent("fkin"+i, "WrapperKDL")
+#      setActivity("fkin"+i,0.01,10,ORO_SCHED_OTHER)
+#      eval("fkin"+i+".loadModel(path_model_urdf, \"lwr_arm_base_link\",\"lwr_arm_"+i+"_link)")
+#      eval("fkin"+i+".setDOFsize(i)")
+#      eval("fkin"+i+".configure()")
+#}
+
+
 loadComponent("fkin", "WrapperKDL")
 setActivity("fkin",0.01,10,ORO_SCHED_OTHER)
 fkin.loadModel(path_model_urdf, "lwr_arm_base_link","lwr_arm_7_link")
