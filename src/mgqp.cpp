@@ -6,6 +6,7 @@
  */
 
 #include "mgqp.hpp"
+#include "Array.hh"
 // needed for the macro at the end of this file:
 #include <rtt/Component.hpp>
 
@@ -231,9 +232,42 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
     qDot_des.velocities.setZero();
 }
 
-Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(Eigen::MatrixXf JG)
-{
+#define COPYMAT(a, toB) for(int i=0; i<a.rows(); i++) {for (int j=0; j<a.cols(); j++) {toB[i][j] = a(i,j);}}
+#define COPYVEC(a, toB) for(int i=0; i<a.rows(); i++) {toB[i] = a(i);}
 
+Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf JG)
+{
+  // From Eigen MAtrix to Matrix for QuadProgpp :
+  // Matrix(EigenMatrix.data(), m, n) // This is a COPY constructor !! :D
+  // By analysing some methods of the Matrixs provided by QuadProg++ I determined
+  // that they used the same order for the data. We can then use the constructor
+  // by giving the address of the array. This is a huge gain of performance over
+  // copying each data with a loop.
+  ArrayHH::Matrix<double> G, CE, CI;
+  ArrayHH::Vector<double> g0, ce0, ci0, x;
+	int n, m, p;
+	double sum = 0.0;
+  Eigen::VectorXf res;
+
+  Constraint c = this->constraints[0];
+
+  G = ArrayHH::Matrix<double>();G.resize((int)JG.rows(), (int)JG.cols());COPYMAT(JG, G);
+  CE = ArrayHH::Matrix<double>();CE.resize((int)c.A.rows(), (int)c.a.cols());COPYMAT(c.A, CE);
+  CI = ArrayHH::Matrix<double>(1, 1); CI[0][0] = 0; // solving now just equalities
+  ce0 = ArrayHH::Vector<double>();ce0.resize((int)c.a.cols());COPYVEC(c.a, ce0);
+  ci0 = ArrayHH::Vector<double>(1); ci0[0] = 0; // solving now just equalities
+  x = ArrayHH::Vector<double>();x.resize((int)JG.cols());
+  g0 = ArrayHH::Vector<double>();g0.resize((int)JG.cols());//g0*=0;
+  res = Eigen::VectorXf(JG.cols());
+
+
+
+  sum = solve_quadprog(G, g0, CE,  ce0, CI, ci0, x);
+  for (int i=0; i<JG.cols(); i++)
+  {
+    res[i] = x[i];
+  }
+  return res;
 }
 
 void MotionGenerationQuadraticProgram::updateHook() {
@@ -281,17 +315,17 @@ void MotionGenerationQuadraticProgram::updateHook() {
         Jdot(position)nx3     Jdot(orientation)nx3
         Jdotdot(position)nx3  Jdotdot(orientation)nx3
     */
-    JG.block<0,0>(3,n) = in_jacobian_var;
-    //JG.block<3,0>(3,n) = in_rotJacobian_var;
-    JG.block<0,n>(3, n) = in_jacobianDot_var;
-    //JG.block<3,n>(3,n) = in_rotJacobianDot_var;
-    //JG.block<0,2*n>(3, n) = in_jacobianDotDot_var;
-    //JG.block<3,2*n>(3,n) = in_rotJacobianDotDot_var;
+    JG.block(0,0,3,n) = in_jacobian_var;
+    //JG.block(3,0,3,n) = in_rotJacobian_var;
+    JG.block(0,n,3,n) = in_jacobianDot_var;
+    //JG.block(3,n,3,n) = in_rotJacobianDot_var;
+    //JG.block(0,2*n,3, n) = in_jacobianDotDot_var;
+    //JG.block(3,2*n,3,n) = in_rotJacobianDotDot_var;
 
 
 
 
-    out_torques_var = this->solveNextStep
+    out_torques_var.torques = this->solveNextStep(JG);
 
 
     // write it to port
@@ -322,18 +356,7 @@ void MotionGenerationQuadraticProgram::printCurrentState(){
     {
       std::cout << this->constraints[i].toString() << '\n';
     }
-    Matrix<double> J(1, 1, 1);
-    Matrix<double> A(1, 1, 0);
-    Matrix<double> B(1, 1, 1);
-    Vector<double> y(1);
-    Vector<double> a(1, 0);
-    Vector<double> b(1, 3);
-    Vector<double> g0(1, 0);
-    solve_quadprog(J, g0, A, a, B, b, y);
 
-
-
-    std::cout << "min (x)²; x>=3 -> x=" << y  <<'\n';
     std::cout << "############## MotionGenerationQuadraticProgram State end " << std::endl;
 }
 

@@ -13,7 +13,8 @@
 #include <string>
 #include <vector>
 #include <Eigen/Dense>
-#include "QuadProg++.hh"
+#include <QuadProg++.hh>
+#include <Array.hh>
 
 // Joint value datatype:
 #include <rst-rt/kinematics/JointAngles.hpp>
@@ -71,7 +72,7 @@ class taskMask {
 };
 
 class Constraint {
-  private:
+  public:
     Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> A;
     Eigen::VectorXf a;
     int task;
@@ -193,6 +194,7 @@ private:
 
     // methods
     void setDOFsize(unsigned int DOFsize);
+    Eigen::VectorXf solveNextStep(Eigen::MatrixXf JG);
     void printCurrentState();
     void desiredPositionToConstraint(Eigen::Vector3f position);
 

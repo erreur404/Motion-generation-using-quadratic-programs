@@ -74,13 +74,11 @@ gazebo.toggleDynamicsSimulation(true)
 #      eval("fkin"+i+".configure()")
 #}
 
-
 loadComponent("fkin", "WrapperKDL")
 setActivity("fkin",0.01,10,ORO_SCHED_OTHER)
 fkin.loadModel(path_model_urdf, "lwr_arm_base_link","lwr_arm_7_link")
 fkin.setDOFsize(DOFsize);
 fkin.configure()
-
 
 
 
@@ -120,6 +118,7 @@ var ConnPolicy cp
 # send joint status to the controller
 connect("robot_gazebo.full_arm_JointFeedback", "myTorqueController.in_robotstatus_port", cp)
 # send joint status to KDL for Jacobiaan computing
+
 connect("robot_gazebo.full_arm_JointFeedback", "fkin.in_robotstatus_port", cp)
 connect("fkin.out_jacobianTranslation_port", "myTorqueController.in_jacobian_port", cp)
 connect("fkin.out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port", cp)
