@@ -323,9 +323,9 @@ void MotionGenerationQuadraticProgram::updateHook() {
     //JG.block(3,2*n,3,n) = in_rotJacobianDotDot_var;
 
 
+    Eigen::VectorXf sol = this->solveNextStep(JG);
 
-
-    out_torques_var.torques = this->solveNextStep(JG);
+    out_torques_var.torques = sol.block(0, 2*n, 1, n);
 
 
     // write it to port
