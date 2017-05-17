@@ -277,6 +277,8 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
 
     qDot_des = rstrt::kinematics::JointVelocities(DOFsize);
     qDot_des.velocities.setZero();
+
+    WorkspaceDimension = 3;
 }
 
 #define COPYMAT(a, toB) for(int i=0; i<a.rows(); i++) {for (int j=0; j<a.cols(); j++) {toB[i][j] = a(i,j);}}
@@ -345,22 +347,27 @@ void MotionGenerationQuadraticProgram::updateHook() {
         PRINT("FAILED, NO DATA, RETURN");
         return;
     }
+    int debugCounter = 0;
 
     // reading the variables from the flows
-    desiredPosition = in_desiredTaskSpacePosition_var.segment<3>(WorkspaceDimension);
-    currentPosition = in_currentTaskSpacePosition_var.segment<3>(WorkspaceDimension);
-    desiredVelocity = in_desiredTaskSpaceVelocity_var.segment<3>(WorkspaceDimension);
-    currentVelocity = in_currentTaskSpaceVelocity_var.segment<3>(WorkspaceDimension);
+    PRINT(WorkspaceDimension);
+    //PRINT(desiredPosition); [0 0 0]
+    //PRINT(in_desiredTaskSpacePosition_var); [0.7 0 0.7]
+    PRINT(in_desiredTaskSpacePosition_var.head(WorkspaceDimension));
+    desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);PRINT(debugCounter++);
+    currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);PRINT(debugCounter++);
+    desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);PRINT(debugCounter++);
+    currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);PRINT(debugCounter++);
     // Filling the robot structure
 
     // Dev : setting the EE desired position as a constraint
-    desiredPositionToConstraint(desiredPosition);
+    desiredPositionToConstraint(desiredPosition);PRINT(debugCounter++);
 
     Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
-    rDot = in_jacobian_var*in_desiredTaskSpaceVelocity_var;
-    rDotDot = in_jacobian_var*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var*in_desiredTaskSpaceVelocity_var;
-    q = in_robotstatus_var.angles;
-    qDot = in_robotstatus_var.velocities;
+    rDot = in_jacobian_var*in_desiredTaskSpaceVelocity_var;PRINT(debugCounter++);//6
+    rDotDot = in_jacobian_var*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var*in_desiredTaskSpaceVelocity_var;PRINT(debugCounter++);
+    q = in_robotstatus_var.angles;PRINT(debugCounter++);
+    qDot = in_robotstatus_var.velocities;PRINT(debugCounter++);//9
     //qDotDot =
 
 
@@ -395,8 +402,6 @@ double MotionGenerationQuadraticProgram::getSimulationTime() {
 
 void MotionGenerationQuadraticProgram::printCurrentState(){
     std::cout << "############## MotionGenerationQuadraticProgram State begin " << std::endl;
-    std::cout << (this->ranOnce ? "" : "never") << " ran " << (this->ranOnce ? "once" : "") << "." << std::endl;
-    int debugCounter = 0;
     //*
     in_desiredTaskSpacePosition_flow = in_desiredTaskSpacePosition_port.read(in_desiredTaskSpacePosition_var);
     in_desiredTaskSpaceVelocity_flow = in_desiredTaskSpaceVelocity_port.read(in_desiredTaskSpaceVelocity_var);
@@ -404,40 +409,29 @@ void MotionGenerationQuadraticProgram::printCurrentState(){
     in_currentTaskSpacePosition_flow = in_currentTaskSpacePosition_port.read(in_currentTaskSpacePosition_var);
     in_currentTaskSpaceVelocity_flow = in_currentTaskSpaceVelocity_port.read(in_currentTaskSpaceVelocity_var);
     in_robotstatus_flow = in_robotstatus_port.read(in_robotstatus_var);
-    std::cout << debugCounter++;
     in_jacobian_flow = in_jacobian_port.read(in_jacobian_var);
     in_jacobianDot_flow = in_jacobianDot_port.read(in_jacobianDot_var);
     in_h_flow = in_h_port.read(in_h_var);
-    std::cout << debugCounter++;
 
     Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
-    std::cout << debugCounter++;
     rDot = in_jacobian_var*in_desiredTaskSpaceVelocity_var;
-    std::cout << debugCounter++;
     rDotDot = in_jacobian_var*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var*in_desiredTaskSpaceVelocity_var;
-    std::cout << debugCounter++;
     q = in_robotstatus_var.angles;
-    std::cout << debugCounter++;
     qDot = in_robotstatus_var.velocities;
-    std::cout << debugCounter++;
     //qDotDot =
 
 
     Eigen::MatrixXf A(in_jacobian_var.rows(), in_jacobian_var.cols()+in_jacobian_var.rows());A.setZero();
-    std::cout << debugCounter++;
     A.block(0,0, A.rows(), A.cols()-A.rows()) = in_jacobian_var; // setting acceleration equality consntraint
     A.block(0, A.cols()-A.rows(), A.rows(), A.rows()) = Eigen::MatrixXf::Identity(A.rows(), A.rows());
-    std::cout << debugCounter++;
     a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
         this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var) -
         in_jacobianDot_var*qDot);
-    std::cout << debugCounter++;
 
     Eigen::VectorXf sol = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (A.rows(), A.rows()), Eigen::VectorXf::Zero(A.rows()));
     std::cout << sol.block(0, 0, 1, this->DOFsize) << '\n';
     out_torques_var.torques = sol.block(0, 0, this->DOFsize, 1);
     std::cout << sol<<sol.block(0, 0, this->DOFsize, 1)<<sol.block(0, 0, 1,this->DOFsize)<<A<<a<<std::endl;
-    std::cout << debugCounter++;
 
     std::cout << " feedback angles " << in_robotstatus_var.angles << std::endl;
     std::cout << " feedback velocities " << in_robotstatus_var.velocities << std::endl;
