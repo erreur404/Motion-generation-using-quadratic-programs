@@ -184,19 +184,6 @@ bool MotionGenerationQuadraticProgram::startHook() {
     return true;
 }
 
-void MotionGenerationQuadraticProgram::desiredPositionToConstraint(Eigen::Vector3f position)
-{
-      if (this->constraints.size() > 1)
-      {
-        this->constraints.pop_back();
-      }
-      this->constraints.push_back(Constraint(taskMask::posX |
-                                              taskMask::posY|
-                                              taskMask::posZ,
-                                            position));
-}
-
-
 void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
     this->DOFsize = DOFsize;
 
@@ -353,23 +340,22 @@ void MotionGenerationQuadraticProgram::updateHook() {
     PRINT(WorkspaceDimension);
     //PRINT(desiredPosition); [0 0 0]
     //PRINT(in_desiredTaskSpacePosition_var); [0.7 0 0.7]
-    PRINT(in_desiredTaskSpacePosition_var.head(WorkspaceDimension));
+    //PRINT(in_desiredTaskSpacePosition_var.head(WorkspaceDimension)); [0.7 0 0.7]
     desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);PRINT(debugCounter++);
     currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);PRINT(debugCounter++);
     desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);PRINT(debugCounter++);
     currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);PRINT(debugCounter++);
-    // Filling the robot structure
 
-    // Dev : setting the EE desired position as a constraint
-    desiredPositionToConstraint(desiredPosition);PRINT(debugCounter++);
 
     Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
-    rDot = in_jacobian_var*in_desiredTaskSpaceVelocity_var;PRINT(debugCounter++);//6
-    rDotDot = in_jacobian_var*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var*in_desiredTaskSpaceVelocity_var;PRINT(debugCounter++);
+    // good up to here
+    rDot = in_jacobian_var.transpose()*in_desiredTaskSpaceVelocity_var;PRINT(debugCounter++);//5
+    rDotDot = in_jacobian_var.transpose()*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var.transpose()*in_desiredTaskSpaceVelocity_var;PRINT(debugCounter++);
     q = in_robotstatus_var.angles;PRINT(debugCounter++);
-    qDot = in_robotstatus_var.velocities;PRINT(debugCounter++);//9
+    qDot = in_robotstatus_var.velocities;PRINT(debugCounter++);//8
     //qDotDot =
-
+    PRINT(rDot);
+    PRINT(rDotDot);
 
     Eigen::MatrixXf A(in_jacobian_var.rows(), in_jacobian_var.cols()+in_jacobian_var.rows());A.setZero();
     A.block(0,0, A.rows(), A.cols()-A.rows()) = in_jacobian_var; // setting acceleration equality consntraint

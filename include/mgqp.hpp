@@ -196,7 +196,6 @@ private:
     void setDOFsize(unsigned int DOFsize);
     Eigen::VectorXf solveNextStep(const Eigen::MatrixXf A, const Eigen::VectorXf a, const Eigen::MatrixXf B, const Eigen::VectorXf b);
     void printCurrentState();
-    void desiredPositionToConstraint(Eigen::Vector3f position);
 
     // helpers:
     double getSimulationTime();
