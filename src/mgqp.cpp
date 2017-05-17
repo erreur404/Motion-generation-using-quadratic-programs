@@ -111,6 +111,8 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     quaternion_current1 = Eigen::Vector4f::Zero();
     quaternion_desired2 = Eigen::Vector4f::Zero();
     quaternion_current2 = Eigen::Vector4f::Zero();
+
+    ranOnce = false;
 }
 
 bool MotionGenerationQuadraticProgram::configureHook() {
@@ -161,16 +163,20 @@ bool MotionGenerationQuadraticProgram::configureHook() {
       RTT::log(RTT::Info) << "in_h_port not connected"
       << RTT::endlog();
       return false;
-    }
+    }/*
     if (!in_constraintMinvP_port.connected()) {
       RTT::log(RTT::Info) << "in_constraintMinvP_port not connected"
       << RTT::endlog();
       return false;
-    }
-    if (!(out_torques_port.connected() && (in_robotstatus_port.connected())))
+    }//*/
+    if (!out_torques_port.connected())
+    {
+        RTT::log(RTT::Info) << "out_torques_port not connected"
+        << RTT::endlog();
         return false;
-    else
-        return true;
+    }
+    RTT::log(RTT::Info) << "??????????????? MotionGenerationQuadraticProgram configure success"
+    << RTT::endlog();
 }
 
 bool MotionGenerationQuadraticProgram::startHook() {
@@ -309,8 +315,10 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(const Eigen::Mat
   return res;
 }
 
+#define PRINT(txt) RTT::log(RTT::Info) << txt << RTT::endlog()
 void MotionGenerationQuadraticProgram::updateHook() {
     // this is the actual body of a component. it is called on each cycle
+    PRINT("top");
     in_desiredTaskSpacePosition_flow = in_desiredTaskSpacePosition_port.read(in_desiredTaskSpacePosition_var);
     in_desiredTaskSpaceVelocity_flow = in_desiredTaskSpaceVelocity_port.read(in_desiredTaskSpaceVelocity_var);
     in_desiredTaskSpaceAcceleration_flow = in_desiredTaskSpaceAcceleration_port.read(in_desiredTaskSpaceAcceleration_var);
@@ -322,6 +330,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
     in_jacobianDot_flow = in_jacobianDot_port.read(in_jacobianDot_var);
     in_h_flow = in_h_port.read(in_h_var);
 
+    PRINT("read all");
+
     if (in_desiredTaskSpacePosition_flow == RTT::NoData
       || in_desiredTaskSpaceVelocity_flow == RTT::NoData
       || in_desiredTaskSpaceAcceleration_flow == RTT::NoData
@@ -332,6 +342,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
       || in_jacobianDot_flow == RTT::NoData
       || in_h_flow == RTT::NoData)
     {
+        PRINT("FAILED, NO DATA, RETURN");
         return;
     }
 
@@ -367,6 +378,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     // write it to port
     out_torques_port.write(out_torques_var);
+    this->ranOnce = true;
 }
 
 void MotionGenerationQuadraticProgram::stopHook() {
@@ -383,6 +395,8 @@ double MotionGenerationQuadraticProgram::getSimulationTime() {
 
 void MotionGenerationQuadraticProgram::printCurrentState(){
     std::cout << "############## MotionGenerationQuadraticProgram State begin " << std::endl;
+    std::cout << (this->ranOnce ? "" : "never") << " ran " << (this->ranOnce ? "once" : "") << "." << std::endl;
+    int debugCounter = 0;
     //*
     in_desiredTaskSpacePosition_flow = in_desiredTaskSpacePosition_port.read(in_desiredTaskSpacePosition_var);
     in_desiredTaskSpaceVelocity_flow = in_desiredTaskSpaceVelocity_port.read(in_desiredTaskSpaceVelocity_var);
@@ -390,31 +404,40 @@ void MotionGenerationQuadraticProgram::printCurrentState(){
     in_currentTaskSpacePosition_flow = in_currentTaskSpacePosition_port.read(in_currentTaskSpacePosition_var);
     in_currentTaskSpaceVelocity_flow = in_currentTaskSpaceVelocity_port.read(in_currentTaskSpaceVelocity_var);
     in_robotstatus_flow = in_robotstatus_port.read(in_robotstatus_var);
-
+    std::cout << debugCounter++;
     in_jacobian_flow = in_jacobian_port.read(in_jacobian_var);
     in_jacobianDot_flow = in_jacobianDot_port.read(in_jacobianDot_var);
     in_h_flow = in_h_port.read(in_h_var);
-
+    std::cout << debugCounter++;
 
     Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
+    std::cout << debugCounter++;
     rDot = in_jacobian_var*in_desiredTaskSpaceVelocity_var;
+    std::cout << debugCounter++;
     rDotDot = in_jacobian_var*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var*in_desiredTaskSpaceVelocity_var;
+    std::cout << debugCounter++;
     q = in_robotstatus_var.angles;
+    std::cout << debugCounter++;
     qDot = in_robotstatus_var.velocities;
+    std::cout << debugCounter++;
     //qDotDot =
 
 
     Eigen::MatrixXf A(in_jacobian_var.rows(), in_jacobian_var.cols()+in_jacobian_var.rows());A.setZero();
+    std::cout << debugCounter++;
     A.block(0,0, A.rows(), A.cols()-A.rows()) = in_jacobian_var; // setting acceleration equality consntraint
     A.block(0, A.cols()-A.rows(), A.rows(), A.rows()) = Eigen::MatrixXf::Identity(A.rows(), A.rows());
+    std::cout << debugCounter++;
     a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
         this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var) -
         in_jacobianDot_var*qDot);
+    std::cout << debugCounter++;
 
     Eigen::VectorXf sol = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (A.rows(), A.rows()), Eigen::VectorXf::Zero(A.rows()));
     std::cout << sol.block(0, 0, 1, this->DOFsize) << '\n';
     out_torques_var.torques = sol.block(0, 0, this->DOFsize, 1);
-    std::cout<<sol<<sol.block(0, 0, this->DOFsize, 1)<<sol.block(0, 0, 1,this->DOFsize)<<A<<a<<std::endl;
+    std::cout << sol<<sol.block(0, 0, this->DOFsize, 1)<<sol.block(0, 0, 1,this->DOFsize)<<A<<a<<std::endl;
+    std::cout << debugCounter++;
 
     std::cout << " feedback angles " << in_robotstatus_var.angles << std::endl;
     std::cout << " feedback velocities " << in_robotstatus_var.velocities << std::endl;
