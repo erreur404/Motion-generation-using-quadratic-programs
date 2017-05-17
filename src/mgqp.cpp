@@ -77,14 +77,6 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     // constructor
     addOperation("setDOFsize", &MotionGenerationQuadraticProgram::setDOFsize, this, RTT::ClientThread).doc("set DOF size");
     addOperation("printCurrentState", &MotionGenerationQuadraticProgram::printCurrentState, this, RTT::ClientThread).doc("print current state");
-    /*
-    addOperation("addConstraint",
-    &MotionGenerationQuadraticProgram::addConstraint, this, RTT::ClientThread).doc("addConstraint(ConstraintType:POSITION=1|SPEED=2|TORQUE=3|ACCELERATION=3, ConstraintIty:EQ=1|SUP=2|INF=3, targetJoint:int, targetValue: float");
-    addOperation("addConstraintP",
-    &MotionGenerationQuadraticProgram::addConstraintP, this, RTT::ClientThread).doc("addConstraint(ConstraintType:POSITION=1|SPEED=2|TORQUE=3|ACCELERATION=3, ConstraintIty:EQ=1|SUP=2|INF=3, targetJoint:int, targetValue: Vector3f");
-    addOperation("addConstraintO",
-    &MotionGenerationQuadraticProgram::addConstraintO, this, RTT::ClientThread).doc("addConstraint(ConstraintType:POSITION=1|SPEED=2|TORQUE=3|ACCELERATION=3, ConstraintIty:EQ=1|SUP=2|INF=3, targetJoint:int, targetValue: Matrix3f");
-    */
 
     portsPrepared = false;
 
@@ -214,6 +206,55 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
     ports()->addPort(in_robotstatus_port);
     in_robotstatus_flow = RTT::NoData;
 
+    in_jacobian_var = Eigen::MatrixXf();
+    in_jacobian_port.setName("in_jacobian_port");
+    in_jacobian_port.doc("Input port for receiving the EE Jacobian from fkin");
+    ports()->addPort(in_jacobian_port);
+    in_jacobian_flow = RTT::NoData;
+
+    in_jacobianDot_var = Eigen::MatrixXf();
+    in_jacobianDot_port.setName("in_jacobianDot_port");
+    in_jacobianDot_port.doc("Input port for receiving the EE JacobianDot from fkin");
+    ports()->addPort(in_jacobianDot_port);
+    in_jacobianDot_flow = RTT::NoData;
+
+    in_currentTaskSpacePosition_var = Eigen::VectorXf();
+    in_currentTaskSpacePosition_port.setName("in_currentTaskSpacePosition_port");
+    in_currentTaskSpacePosition_port.doc("Input port for receiving the current task space position of the robot");
+    ports()->addPort(in_currentTaskSpacePosition_port);
+    in_currentTaskSpacePosition_flow = RTT::NoData;
+
+    in_currentTaskSpaceVelocity_var = Eigen::VectorXf();
+    in_currentTaskSpaceVelocity_port.setName("in_currentTaskSpaceVelocity_port");
+    in_currentTaskSpaceVelocity_port.doc("Input port for receiving the current task space velocity of the robot");
+    ports()->addPort(in_currentTaskSpaceVelocity_port);
+    in_currentTaskSpaceVelocity_flow = RTT::NoData;
+
+    in_desiredTaskSpacePosition_var = Eigen::VectorXf();
+    in_desiredTaskSpacePosition_port.setName("in_desiredTaskSpacePosition_port");
+    in_desiredTaskSpacePosition_port.doc("to receive the position to track from a trajectory generator");
+    ports()->addPort(in_desiredTaskSpacePosition_port);
+    in_desiredTaskSpacePosition_flow = RTT::NoData;
+
+    in_desiredTaskSpaceVelocity_var = Eigen::VectorXf();
+    in_desiredTaskSpaceVelocity_port.setName("in_desiredTaskSpaceVelocity_port");
+    in_desiredTaskSpaceVelocity_port.doc("to receive the Velocity to track from a trajectory generator");
+    ports()->addPort(in_desiredTaskSpaceVelocity_port);
+    in_desiredTaskSpaceVelocity_flow = RTT::NoData;
+
+    in_desiredTaskSpaceAcceleration_var = Eigen::VectorXf();
+    in_desiredTaskSpaceAcceleration_port.setName("in_desiredTaskSpaceAcceleration_port");
+    in_desiredTaskSpaceAcceleration_port.doc("to receive the Acceleration to track from a trajectory generator");
+    ports()->addPort(in_desiredTaskSpaceAcceleration_port);
+    in_desiredTaskSpaceAcceleration_flow = RTT::NoData;
+
+    in_h_var = Eigen::VectorXf();
+    in_h_port.setName("in_h_port");
+    in_h_port.doc("Input port to receive the weight, inertia and coriolis matrix from fkin");
+    ports()->addPort(in_h_port);
+    in_h_flow = RTT::NoData;
+
+
     //prepare output ports:
     out_torques_var = rstrt::dynamics::JointTorques(DOFsize);
     out_torques_var.torques.setZero();
@@ -235,7 +276,7 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
 #define COPYMAT(a, toB) for(int i=0; i<a.rows(); i++) {for (int j=0; j<a.cols(); j++) {toB[i][j] = a(i,j);}}
 #define COPYVEC(a, toB) for(int i=0; i<a.rows(); i++) {toB[i] = a(i);}
 
-Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf JG)
+Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, const Eigen::VectorXf a, const Eigen::MatrixXf B, const Eigen::VectorXf b)
 {
   // From Eigen MAtrix to Matrix for QuadProgpp :
   // Matrix(EigenMatrix.data(), m, n) // This is a COPY constructor !! :D
@@ -243,23 +284,21 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(const Eigen::Mat
   // that they used the same order for the data. We can then use the constructor
   // by giving the address of the array. This is a huge gain of performance over
   // copying each data with a loop.
+  Eigen::MatrixXf JG = Eigen::MatrixXf::Identity(this->DOFsize, this->DOFsize);
   ArrayHH::Matrix<double> G, CE, CI;
   ArrayHH::Vector<double> g0, ce0, ci0, x;
 	int n, m, p;
 	double sum = 0.0;
   Eigen::VectorXf res;
 
-  Constraint c = this->constraints[0];
-
   G = ArrayHH::Matrix<double>();G.resize((int)JG.rows(), (int)JG.cols());COPYMAT(JG, G);
-  CE = ArrayHH::Matrix<double>();CE.resize((int)c.A.rows(), (int)c.a.cols());COPYMAT(c.A, CE);
-  CI = ArrayHH::Matrix<double>(1, 1); CI[0][0] = 0; // solving now just equalities
-  ce0 = ArrayHH::Vector<double>();ce0.resize((int)c.a.cols());COPYVEC(c.a, ce0);
+  CE = ArrayHH::Matrix<double>();CE.resize((int)A.rows(), (int)a.cols());COPYMAT(A, CE);
+  CI = ArrayHH::Matrix<double>(1, 1); CI.resize((int)B.rows(), (int)B.cols());COPYMAT(B, CI); // solving now just equalities
+  ce0 = ArrayHH::Vector<double>();ce0.resize((int)a.cols());COPYVEC(a, ce0);
   ci0 = ArrayHH::Vector<double>(1); ci0[0] = 0; // solving now just equalities
   x = ArrayHH::Vector<double>();x.resize((int)JG.cols());
   g0 = ArrayHH::Vector<double>();g0.resize((int)JG.cols());//g0*=0;
   res = Eigen::VectorXf(JG.cols());
-
 
 
   sum = solve_quadprog(G, g0, CE,  ce0, CI, ci0, x);
@@ -306,26 +345,24 @@ void MotionGenerationQuadraticProgram::updateHook() {
     // Dev : setting the EE desired position as a constraint
     desiredPositionToConstraint(desiredPosition);
 
-    int n = this->DOFsize;
-    Eigen::MatrixXf JG(6,3*n);
-    /*
-        The Matrix GF contains all the Jacobians needed for the Quadrati program
-        With n = DOFsize
-        J(position)nx3        J(orientation)nx3
-        Jdot(position)nx3     Jdot(orientation)nx3
-        Jdotdot(position)nx3  Jdotdot(orientation)nx3
-    */
-    JG.block(0,0,3,n) = in_jacobian_var;
-    //JG.block(3,0,3,n) = in_rotJacobian_var;
-    JG.block(0,n,3,n) = in_jacobianDot_var;
-    //JG.block(3,n,3,n) = in_rotJacobianDot_var;
-    //JG.block(0,2*n,3, n) = in_jacobianDotDot_var;
-    //JG.block(3,2*n,3,n) = in_rotJacobianDotDot_var;
+    Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
+    rDot = in_jacobian_var*in_desiredTaskSpaceVelocity_var;
+    rDotDot = in_jacobian_var*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var*in_desiredTaskSpaceVelocity_var;
+    q = in_robotstatus_var.angles;
+    qDot = in_robotstatus_var.velocities;
+    //qDotDot =
 
 
-    Eigen::VectorXf sol = this->solveNextStep(JG);
+    Eigen::MatrixXf A(in_jacobian_var.rows(), in_jacobian_var.cols()+in_jacobian_var.rows());A.setZero();
+    A.block(0,0, A.rows(), A.cols()-A.rows()) = in_jacobian_var; // setting acceleration equality consntraint
+    A.block(0, A.cols()-A.rows(), A.rows(), A.rows()) = Eigen::MatrixXf::Identity(A.rows(), A.rows());
+    a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
+        this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var) -
+        in_jacobianDot_var*qDot);
 
-    out_torques_var.torques = sol.block(0, 2*n, 1, n);
+    Eigen::VectorXf sol = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (A.rows(), A.rows()), Eigen::VectorXf::Zero(A.rows()));
+    std::cout << sol.block(0, 0, 1, this->DOFsize) << '\n';
+    out_torques_var.torques = sol.block(0, 0, this->DOFsize, 1);
 
 
     // write it to port
@@ -346,12 +383,44 @@ double MotionGenerationQuadraticProgram::getSimulationTime() {
 
 void MotionGenerationQuadraticProgram::printCurrentState(){
     std::cout << "############## MotionGenerationQuadraticProgram State begin " << std::endl;
-    /*
+    //*
+    in_desiredTaskSpacePosition_flow = in_desiredTaskSpacePosition_port.read(in_desiredTaskSpacePosition_var);
+    in_desiredTaskSpaceVelocity_flow = in_desiredTaskSpaceVelocity_port.read(in_desiredTaskSpaceVelocity_var);
+    in_desiredTaskSpaceAcceleration_flow = in_desiredTaskSpaceAcceleration_port.read(in_desiredTaskSpaceAcceleration_var);
+    in_currentTaskSpacePosition_flow = in_currentTaskSpacePosition_port.read(in_currentTaskSpacePosition_var);
+    in_currentTaskSpaceVelocity_flow = in_currentTaskSpaceVelocity_port.read(in_currentTaskSpaceVelocity_var);
+    in_robotstatus_flow = in_robotstatus_port.read(in_robotstatus_var);
+
+    in_jacobian_flow = in_jacobian_port.read(in_jacobian_var);
+    in_jacobianDot_flow = in_jacobianDot_port.read(in_jacobianDot_var);
+    in_h_flow = in_h_port.read(in_h_var);
+
+
+    Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
+    rDot = in_jacobian_var*in_desiredTaskSpaceVelocity_var;
+    rDotDot = in_jacobian_var*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var*in_desiredTaskSpaceVelocity_var;
+    q = in_robotstatus_var.angles;
+    qDot = in_robotstatus_var.velocities;
+    //qDotDot =
+
+
+    Eigen::MatrixXf A(in_jacobian_var.rows(), in_jacobian_var.cols()+in_jacobian_var.rows());A.setZero();
+    A.block(0,0, A.rows(), A.cols()-A.rows()) = in_jacobian_var; // setting acceleration equality consntraint
+    A.block(0, A.cols()-A.rows(), A.rows(), A.rows()) = Eigen::MatrixXf::Identity(A.rows(), A.rows());
+    a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
+        this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var) -
+        in_jacobianDot_var*qDot);
+
+    Eigen::VectorXf sol = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (A.rows(), A.rows()), Eigen::VectorXf::Zero(A.rows()));
+    std::cout << sol.block(0, 0, 1, this->DOFsize) << '\n';
+    out_torques_var.torques = sol.block(0, 0, this->DOFsize, 1);
+    std::cout<<sol<<sol.block(0, 0, this->DOFsize, 1)<<sol.block(0, 0, 1,this->DOFsize)<<A<<a<<std::endl;
+
     std::cout << " feedback angles " << in_robotstatus_var.angles << std::endl;
     std::cout << " feedback velocities " << in_robotstatus_var.velocities << std::endl;
     std::cout << " feedback torques " << in_robotstatus_var.torques << std::endl;
     std::cout << " command torques " << out_torques_var.torques << std::endl;
-    */
+    //*/
     for (int i=0; i<this->constraints.size(); ++i)
     {
       std::cout << this->constraints[i].toString() << '\n';

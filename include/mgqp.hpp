@@ -168,7 +168,7 @@ private:
     Eigen::Vector3f errorTranslationPosition, errorTranslationVelocity;
     Eigen::Vector3f errorOrientationPosition, errorOrientationVelocity;
     Eigen::VectorXf errorPosition, errorVelocity;
-    Eigen::Vector3f desiredPosition, currentPosition, desiredVelocity, currentVelocity;
+    Eigen::Vector3f desiredPosition, currentPosition, desiredVelocity, currentVelocity, desiredAcceleration, currentAcceleration;
 
     unsigned int DOFsize;
     bool receiveTranslationOnly;
@@ -194,7 +194,7 @@ private:
 
     // methods
     void setDOFsize(unsigned int DOFsize);
-    Eigen::VectorXf solveNextStep(Eigen::MatrixXf JG);
+    Eigen::VectorXf solveNextStep(const Eigen::MatrixXf A, const Eigen::VectorXf a, const Eigen::MatrixXf B, const Eigen::VectorXf b);
     void printCurrentState();
     void desiredPositionToConstraint(Eigen::Vector3f position);
 

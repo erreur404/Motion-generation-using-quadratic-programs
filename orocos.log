@@ -1,0 +1,207 @@
+0.000 [ Info   ][Logger] No ORO_LOGLEVEL environment variable set.
+0.000 [ Info   ][Logger]  OROCOS version '2.8.3' compiled with GCC 5.4.0. Running in GNU/Linux.
+0.000 [ Info   ][Logger] Orocos Logging Activated at level : [ Warning] ( 4 ) 
+0.000 [ Info   ][Logger] Reference System Time is : 1494857270700375368 ticks ( 1.49486e+09 seconds ).
+0.000 [ Info   ][Logger] Logging is relative to this time.
+0.000 [ Info   ][Logger] RTT_COMPONENT_PATH was set to: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos . Searching in: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos
+0.000 [ Info   ][Logger] plugin 'rtt' not loaded before.
+0.001 [ Info   ][Logger] Loading plugin libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/./plugins ...
+0.001 [ Info   ][Logger] Loaded RTT Service 'marshalling' from 'rtt-marshalling'
+0.001 [ Info   ][Logger] Loaded RTT Service 'scripting' from 'rtt-scripting'
+0.001 [ Info   ][Logger] typekit 'rtt' not loaded before.
+0.001 [ Info   ][Logger] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/./types ...
+0.042 [ Info   ][TypekitRepository::Import] Loading Typekit rtt-types.
+0.042 [ Info   ][Logger] Loaded RTT TypeKit/Transport 'rtt-types' from 'rtt-typekit'
+0.079 [ Info   ][TypekitRepository::Import] Loading Transport mqueue://rtt-types.
+0.079 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for array
+0.079 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for bool
+0.079 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for char
+0.079 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for double
+0.079 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for float
+0.079 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for int
+0.079 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for uint
+0.079 [ Info   ][Logger] Loaded RTT TypeKit/Transport 'rtt-mqueue-transport' from 'rtt-transport-mqueue'
+0.202 [ Info   ][TypekitRepository::Import] Loading Transport CORBA://rtt-types.
+0.202 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for ConnPolicy
+0.202 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for TaskContext
+0.202 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for array
+0.202 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for bool
+0.202 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for char
+0.202 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for double
+0.202 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for float
+0.202 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for int
+0.202 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for rt_string
+0.202 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for string
+0.202 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for uint
+0.202 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for void
+0.202 [ Info   ][Logger] Loaded RTT TypeKit/Transport 'rtt-corba-types' from 'rtt-transport-corba'
+0.202 [ Info   ][Logger] RTT_COMPONENT_PATH was set to: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos . Searching in: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos
+0.202 [ Info   ][Logger] OCL factory set for real-time logging
+0.202 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='Deployer'
+0.202 [ Info   ][Deployer] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29928 ).
+0.203 [ Info   ][Logger] No site file was found. Importing 'ocl' by default.
+0.204 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl ...
+0.211 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/liborocos-ocl-logging-gnulinux.so'
+0.316 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/liborocos-ocl-reporting-netcdf-gnulinux.so'
+0.316 [ Info   ][ComponentLoader::import(path_list)] Loaded component type 'OCL::NetcdfReporting'
+0.326 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/liborocos-ocl-timer-gnulinux.so'
+0.327 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/liborocos-ocl-reporting-gnulinux.so'
+0.338 [ Info   ][ComponentLoader::import(path_list)] Loaded component type 'OCL::HelloWorld'
+0.352 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/liborocos-ocl-common-gnulinux.so'
+0.352 [ Info   ][ComponentLoader::import(path_list)] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/types ...
+0.367 [ Info   ][TypekitRepository::Import] Loading Typekit OCLTypekit.
+0.367 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'OCLTypekit' from 'ocl'
+0.367 [ Info   ][ComponentLoader::import(path_list)] Loading plugin libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/plugins ...
+0.379 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT Service 'os' from 'os'
+0.387 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT Service 'print' from 'print'
+0.387 [ Info   ][Logger] Loading Service or Plugin scripting in TaskContext Deployer
+0.389 [ Info   ][Logger] Found complete interface of requested service 'scripting'
+0.389 [ Info   ][Logger] Running Script /home/erreur404/git-repos/Motion-generation-using-quadratic-programs/ops/mgqp.ops ...
+0.389 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='GlobalEngine'
+0.389 [ Info   ][GlobalEngine] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29929 ).
+0.393 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/eigen_typekit ...
+0.393 [ Info   ][ComponentLoader::import(path_list)] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/eigen_typekit/types ...
+0.415 [ Info   ][TypekitRepository::Import] Loading Typekit Eigen.
+0.415 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'Eigen' from 'eigen_typekit'
+0.417 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/kdl_typekit ...
+0.417 [ Info   ][ComponentLoader::import(path_list)] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/kdl_typekit/types ...
+0.427 [ Info   ][TypekitRepository::Import] Loading Transport CORBA://KDL.
+0.427 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'kdl-corba-types' from 'kdl-transport-corba'
+0.515 [ Info   ][TypekitRepository::Import] Loading Typekit KDL.
+0.515 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Frame
+0.515 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Rotation
+0.515 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Twist
+0.515 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Vector
+0.515 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Wrench
+0.515 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'KDL' from 'kdl_typekit'
+0.516 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rst-rt_typekit ...
+0.516 [ Info   ][ComponentLoader::import(path_list)] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rst-rt_typekit/types ...
+0.588 [ Info   ][TypekitRepository::Import] Loading Typekit rst-rt.
+0.589 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'rst-rt' from 'rst-rt_typekit'
+0.589 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt_gazebo_embedded ...
+1.747 [ Info   ][ComponentLoader::import(path_list)] Loaded component type 'ModelPluginExample'
+1.769 [ Info   ][ComponentLoader::import(path_list)] Loaded component type 'RTTGazeboEmbedded'
+1.769 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt-gazebo-robot-sim ...
+1.879 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt-gazebo-robot-sim/librtt-gazebo-robot-sim-gnulinux.so'
+1.880 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt-core-extensions ...
+1.910 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt-core-extensions/librtt-core-extensions-components-gnulinux.so'
+1.911 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/gnulinux/ProjectedDynamics ...
+1.911 [ ERROR  ][ComponentLoader::importInstalledPackage(package, path_list)] Failed to import components, types or plugins from package or directory 'ProjectedDynamics' found in:
+1.911 [ ERROR  ][ComponentLoader::importInstalledPackage(package, path_list)] /home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/gnulinux/ProjectedDynamics
+1.911 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/git-repos/cosima-utilities/build/orocos/gnulinux/CosimaUtilities ...
+1.941 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/git-repos/cosima-utilities/build/orocos/gnulinux/CosimaUtilities/libCosimaUtilities-gnulinux.so'
+1.944 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='gazebo'
+1.944 [ Info   ][gazebo] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29934 ).
+1.945 [ Info   ][loadComponent] Creating gazebo with gazebo embedded !
+1.945 [ Info   ][loadComponent] Adding gazebo as new peer:  OK.
+1.945 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='gazebo'
+1.945 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
+1.946 [ Info   ][gazebo] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29935 ).
+1.962 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='robot_gazebo'
+1.962 [ Info   ][robot_gazebo] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29936 ).
+1.963 [ Info   ][loadComponent] Adding robot_gazebo as new peer:  OK.
+1.964 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=11, CPU affinity=4294967295, with name='robot_gazebo'
+1.964 [ Warning][Thread] Forcing priority (11) of thread with SCHED_OTHER policy to 0.
+1.964 [ Info   ][robot_gazebo] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29937 ).
+1.965 [ Info   ][ScriptingService] Creating world at worlds/empty.world
+1.967 [ Info   ][ScriptingService] RTT_COMPONENT_PATH was set to: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos . Searching in: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos
+1.967 [ Info   ][ScriptingService] plugin 'rtt' not loaded before.
+1.967 [ Info   ][ScriptingService] Loading plugin libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/./plugins ...
+1.967 [ Info   ][ScriptingService] typekit 'rtt' not loaded before.
+1.967 [ Info   ][ScriptingService] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/./types ...
+1.967 [ Info   ][ScriptingService] RTT_COMPONENT_PATH was set to: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos . Searching in: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos
+1.976 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='rtt_clock_SimClockThread'
+1.977 [ Info   ][rtt_clock_SimClockThread] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29941 ).
+1.978 [ Info   ][ScriptingService] Orocos Logging Deactivated.
+0.000 [ Info   ][ScriptingService] No ORO_LOGLEVEL environment variable set.
+0.000 [ Info   ][ScriptingService]  OROCOS version '2.8.3' compiled with GCC 5.4.0. Running in GNU/Linux.
+0.000 [ Info   ][ScriptingService] Orocos Logging Activated at level : [ Info   ] ( 5 ) 
+0.000 [ Info   ][ScriptingService] Reference System Time is : 0 ticks ( 0 seconds ).
+0.000 [ Info   ][ScriptingService] Logging is relative to this time.
+0.194 [ Info   ][ScriptingService] Model [robotmodel] successfully loaded !
+0.194 [ Info   ][ScriptingService] URDF path: /home/erreur404/citk/systems/cogimon-minimal-nightly/share/gazebo/models/cogimon/kuka-lwr-4plus/model.urdf
+0.194 [ Info   ][ScriptingService] SRDF path: /home/erreur404/citk/systems/cogimon-minimal-nightly/share/gazebo/models/cogimon/kuka-lwr-4plus/model.srdf
+0.195 [ Info   ][ScriptingService] chain #0 full_arm
+0.195 [ Info   ][ScriptingService]   lwr_arm_0_joint
+0.195 [ Info   ][ScriptingService]   lwr_arm_1_joint
+0.195 [ Info   ][ScriptingService]   lwr_arm_2_joint
+0.195 [ Info   ][ScriptingService]   lwr_arm_3_joint
+0.195 [ Info   ][ScriptingService]   lwr_arm_4_joint
+0.195 [ Info   ][ScriptingService]   lwr_arm_5_joint
+0.195 [ Info   ][ScriptingService]   lwr_arm_6_joint
+0.196 [ Info   ][ScriptingService] Model name robotmodel
+0.196 [ Info   ][ScriptingService] Model has 8 joints
+0.196 [ Info   ][ScriptingService] Model has 8 links
+0.196 [ Info   ][ScriptingService] Creating Kinematic Chain full_arm
+0.196 [ Info   ][ScriptingService] Joints: 
+0.196 [ Info   ][ScriptingService]     lwr_arm_0_joint
+0.196 [ Info   ][ScriptingService]     lwr_arm_1_joint
+0.196 [ Info   ][ScriptingService]     lwr_arm_2_joint
+0.196 [ Info   ][ScriptingService]     lwr_arm_3_joint
+0.196 [ Info   ][ScriptingService]     lwr_arm_4_joint
+0.196 [ Info   ][ScriptingService]     lwr_arm_5_joint
+0.196 [ Info   ][ScriptingService]     lwr_arm_6_joint
+0.196 [ Info   ][ScriptingService] Kinematic Chains map created!
+0.196 [ Info   ][ScriptingService] Available controllers for full_arm are:
+0.196 [ Info   ][ScriptingService]   JointPositionCtrl
+0.196 [ Info   ][ScriptingService]   JointImpedanceCtrl
+0.196 [ Info   ][ScriptingService]   JointTorqueCtrl
+0.196 [ Info   ][ScriptingService] Joint lwr_arm_0_joint in chain full_arm has scoped name robotmodel::lwr_arm_0_joint
+0.196 [ Info   ][ScriptingService] Joint lwr_arm_1_joint in chain full_arm has scoped name robotmodel::lwr_arm_1_joint
+0.196 [ Info   ][ScriptingService] Joint lwr_arm_2_joint in chain full_arm has scoped name robotmodel::lwr_arm_2_joint
+0.196 [ Info   ][ScriptingService] Joint lwr_arm_3_joint in chain full_arm has scoped name robotmodel::lwr_arm_3_joint
+0.196 [ Info   ][ScriptingService] Joint lwr_arm_4_joint in chain full_arm has scoped name robotmodel::lwr_arm_4_joint
+0.196 [ Info   ][ScriptingService] Joint lwr_arm_5_joint in chain full_arm has scoped name robotmodel::lwr_arm_5_joint
+0.196 [ Info   ][ScriptingService] Joint lwr_arm_6_joint in chain full_arm has scoped name robotmodel::lwr_arm_6_joint
+0.196 [ Info   ][ScriptingService] JointPositionCtrl activated!
+0.196 [ Info   ][ScriptingService] JointImpedanceCtrl activated!
+0.196 [ Info   ][ScriptingService] JointTorqueCtrl activated!
+0.196 [ Info   ][ScriptingService] Full feedback activated!
+0.196 [ Info   ][ScriptingService] full_arm PIDs:
+0.196 [ Info   ][ScriptingService]   lwr_arm_0_joint P: 1000 I: 0 D: 0.1
+0.196 [ Info   ][ScriptingService]   lwr_arm_1_joint P: 1000 I: 0 D: 0.1
+0.196 [ Info   ][ScriptingService]   lwr_arm_2_joint P: 600 I: 0 D: 0.1
+0.196 [ Info   ][ScriptingService]   lwr_arm_3_joint P: 1000 I: 0 D: 0.1
+0.196 [ Info   ][ScriptingService]   lwr_arm_4_joint P: 100 I: 0 D: 0.1
+0.196 [ Info   ][ScriptingService]   lwr_arm_5_joint P: 100 I: 0 D: 0.1
+0.196 [ Info   ][ScriptingService]   lwr_arm_6_joint P: 10 I: 0 D: 0.01
+0.196 [ Info   ][ScriptingService] Gazebo Joint Controlled inited!
+0.196 [ Info   ][ScriptingService] Initial Position set!
+0.196 [ Info   ][ScriptingService] full_arm impedance:
+0.196 [ Info   ][ScriptingService]   lwr_arm_0_joint stiffness: 300 damping: 30
+0.196 [ Info   ][ScriptingService]   lwr_arm_1_joint stiffness: 300 damping: 30
+0.196 [ Info   ][ScriptingService]   lwr_arm_2_joint stiffness: 300 damping: 30
+0.196 [ Info   ][ScriptingService]   lwr_arm_3_joint stiffness: 300 damping: 30
+0.196 [ Info   ][ScriptingService]   lwr_arm_4_joint stiffness: 300 damping: 30
+0.196 [ Info   ][ScriptingService]   lwr_arm_5_joint stiffness: 300 damping: 30
+0.196 [ Info   ][ScriptingService]   lwr_arm_6_joint stiffness: 300 damping: 30
+0.196 [ Info   ][ScriptingService] Initial Impedance set!
+0.196 [ Info   ][ScriptingService] Kinematic Chains Initialized!
+0.196 [ Info   ][ScriptingService] Checking Sensors
+0.196 [ Warning][ScriptingService] Done configuring component
+0.202 [ ERROR  ][loadComponent] Unable to create Orocos Component 'WrapperKDL': unknown component type.
+0.203 [ ERROR  ][ScriptingService] Can't create Activity: component fkin not found.
+0.203 [ ERROR  ][ScriptingService] /home/erreur404/git-repos/Motion-generation-using-quadratic-programs/ops/mgqp.ops :Parse error at line 79: Service or Task "Deployer" has no Peer or Service fkin (or Deployer was not found at all).
+0.204 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='TaskBrowser'
+0.204 [ Info   ][TaskBrowser] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29956 ).
+0.204 [ Info   ][Logger] Entering Task Deployer
+38.000 [ Warning][Logger] Time went backwards by -1 seconds! (38000000000 --> 37000000000)
+94.463 [ Info   ][Logger] Ignoring deployment shutdown function due to missing peer.
+94.463 [ Info   ][stopComponentsGroup] Stopping group 0
+94.463 [ Info   ][stopComponentsGroup] Stopped robot_gazebo
+94.463 [ Info   ][stopComponentsGroup] Stopped gazebo
+94.463 [ Info   ][cleanupComponentsGroup] Cleaning up group 0
+94.463 [ Info   ][cleanupComponentsGroup] Cleaned up robot_gazebo
+94.463 [ Info   ][cleanupComponentsGroup] Cleaned up gazebo
+94.463 [ Info   ][Logger] Unloading group 0
+94.463 [ Info   ][Logger] Disconnected and destroyed robot_gazebo
+94.463 [ Info   ][Logger] Disconnected and destroyed gazebo
+94.463 [ Info   ][Logger] Kick-out of group 0 successful.
+94.463 [ Info   ][Logger] Disabling simulated time...
+94.463 [ Info   ][Logger] Orocos Logging Deactivated.
+0.000 [ Info   ][Logger] No ORO_LOGLEVEL environment variable set.
+0.000 [ Info   ][Logger]  OROCOS version '2.8.3' compiled with GCC 5.4.0. Running in GNU/Linux.
+0.000 [ Info   ][Logger] Orocos Logging Activated at level : [ Info   ] ( 5 ) 
+0.000 [ Info   ][Logger] Reference System Time is : 94463001213 ticks ( 94.463 seconds ).
+0.000 [ Info   ][Logger] Logging is relative to this time.
+0.000 [ Info   ][Logger] Orocos Logging Deactivated.
