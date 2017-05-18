@@ -264,6 +264,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     in_jacobian_flow = in_jacobian_port.read(in_jacobian_var);
     in_jacobianDot_flow = in_jacobianDot_port.read(in_jacobianDot_var);
     in_h_flow = in_h_port.read(in_h_var);
+    in_inertia_flow = in_inertia_port.read(in_inertia_var);
 
     if (in_desiredTaskSpacePosition_flow == RTT::NoData
       || in_desiredTaskSpaceVelocity_flow == RTT::NoData
@@ -273,7 +274,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
       || in_robotstatus_flow == RTT::NoData
       || in_jacobian_flow == RTT::NoData
       || in_jacobianDot_flow == RTT::NoData
-      || in_h_flow == RTT::NoData)
+      || in_h_flow == RTT::NoData
+      || in_inertia_flow == RTT::NoData)
     {
         PRINT("FAILED, NO DATA, RETURN");
         return;
@@ -293,7 +295,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
 
     Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
-    // good up to here
     rDot = in_jacobian_var.transpose()*in_desiredTaskSpaceVelocity_var;
     rDotDot = in_jacobian_var.transpose()*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var.transpose()*in_desiredTaskSpaceVelocity_var;
     q = in_robotstatus_var.angles;
@@ -304,14 +305,26 @@ void MotionGenerationQuadraticProgram::updateHook() {
     int nbEquality = in_jacobian_var.rows();
     int nbInequality = 1;
     Eigen::MatrixXf A(nbEquality, resultVectorSize);A.setZero();
+
+    // Position tracking in Task space
     A.block(0,0, nbEquality, resultVectorSize/2) = in_jacobian_var; // setting acceleration equality constraint
     A.block(0, resultVectorSize/2, nbEquality, resultVectorSize/2) = Eigen::MatrixXf::Zero(nbEquality, resultVectorSize/2); // A = [J, 0]
     a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
         this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var)  -
         in_jacobianDot_var*qDot);
+    Eigen::VectorXf tracking = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
 
-    Eigen::VectorXf sol = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
-    out_torques_var.torques = sol.block(0, 0, this->DOFsize, 1);
+    // Gravity and weight compensation
+    PRINT("TRACKING OVER");
+    PRINT(in_inertia_var);
+    A.block(0, 0, nbEquality, resultVectorSize/2) = in_inertia_var;
+    PRINT("RESIZE OK");
+    a = in_h_var;
+    Eigen::VectorXf compensation = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
+    PRINT("COMPENSATION SOLVED");
+
+    // sum of all problems as command
+    out_torques_var.torques = (tracking+compensation).block(0, 0, this->DOFsize, 1);
 
 
     // write it to port
