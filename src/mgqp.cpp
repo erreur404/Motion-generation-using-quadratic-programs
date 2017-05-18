@@ -79,6 +79,7 @@ std::string Constraint::toString()
 MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string const & name) : RTT::TaskContext(name) {
     // constructor
     addOperation("setDOFsize", &MotionGenerationQuadraticProgram::setDOFsize, this, RTT::ClientThread).doc("set DOF size");
+    addOperation("setGains", &MotionGenerationQuadraticProgram::setGains, this, RTT::ClientThread).doc("set gains setGains(int kp, int kd)");
     addOperation("printCurrentState", &MotionGenerationQuadraticProgram::printCurrentState, this, RTT::ClientThread).doc("print current state");
 
     portsPrepared = false;
@@ -87,8 +88,8 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
 
     velocityLimit = 0.2;
 
-    gainTranslationP = 200;
-    gainTranslationD = 20;
+    gainTranslationP = 100;
+    gainTranslationD = 5;
 
     quaternion_desired = Eigen::Vector4f::Zero();
     quaternion_current = Eigen::Vector4f::Zero();
@@ -338,7 +339,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
 
     // reading the variables from the flows
-    PRINT(WorkspaceDimension);
+
+    //PRINT(WorkspaceDimension);3
     //PRINT(desiredPosition); [0 0 0]
     //PRINT(in_desiredTaskSpacePosition_var); [0.7 0 0.7]
     //PRINT(in_desiredTaskSpacePosition_var.head(WorkspaceDimension)); [0.7 0 0.7]
