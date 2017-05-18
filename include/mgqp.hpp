@@ -25,67 +25,6 @@
 
 
 /* =======================================================
-                    ROBOT STRUCTURE
-========================================================== */
-typedef struct {
-  int dof;
-  /*
-  jointStatus
-  Array of jacobians pos
-  Array of Jacobians Dot
-  */
-  float * jointPositions;
-  std::string toString();
-} Robot;
-
-/* =======================================================
-                    CONSTRAINT DEFINITION
-========================================================== */
-class taskMask {
-  public:
-      static const int posX=1<<0;
-      static const int posY=1<<1;
-      static const int posZ=1<<2;
-      static const int oriX=1<<3;
-      static const int oriY=1<<4;
-      static const int oriZ=1<<5;
-      static const int speX=1<<6;
-      static const int speY=1<<7;
-      static const int speZ=1<<8;
-      static const int angX=1<<9;
-      static const int angY=1<<10;
-      static const int angZ=1<<11;
-      static const int accX=1<<12;
-      static const int accY=1<<13;
-      static const int accZ=1<<14;
-      static const int aacX=1<<15;
-      static const int aacY=1<<16;
-      static const int aacZ=1<<17;
-      static const int torX=1<<18;
-      static const int torY=1<<19;
-      static const int torZ=1<<20;
-      static const int momX=1<<21;
-      static const int momY=1<<22;
-      static const int momZ=1<<23;
-      static const int cartP=1<<0 | 1<<1 | 1<<2;
-      static const int cartS=7<<6;
-};
-
-class Constraint {
-  public:
-    Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> A;
-    Eigen::VectorXf a;
-    int task;
-
-  public:
-    Constraint(int tasks, Eigen::VectorXf goal);
-    Constraint(Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> JacobianMask, Eigen::VectorXf goal);
-    void createMask(int nbRobotDoF, int jointNumber);
-    void createTaskMask(int nbTaskDoF, int task);
-    std::string toString();
-};
-
-/* =======================================================
              MotionGenerationQuadraticProgram
 ========================================================== */
 
@@ -119,8 +58,7 @@ private:
     RTT::InputPort<Eigen::MatrixXf> in_jacobian_port;
     RTT::InputPort<Eigen::MatrixXf> in_jacobianDot_port;
     RTT::InputPort<Eigen::VectorXf> in_h_port;
-    RTT::InputPort<Eigen::MatrixXf> in_constraintMinvP_port;
-    RTT::InputPort<Eigen::MatrixXf> in_constraintC_port;
+    RTT::InputPort<Eigen::MatrixXf> in_inertia_port;
 
     // Declare output ports and their datatypes
     RTT::OutputPort<rstrt::dynamics::JointTorques> out_torques_port;
@@ -138,6 +76,7 @@ private:
     RTT::FlowStatus in_jacobian_flow;
     RTT::FlowStatus in_jacobianDot_flow;
     RTT::FlowStatus in_h_flow;
+    RTT::FlowStatus in_inertia_flow;
 
     // Actuall joint command to be sent over port:
     rstrt::kinematics::JointAngles q_des;
@@ -145,7 +84,6 @@ private:
 
     // variables
     bool portsPrepared;
-    std::vector<Constraint> constraints;
       // for the purpose of debug, will use later only the inner constraints
       Eigen::VectorXf in_desiredTaskSpacePosition_var;
       Eigen::VectorXf in_desiredTaskSpaceVelocity_var;
@@ -159,6 +97,7 @@ private:
     Eigen::MatrixXf in_jacobian_var;
     Eigen::MatrixXf in_jacobianDot_var;
     Eigen::VectorXf in_h_var;
+    Eigen::MatrixXf in_inertia_var;
 
     rstrt::dynamics::JointTorques out_torques_var;
     Eigen::VectorXf out_force_var;
@@ -172,7 +111,6 @@ private:
 
     unsigned int DOFsize;
     bool receiveTranslationOnly;
-    bool add_TSgravitycompensation;
     unsigned int TaskSpaceDimension;
     float gainTranslationP, gainTranslationD, gainOrientationP, gainOrientationD;
     unsigned int numEndEffectors;
@@ -185,9 +123,6 @@ private:
     Eigen::VectorXf ref_Acceleration, constraintForce;
     QuaternionHelper qh;
     Eigen::Vector4f quaternion_desired1, quaternion_current1, quaternion_desired2, quaternion_current2;
-
-    bool ranOnce;
-
 
 
 

@@ -128,6 +128,7 @@ connect("fkin.out_cartPosTranslation_port", "myTorqueController.in_currentTaskSp
 connect("fkin.out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port", cp)
 connect("fkin.out_robotstatus_port", "myTorqueController.in_robotstatus_port", cp)
 connect("fkin.out_coriolisAndGravity_port", "myTorqueController.in_h_port", cp)
+connect("fkin.out_inertia_port", "myTorqueController.in_inertia_port", cp)
 connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port", cp)
 connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port", cp)
 connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port", cp)

@@ -14,66 +14,6 @@
 
 
 /* =======================================================
-                    ROBOT STRUCTURE
-========================================================== */
-std::string Robot::toString ()
-{
-  std::ostringstream stringStream;
-  stringStream << "Je suis un RRRRobot !";
-  return stringStream.str();
-}
-
-/* =======================================================
-                    CONSTRAINT DEFINITION
-========================================================== */
-
-Constraint::Constraint(int tasks, Eigen::VectorXf goal)
-{
-  this->task = tasks;
-  this->a = goal;
-}
-
-Constraint::Constraint(Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> JacobianMask, Eigen::VectorXf goal)
-{
-  this->A = JacobianMask;
-  this->a = goal;
-}
-
-void Constraint::createMask(int nbRobotDoF, int jointNumber)
-{
-
-}
-
-void Constraint::createTaskMask(int nbTaskDoF, int task)
-{
-  this->A = Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>(nbTaskDoF, nbTaskDoF);
-  this->task = task;
-  //this->A.resize(nbTaskDoF, nbTaskDoF);
-  this->A.setZero();
-  for (int i=0; i<nbTaskDoF; ++i)
-  {
-    if (task & 1<<i)
-    {
-      this->A(i,i) = true;
-    }
-    else
-    {
-      this->a(i) = 0; // so that there won't be a goal impossible to reach because of the "deficiency of the masked matrix"
-    }
-  }
-}
-
-std::string Constraint::toString()
-{
-  // type EQ|INEQ ----- Activated*|Inactivated ----- target ----- type POS|OR ----- value
-  std::ostringstream stringStream;
-  stringStream  << "Constraint["
-                << this->a
-                <<"]"<<std::endl;
-  return stringStream.str(); //"%s \t %c \t %d \t %s"
-}
-
-/* =======================================================
              MotionGenerationQuadraticProgram
 ========================================================== */
 MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string const & name) : RTT::TaskContext(name) {
@@ -83,8 +23,6 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     addOperation("printCurrentState", &MotionGenerationQuadraticProgram::printCurrentState, this, RTT::ClientThread).doc("print current state");
 
     portsPrepared = false;
-
-    constraints = std::vector<Constraint>();
 
     velocityLimit = 0.2;
 
@@ -115,8 +53,6 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     quaternion_current1 = Eigen::Vector4f::Zero();
     quaternion_desired2 = Eigen::Vector4f::Zero();
     quaternion_current2 = Eigen::Vector4f::Zero();
-
-    ranOnce = false;
 }
 
 bool MotionGenerationQuadraticProgram::configureHook() {
@@ -247,9 +183,15 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
 
     in_h_var = Eigen::VectorXf();
     in_h_port.setName("in_h_port");
-    in_h_port.doc("Input port to receive the weight, inertia and coriolis matrix from fkin");
+    in_h_port.doc("Input port to receive the weight, and coriolis matrix from fkin");
     ports()->addPort(in_h_port);
     in_h_flow = RTT::NoData;
+
+    in_inertia_var = Eigen::MatrixXf();
+    in_inertia_port.setName("in_inertia_port");
+    in_inertia_port.doc("Input port for the inertia Matrix");
+    ports()->addPort(in_inertia_port);
+    in_inertia_flow = RTT::NoData;
 
 
     //prepare output ports:
@@ -374,7 +316,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     // write it to port
     out_torques_port.write(out_torques_var);
-    this->ranOnce = true;
 }
 
 void MotionGenerationQuadraticProgram::stopHook() {
@@ -402,11 +343,6 @@ void MotionGenerationQuadraticProgram::printCurrentState(){
     std::cout << " feedback velocities " << in_robotstatus_var.velocities << std::endl;
     std::cout << " feedback torques " << in_robotstatus_var.torques << std::endl;
     std::cout << " command torques " << out_torques_var.torques << std::endl;
-    //*/
-    for (int i=0; i<this->constraints.size(); ++i)
-    {
-      std::cout << this->constraints[i].toString() << '\n';
-    }
 
     std::cout << "############## MotionGenerationQuadraticProgram State end " << std::endl;
 }
