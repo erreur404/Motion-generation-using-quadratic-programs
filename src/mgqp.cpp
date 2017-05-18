@@ -10,6 +10,9 @@
 // needed for the macro at the end of this file:
 #include <rtt/Component.hpp>
 
+#define PRINT(txt) RTT::log(RTT::Info) << txt << RTT::endlog()
+
+
 /* =======================================================
                     ROBOT STRUCTURE
 ========================================================== */
@@ -279,32 +282,37 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(const Eigen::Mat
   // that they used the same order for the data. We can then use the constructor
   // by giving the address of the array. This is a huge gain of performance over
   // copying each data with a loop.
-  Eigen::MatrixXf JG = Eigen::MatrixXf::Identity(this->DOFsize, this->DOFsize);
+
+
+  Eigen::MatrixXf JG = Eigen::MatrixXf::Identity(this->DOFsize*2, this->DOFsize*2);
   ArrayHH::Matrix<double> G, CE, CI;
   ArrayHH::Vector<double> g0, ce0, ci0, x;
 	int n, m, p;
 	double sum = 0.0;
   Eigen::VectorXf res;
-
-  G = ArrayHH::Matrix<double>();G.resize((int)JG.rows(), (int)JG.cols());COPYMAT(JG, G);
-  CE = ArrayHH::Matrix<double>();CE.resize((int)A.rows(), (int)a.cols());COPYMAT(A, CE);
-  CI = ArrayHH::Matrix<double>(1, 1); CI.resize((int)B.rows(), (int)B.cols());COPYMAT(B, CI); // solving now just equalities
-  ce0 = ArrayHH::Vector<double>();ce0.resize((int)a.cols());COPYVEC(a, ce0);
-  ci0 = ArrayHH::Vector<double>(1); ci0[0] = 0; // solving now just equalities
-  x = ArrayHH::Vector<double>();x.resize((int)JG.cols());
-  g0 = ArrayHH::Vector<double>();g0.resize((int)JG.cols());//g0*=0;
+  PRINT("INIT DONE");
+  G = ArrayHH::Matrix<double>();G.resize((int)JG.rows(), (int)JG.cols());COPYMAT(JG, G);PRINT("x  MAT 1");
+  CE = ArrayHH::Matrix<double>();CE.resize((int)A.rows(), (int)A.cols());COPYMAT(A, CE);PRINT("x  MAT 2");
+  CI = ArrayHH::Matrix<double>(1, 1); CI.resize((int)B.rows(), (int)B.cols());COPYMAT(B, CI);PRINT("x  MAT 3"); // solving now just equalities
+  ce0 = ArrayHH::Vector<double>();ce0.resize((int)a.rows());COPYVEC(a, ce0);PRINT("x  VEC 1");
+  ci0 = ArrayHH::Vector<double>(1); ci0[0] = 0;PRINT("x  VEC 2"); // solving now just equalities
+  x = ArrayHH::Vector<double>();x.resize((int)JG.cols());PRINT("x  VEC 3");
+  g0 = ArrayHH::Vector<double>();g0.resize((int)JG.cols());PRINT("x  VEC 4");//g0*=0;
   res = Eigen::VectorXf(JG.cols());
-
-
+  PRINT("Conversion DONE");
+  CE = ArrayHH::t(CE);
+  CI = ArrayHH::t(CI);
   sum = solve_quadprog(G, g0, CE,  ce0, CI, ci0, x);
+  PRINT("PROBLEM SOLVED");
   for (int i=0; i<JG.cols(); i++)
   {
     res[i] = x[i];
   }
+  PRINT("SOLUTION COPIED");
   return res;
 }
 
-#define PRINT(txt) RTT::log(RTT::Info) << txt << RTT::endlog()
+
 void MotionGenerationQuadraticProgram::updateHook() {
     // this is the actual body of a component. it is called on each cycle
     PRINT("top");
@@ -334,38 +342,39 @@ void MotionGenerationQuadraticProgram::updateHook() {
         PRINT("FAILED, NO DATA, RETURN");
         return;
     }
-    int debugCounter = 0;
+
 
     // reading the variables from the flows
     PRINT(WorkspaceDimension);
     //PRINT(desiredPosition); [0 0 0]
     //PRINT(in_desiredTaskSpacePosition_var); [0.7 0 0.7]
     //PRINT(in_desiredTaskSpacePosition_var.head(WorkspaceDimension)); [0.7 0 0.7]
-    desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);PRINT(debugCounter++);
-    currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);PRINT(debugCounter++);
-    desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);PRINT(debugCounter++);
-    currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);PRINT(debugCounter++);
+    desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);
+    currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);
+    desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
+    currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
 
 
     Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
     // good up to here
-    rDot = in_jacobian_var.transpose()*in_desiredTaskSpaceVelocity_var;PRINT(debugCounter++);//5
-    rDotDot = in_jacobian_var.transpose()*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var.transpose()*in_desiredTaskSpaceVelocity_var;PRINT(debugCounter++);
-    q = in_robotstatus_var.angles;PRINT(debugCounter++);
-    qDot = in_robotstatus_var.velocities;PRINT(debugCounter++);//8
+    rDot = in_jacobian_var.transpose()*in_desiredTaskSpaceVelocity_var;
+    rDotDot = in_jacobian_var.transpose()*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var.transpose()*in_desiredTaskSpaceVelocity_var;
+    q = in_robotstatus_var.angles;
+    qDot = in_robotstatus_var.velocities;
     //qDotDot =
-    PRINT(rDot);
-    PRINT(rDotDot);
 
-    Eigen::MatrixXf A(in_jacobian_var.rows(), in_jacobian_var.cols()+in_jacobian_var.rows());A.setZero();
-    A.block(0,0, A.rows(), A.cols()-A.rows()) = in_jacobian_var; // setting acceleration equality consntraint
-    A.block(0, A.cols()-A.rows(), A.rows(), A.rows()) = Eigen::MatrixXf::Identity(A.rows(), A.rows());
+    Eigen::MatrixXf A(in_jacobian_var.rows(), in_jacobian_var.cols()*2);A.setZero();
+    A.block(0,0, A.rows(), A.cols()/2) = in_jacobian_var; // setting acceleration equality constraint
+    A.block(0, A.cols()/2, A.rows(), A.cols()/2) = Eigen::MatrixXf::Zero(A.rows(), A.cols()/2); // A = [J, 0]
     a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
-        this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var) -
+        this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var)  -
         in_jacobianDot_var*qDot);
-
     Eigen::VectorXf sol = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (A.rows(), A.rows()), Eigen::VectorXf::Zero(A.rows()));
-    std::cout << sol.block(0, 0, 1, this->DOFsize) << '\n';
+    PRINT("STEP SOLVED <<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
+    PRINT("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< SOLUTION");
+    PRINT(sol);
+    PRINT(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SOLUTION");
     out_torques_var.torques = sol.block(0, 0, this->DOFsize, 1);
 
 
@@ -388,7 +397,7 @@ double MotionGenerationQuadraticProgram::getSimulationTime() {
 
 void MotionGenerationQuadraticProgram::printCurrentState(){
     std::cout << "############## MotionGenerationQuadraticProgram State begin " << std::endl;
-    //*
+    /*
     in_desiredTaskSpacePosition_flow = in_desiredTaskSpacePosition_port.read(in_desiredTaskSpacePosition_var);
     in_desiredTaskSpaceVelocity_flow = in_desiredTaskSpaceVelocity_port.read(in_desiredTaskSpaceVelocity_var);
     in_desiredTaskSpaceAcceleration_flow = in_desiredTaskSpaceAcceleration_port.read(in_desiredTaskSpaceAcceleration_var);
@@ -410,6 +419,7 @@ void MotionGenerationQuadraticProgram::printCurrentState(){
     Eigen::MatrixXf A(in_jacobian_var.rows(), in_jacobian_var.cols()+in_jacobian_var.rows());A.setZero();
     A.block(0,0, A.rows(), A.cols()-A.rows()) = in_jacobian_var; // setting acceleration equality consntraint
     A.block(0, A.cols()-A.rows(), A.rows(), A.rows()) = Eigen::MatrixXf::Identity(A.rows(), A.rows());
+
     a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
         this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var) -
         in_jacobianDot_var*qDot);
@@ -418,7 +428,7 @@ void MotionGenerationQuadraticProgram::printCurrentState(){
     std::cout << sol.block(0, 0, 1, this->DOFsize) << '\n';
     out_torques_var.torques = sol.block(0, 0, this->DOFsize, 1);
     std::cout << sol<<sol.block(0, 0, this->DOFsize, 1)<<sol.block(0, 0, 1,this->DOFsize)<<A<<a<<std::endl;
-
+    */
     std::cout << " feedback angles " << in_robotstatus_var.angles << std::endl;
     std::cout << " feedback velocities " << in_robotstatus_var.velocities << std::endl;
     std::cout << " feedback torques " << in_robotstatus_var.torques << std::endl;
