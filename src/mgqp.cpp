@@ -304,7 +304,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     int resultVectorSize = in_jacobian_var.cols()*2;
     int nbEquality = in_jacobian_var.rows();
     int nbInequality = 1;
-    Eigen::MatrixXf A(nbEquality, resultVectorSize);A.setZero();
+    Eigen::MatrixXf A = Eigen::MatrixXf(nbEquality, resultVectorSize);A.setZero();
 
     // Position tracking in Task space
     A.block(0,0, nbEquality, resultVectorSize/2) = in_jacobian_var; // setting acceleration equality constraint
@@ -315,16 +315,15 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
 
     // Gravity and weight compensation
-    PRINT("TRACKING OVER");
-    PRINT(in_inertia_var);
-    A.block(0, 0, nbEquality, resultVectorSize/2) = in_inertia_var;
-    PRINT("RESIZE OK");
+    //*
+    //A = Eigen::MatrixXf(resultVectorSize/2, resultVectorSize);A.setZero();
+    //A.block(0, 0, resultVectorSize/2, resultVectorSize/2) = in_inertia_var;
     a = in_h_var;
-    Eigen::VectorXf compensation = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
-    PRINT("COMPENSATION SOLVED");
+    //Eigen::VectorXf compensation = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
+    //PRINT("COMPENSATION SOLVED"); // */
 
     // sum of all problems as command
-    out_torques_var.torques = (tracking+compensation).block(0, 0, this->DOFsize, 1);
+    out_torques_var.torques = tracking.block(0, 0, this->DOFsize, 1);
 
 
     // write it to port
