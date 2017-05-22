@@ -335,16 +335,17 @@ void MotionGenerationQuadraticProgram::updateHook() {
         in_jacobianDot_var*qDot);
     addToProblem(A, a, pb);
 
+    /*
     A = Eigen::MatrixXf(resultVectorSize/2, resultVectorSize);A.setZero();
     A.block(0, 0, resultVectorSize/2, resultVectorSize/2) = in_inertia_var;
     a = in_h_var;
-
+    */
     Eigen::VectorXf sol = this->solveNextStep(pb.conditions, pb.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
 
     // Gravity and weight compensation
     //*
 
-    Eigen::VectorXf compensation = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
+    //Eigen::VectorXf compensation = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
     //PRINT("COMPENSATION SOLVED"); // */
 
     // sum of all problems as command

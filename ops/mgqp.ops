@@ -16,7 +16,7 @@ import("CosimaUtilities")
 require("os")
 require("print")
 
-var int DOFsize = 11;
+var int DOFsize = 7;
 var string model_name = "";
 var string path_model_urdf = "";
 var string path_model_srdf = "";
@@ -97,8 +97,8 @@ fkin.configure()
 loadComponent("trajectorygenerator", "TrajectoryGenerator")
 setActivity("trajectorygenerator",0.01,10,ORO_SCHED_OTHER)
 #trajectorygenerator.setTranslationOnly(translationOnly);
-trajectorygenerator.setCenter(0.0,0.0,0.7)
-trajectorygenerator.radius = 0.3
+trajectorygenerator.setCenter(0.6,0.0,0.7)
+trajectorygenerator.radius = 0.1
 trajectorygenerator.timescale = 1.0;
 trajectorygenerator.setWaitTime(10)
 trajectorygenerator.preparePorts()
