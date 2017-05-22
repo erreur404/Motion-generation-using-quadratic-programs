@@ -16,10 +16,19 @@ import("CosimaUtilities")
 require("os")
 require("print")
 
-var string model_name = "model://kuka-lwr-4plus";
-var string path_model_urdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-lwr-4plus/model.urdf";
-var string path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-lwr-4plus/model.srdf";
-var int DOFsize = 7;
+var int DOFsize = 11;
+var string model_name = "";
+var string path_model_urdf = "";
+var string path_model_srdf = "";
+if (DOFsize == 7) then {
+  model_name = "model://kuka-lwr-4plus";
+  path_model_urdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-lwr-4plus/model.urdf";
+  path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-lwr-4plus/model.srdf";
+} else {
+  model_name = "model://kuka-artificial11DOF";
+  path_model_urdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-artificial11DOF/model.urdf";
+  path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-artificial11DOF/model.srdf";
+}
 
 # instantiate components
 
@@ -88,8 +97,8 @@ fkin.configure()
 loadComponent("trajectorygenerator", "TrajectoryGenerator")
 setActivity("trajectorygenerator",0.01,10,ORO_SCHED_OTHER)
 #trajectorygenerator.setTranslationOnly(translationOnly);
-trajectorygenerator.setCenter(0.6,0.0,0.7)
-trajectorygenerator.radius = 0.1
+trajectorygenerator.setCenter(0.0,0.0,0.7)
+trajectorygenerator.radius = 0.3
 trajectorygenerator.timescale = 1.0;
 trajectorygenerator.setWaitTime(10)
 trajectorygenerator.preparePorts()
