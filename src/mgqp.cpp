@@ -314,7 +314,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
     desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
     currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
 
-    QuadraticProblem pb = QuadraticProblem(); pb.init(2*this->DOFsize);
+    QuadraticProblem pb1 = QuadraticProblem(); pb1.init(2*this->DOFsize);
+    QuadraticProblem pb2 = QuadraticProblem(); pb2.init(2*this->DOFsize);
     Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
     rDot = in_jacobian_var.transpose()*in_desiredTaskSpaceVelocity_var;
     rDotDot = in_jacobian_var.transpose()*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var.transpose()*in_desiredTaskSpaceVelocity_var;
@@ -333,23 +334,40 @@ void MotionGenerationQuadraticProgram::updateHook() {
     a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
         this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var)  -
         in_jacobianDot_var*qDot);
-    addToProblem(A, a, pb);
-
-    /*
-    A = Eigen::MatrixXf(resultVectorSize/2, resultVectorSize);A.setZero();
-    A.block(0, 0, resultVectorSize/2, resultVectorSize/2) = in_inertia_var;
-    a = in_h_var;
-    */
-    Eigen::VectorXf sol = this->solveNextStep(pb.conditions, pb.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
+    addToProblem(A, a, pb1);
 
     // Gravity and weight compensation
-    //*
+/*
+    A = Eigen::MatrixXf(resultVectorSize/2, resultVectorSize);A.setZero();
+    A.block(0, 0, resultVectorSize/2, resultVectorSize/2) = in_inertia_var;// */
+    a = -in_h_var;
 
-    //Eigen::VectorXf compensation = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
-    //PRINT("COMPENSATION SOLVED"); // */
+    /*addToProblem(A, a, pb2);
+*/
+    // Energy economy, minimize torque
+    /*
+    A = Eigen::MatrixXf(resultVectorSize/2, resultVectorSize); A.setZero();
+    A.block(0, resultVectorSize/2, resultVectorSize/2, resultVectorSize/2) = (1/100)*Eigen::MatrixXf::Identity(resultVectorSize/2, resultVectorSize/2);
+    a = Eigen::VectorXf(resultVectorSize/2);a.setZero();
 
+    addToProblem(A, a, pb1);
+    */
+
+    Eigen::VectorXf tracking = Eigen::VectorXf(resultVectorSize);
+    tracking.setZero();
+    try {
+      tracking = this->solveNextStep(pb1.conditions, pb1.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
+
+    //Eigen::VectorXf compensation = this->solveNextStep(pb2.conditions, pb2.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
+    }
+    catch (...)
+    {
+      // catch all
+      tracking.setZero();
+      PRINT("Exeption in looking for a solution");
+    }
     // sum of all problems as command
-    out_torques_var.torques = sol.block(0, 0, this->DOFsize, 1);
+    out_torques_var.torques = (tracking).block(0, 0, this->DOFsize, 1);
 
 
     // write it to port
