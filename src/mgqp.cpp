@@ -216,20 +216,17 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
 
 void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticProblem &problem)
 {
-  PRINT("====================================");
-  PRINT(conditions.cols());
-  PRINT(problem.cols());
   if (conditions.cols() != problem.dof())
   {
     throw std::length_error("condition matrix number of columns does not match the problem's number of columns");
   }
-  if (conditions.rows() != goal.cols())
+  if (conditions.rows() != goal.rows())
   {
     throw std::length_error("condition matrix number of rows is different than the goals number of rows");
   }
   problem.conditions.conservativeResize((Eigen::Index) (problem.rows()+conditions.rows()), (Eigen::NoChange_t) problem.cols());
   problem.conditions.block(problem.rows()-conditions.rows(), 0, conditions.rows(), problem.cols()) = conditions;
-  problem.goal.conservativeResize((Eigen::Index) (problem.rows()+conditions.rows()), (Eigen::NoChange_t) problem.cols());
+  problem.goal.conservativeResize((Eigen::Index) (problem.rows()), (Eigen::NoChange_t) problem.cols());
   problem.conditions.block(problem.rows()-conditions.rows(), 0, conditions.rows(), 1) = goal;
 }
 
@@ -327,7 +324,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     int resultVectorSize = in_jacobian_var.cols()*2;
     int nbEquality = in_jacobian_var.rows();
-    int nbInequality = 0;
+    int nbInequality = 1;
     Eigen::MatrixXf A = Eigen::MatrixXf(nbEquality, resultVectorSize);A.setZero();
 
     // Position tracking in Task space

@@ -6,18 +6,22 @@
 cmake_minimum_required(VERSION 2.8.3)
 
 message("===========================================================================")
- 
+
 #
 # This creates a standard cmake project. You may extend this file with
 # any cmake macro you see fit.
 #
 project(MotionGenerationQuadraticProgram)
- 
+
 # current source and include:
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/src)
-include_directories(${PROJECT_SOURCE_DIR}/../QuadProgpp/src)
- 
+#include_directories(${PROJECT_SOURCE_DIR}/../QuadProgpp/src)
+
+# including the modified QuadProgpp
+include_directories(${PROJECT_SOURCE_DIR}/include/QuadProgpp)
+link_directories(${PROJECT_SOURCE_DIR}/lib/QuadProgpp)
+
 # Set the CMAKE_PREFIX_PATH in case you're not using Orocos through ROS
 # for helping these find commands find RTT.
 find_package(OROCOS-RTT REQUIRED ${RTT_HINTS})
@@ -33,7 +37,7 @@ link_directories(${RTT-CORE-EXTENSIONS_LIBRARY_DIRS})
 # Defines the orocos_* cmake macros. See that file for additional
 # documentation.
 include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake)
- 
+
 #
 # Components, types and plugins.
 #
@@ -41,17 +45,17 @@ include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake)
 # macros below, except for orocos_typegen_headers, where the target is fully
 # controlled by generated code of 'typegen'.
 #
- 
- 
+
+
 # Creates a component library libexample-<target>.so
 # and installs in the directory lib/orocos/example/
 #
-orocos_component(${CMAKE_PROJECT_NAME} 
+orocos_component(${CMAKE_PROJECT_NAME}
                                         ${PROJECT_SOURCE_DIR}/include/mgqp.hpp
                                         ${PROJECT_SOURCE_DIR}/src/mgqp.cpp) # ...you may add multiple source files
 #
 # You may add multiple orocos_component statements.
- 
+
 #
 # Building a typekit (recommended):
 #
@@ -61,7 +65,7 @@ orocos_component(${CMAKE_PROJECT_NAME}
 #orocos_typegen_headers(example-types.hpp) # ...you may add multiple header files
 #
 # You may only have *ONE* orocos_typegen_headers statement !
- 
+
 #
 # Building a normal library (optional):
 #
@@ -71,8 +75,8 @@ orocos_component(${CMAKE_PROJECT_NAME}
 #orocos_library(support support.cpp) # ...you may add multiple source files
 #
 # You may add multiple orocos_library statements.
- 
- 
+
+
 #
 # Building a Plugin or Service (optional):
 #
@@ -89,7 +93,7 @@ orocos_component(${CMAKE_PROJECT_NAME}
 
 # target_link_libraries()
 target_link_libraries(${CMAKE_PROJECT_NAME} ${RST-RT_LIBRARIES} ${RTT-CORE-EXTENSIONS_LIBRARIES} "/usr/local/lib/libquadprog.a")
- 
+
 #
 # Additional headers (not in typekit):
 #
@@ -98,7 +102,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} ${RST-RT_LIBRARIES} ${RTT-CORE-EXTEN
 # orocos_install_headers( example-component.hpp ) # ...you may add multiple header files
 #
 # You may add multiple orocos_install_headers statements.
- 
+
 #
 # Generates and installs our package. Must be the last statement such
 # that it can pick up all above settings.

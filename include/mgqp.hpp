@@ -13,8 +13,8 @@
 #include <string>
 #include <vector>
 #include <Eigen/Dense>
-#include <QuadProg++.hh>
-#include <Array.hh>
+#include "QuadProgpp/QuadProg++.hh"
+#include "QuadProgpp/Array.hh"
 
 // Joint value datatype:
 #include <rst-rt/kinematics/JointAngles.hpp>
