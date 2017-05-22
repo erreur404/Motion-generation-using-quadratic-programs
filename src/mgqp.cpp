@@ -214,6 +214,30 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
     WorkspaceDimension = 3;
 }
 
+void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticProblem &problem)
+{
+  PRINT("====================================");
+  PRINT(conditions.cols());
+  PRINT(problem.cols());
+  if (conditions.cols() != problem.dof())
+  {
+    throw std::length_error("condition matrix number of columns does not match the problem's number of columns");
+  }
+  if (conditions.rows() != goal.cols())
+  {
+    throw std::length_error("condition matrix number of rows is different than the goals number of rows");
+  }
+  problem.conditions.conservativeResize((Eigen::Index) (problem.rows()+conditions.rows()), (Eigen::NoChange_t) problem.cols());
+  problem.conditions.block(problem.rows()-conditions.rows(), 0, conditions.rows(), problem.cols()) = conditions;
+  problem.goal.conservativeResize((Eigen::Index) (problem.rows()+conditions.rows()), (Eigen::NoChange_t) problem.cols());
+  problem.conditions.block(problem.rows()-conditions.rows(), 0, conditions.rows(), 1) = goal;
+}
+
+void addToProblem(Eigen::VectorXf condition, float goal, Eigen::MatrixXf &problem)
+{
+
+}
+
 #define COPYMAT(a, toB) for(int i=0; i<a.rows(); i++) {for (int j=0; j<a.cols(); j++) {toB[i][j] = a(i,j);}}
 #define COPYVEC(a, toB) for(int i=0; i<a.rows(); i++) {toB[i] = a(i);}
 
@@ -293,7 +317,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
     currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
 
-
+    QuadraticProblem pb = QuadraticProblem(); pb.init(2*this->DOFsize);
     Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
     rDot = in_jacobian_var.transpose()*in_desiredTaskSpaceVelocity_var;
     rDotDot = in_jacobian_var.transpose()*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var.transpose()*in_desiredTaskSpaceVelocity_var;
@@ -303,7 +327,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     int resultVectorSize = in_jacobian_var.cols()*2;
     int nbEquality = in_jacobian_var.rows();
-    int nbInequality = 1;
+    int nbInequality = 0;
     Eigen::MatrixXf A = Eigen::MatrixXf(nbEquality, resultVectorSize);A.setZero();
 
     // Position tracking in Task space
@@ -312,18 +336,22 @@ void MotionGenerationQuadraticProgram::updateHook() {
     a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
         this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var)  -
         in_jacobianDot_var*qDot);
-    Eigen::VectorXf tracking = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
+    addToProblem(A, a, pb);
+
+    A = Eigen::MatrixXf(resultVectorSize/2, resultVectorSize);A.setZero();
+    A.block(0, 0, resultVectorSize/2, resultVectorSize/2) = in_inertia_var;
+    a = in_h_var;
+
+    Eigen::VectorXf sol = this->solveNextStep(pb.conditions, pb.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
 
     // Gravity and weight compensation
     //*
-    //A = Eigen::MatrixXf(resultVectorSize/2, resultVectorSize);A.setZero();
-    //A.block(0, 0, resultVectorSize/2, resultVectorSize/2) = in_inertia_var;
-    a = in_h_var;
-    //Eigen::VectorXf compensation = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
+
+    Eigen::VectorXf compensation = this->solveNextStep(A,a, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
     //PRINT("COMPENSATION SOLVED"); // */
 
     // sum of all problems as command
-    out_torques_var.torques = tracking.block(0, 0, this->DOFsize, 1);
+    out_torques_var.torques = sol.block(0, 0, this->DOFsize, 1);
 
 
     // write it to port

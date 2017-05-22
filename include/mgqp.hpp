@@ -23,6 +23,25 @@
 #include <rst-rt/robot/JointState.hpp>
 #include "QuaternionHelper.hpp"
 
+/* =======================================================
+             MotionGenerationQuadraticProgram
+========================================================== */
+
+struct {
+  Eigen::MatrixXf conditions;
+  Eigen::VectorXf goal;
+  int pbDOF;
+
+  int nbConditions () {return conditions.rows();};
+  int rows() {return conditions.rows();};
+  int cols() {return conditions.cols();};
+  int init(int DOFsize) {
+      pbDOF = DOFsize;
+      conditions = Eigen::MatrixXf(0, DOFsize);
+      goal = Eigen::VectorXf(0);
+  };
+  int dof() {return pbDOF;};
+} typedef QuadraticProblem;
 
 /* =======================================================
              MotionGenerationQuadraticProgram
