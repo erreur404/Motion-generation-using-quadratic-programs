@@ -66,18 +66,19 @@ public:
 
 private:
     // Declare ports and their datatypes
-    RTT::InputPort<Eigen::VectorXf> in_desiredTaskSpacePosition_port;
-    RTT::InputPort<Eigen::VectorXf> in_desiredTaskSpaceVelocity_port;
-    RTT::InputPort<Eigen::VectorXf> in_desiredTaskSpaceAcceleration_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf> > in_desiredTaskSpacePosition_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf> > in_desiredTaskSpaceVelocity_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf> > in_desiredTaskSpaceAcceleration_port;
 
-    RTT::InputPort<Eigen::VectorXf> in_currentTaskSpacePosition_port;
-    RTT::InputPort<Eigen::VectorXf> in_currentTaskSpaceVelocity_port;
-    RTT::InputPort<rstrt::robot::JointState> in_robotstatus_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf> > in_currentTaskSpacePosition_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf> > in_currentTaskSpaceVelocity_port;
 
-    RTT::InputPort<Eigen::MatrixXf> in_jacobian_port;
-    RTT::InputPort<Eigen::MatrixXf> in_jacobianDot_port;
+    std::vector<RTT::InputPort<Eigen::MatrixXf> > in_jacobian_port;
+    std::vector<RTT::InputPort<Eigen::MatrixXf> > in_jacobianDot_port;
+
     RTT::InputPort<Eigen::VectorXf> in_h_port;
     RTT::InputPort<Eigen::MatrixXf> in_inertia_port;
+    RTT::InputPort<rstrt::robot::JointState> in_robotstatus_port;
 
     // Declare output ports and their datatypes
     RTT::OutputPort<rstrt::dynamics::JointTorques> out_torques_port;
@@ -85,17 +86,19 @@ private:
 
     // Data flow:
     RTT::FlowStatus in_robotstatus_flow;
-    RTT::FlowStatus in_desiredTaskSpacePosition_flow;
-    RTT::FlowStatus in_desiredTaskSpaceVelocity_flow;
-    RTT::FlowStatus in_desiredTaskSpaceAcceleration_flow;
-
-    RTT::FlowStatus in_currentTaskSpacePosition_flow;
-    RTT::FlowStatus in_currentTaskSpaceVelocity_flow;
-
-    RTT::FlowStatus in_jacobian_flow;
-    RTT::FlowStatus in_jacobianDot_flow;
     RTT::FlowStatus in_h_flow;
     RTT::FlowStatus in_inertia_flow;
+
+    std::vector<RTT::FlowStatus> in_desiredTaskSpacePosition_flow;
+    std::vector<RTT::FlowStatus> in_desiredTaskSpaceVelocity_flow;
+    std::vector<RTT::FlowStatus> in_desiredTaskSpaceAcceleration_flow;
+
+    std::vector<RTT::FlowStatus> in_currentTaskSpacePosition_flow;
+    std::vector<RTT::FlowStatus> in_currentTaskSpaceVelocity_flow;
+
+    std::vector<RTT::FlowStatus> in_jacobian_flow;
+    std::vector<RTT::FlowStatus> in_jacobianDot_flow;
+
 
     // Actuall joint command to be sent over port:
     rstrt::kinematics::JointAngles q_des;
@@ -103,7 +106,6 @@ private:
 
     // variables
     bool portsPrepared;
-      // for the purpose of debug, will use later only the inner constraints
       Eigen::VectorXf in_desiredTaskSpacePosition_var;
       Eigen::VectorXf in_desiredTaskSpaceVelocity_var;
       Eigen::VectorXf in_desiredTaskSpaceAcceleration_var;
@@ -129,6 +131,8 @@ private:
     Eigen::Vector3f desiredPosition, currentPosition, desiredVelocity, currentVelocity, desiredAcceleration, currentAcceleration;
 
     unsigned int DOFsize;
+    std::vector<int> constrainedJoints;
+    Eigen::VectorXf JointTorquesLimits;
     bool receiveTranslationOnly;
     unsigned int TaskSpaceDimension;
     float gainTranslationP, gainTranslationD, gainOrientationP, gainOrientationD;
