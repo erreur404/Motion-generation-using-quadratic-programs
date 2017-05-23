@@ -11,7 +11,7 @@
 #include <rtt/Component.hpp>
 
 #define PRINT(txt) RTT::log(RTT::Info) << txt
-#define PRINTNL(txt) PRINT(txt) << RTT::endlog()
+#define PRINTNL(txt) RTT::log(RTT::Info) << txt << RTT::endlog()
 
 /* =======================================================
              MotionGenerationQuadraticProgram
@@ -125,12 +125,19 @@ bool MotionGenerationQuadraticProgram::startHook() {
 }
 
 void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
-    this->DOFsize = DOFsize;
+
 
     if(portsPrepared){
+        // removign the old ports
         ports()->removePort("in_robotstatus_port");
         ports()->removePort("out_torques_port");
+        for (int i=0; i<this->DOFsize; i++)
+        {
+            ports()->removePort("in_jacobian_port")
+        }
     }
+
+    this->DOFsize = DOFsize;
 
     // prepare input ports:
     in_robotstatus_var = rstrt::robot::JointState(DOFsize);
@@ -342,7 +349,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     A.block(0, 0, resultVectorSize/2, resultVectorSize/2) = in_inertia_var;// */
     a = -in_h_var;
 
-    addToProblem(A, a, pb1);
+    //addToProblem(A, a, pb1);
     //*/
     // Energy economy, minimize torque
     /*
@@ -365,12 +372,13 @@ void MotionGenerationQuadraticProgram::updateHook() {
       // catch all
       tracking.setZero();
       PRINTNL("Exeption in looking for a solution");
-      PRINT("matrix size : (";PRINT(pb1.conditions.rows());PRINT(", ");PRINT(pb1.conditions.cols());PRINTNL(")");
+      PRINT("matrix size : (");PRINT(pb1.conditions.rows());PRINT(", ");PRINT(pb1.conditions.cols());PRINTNL(")");
+      PRINTNL(pb1.conditions);
     }
     // sum of all problems as command
-    Eigen::Vector<float, this->DOFsize> acceleration = (tracking).block(0, 0, this->DOFsize, 1);
-    Eigen::Vector<float, this->DOFsize> torques = (tracking).block(this->DOFsize, 0, this->DOFsize, 1) + in_inertia_var*acceleration+in_h_var;
-    out_torques_var.torques = (tracking).block(this->DOFsize, 0, this->DOFsize, 1);
+    Eigen::VectorXf acceleration = (tracking).block(0, 0, this->DOFsize, 1);
+    Eigen::VectorXf torques = (tracking).block(this->DOFsize, 0, this->DOFsize, 1);
+    out_torques_var.torques = torques+in_inertia_var*acceleration+in_h_var;
 
 
     // write it to port
