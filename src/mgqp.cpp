@@ -10,8 +10,8 @@
 // needed for the macro at the end of this file:
 #include <rtt/Component.hpp>
 
-#define PRINT(txt) RTT::log(RTT::Info) << txt << RTT::endlog()
-
+#define PRINT(txt) RTT::log(RTT::Info) << txt
+#define PRINTNL(txt) PRINT(txt) << RTT::endlog()
 
 /* =======================================================
              MotionGenerationQuadraticProgram
@@ -337,13 +337,13 @@ void MotionGenerationQuadraticProgram::updateHook() {
     addToProblem(A, a, pb1);
 
     // Gravity and weight compensation
-/*
+//*
     A = Eigen::MatrixXf(resultVectorSize/2, resultVectorSize);A.setZero();
     A.block(0, 0, resultVectorSize/2, resultVectorSize/2) = in_inertia_var;// */
     a = -in_h_var;
 
-    /*addToProblem(A, a, pb2);
-*/
+    addToProblem(A, a, pb1);
+    //*/
     // Energy economy, minimize torque
     /*
     A = Eigen::MatrixXf(resultVectorSize/2, resultVectorSize); A.setZero();
@@ -351,23 +351,26 @@ void MotionGenerationQuadraticProgram::updateHook() {
     a = Eigen::VectorXf(resultVectorSize/2);a.setZero();
 
     addToProblem(A, a, pb1);
-    */
+    //*/
 
     Eigen::VectorXf tracking = Eigen::VectorXf(resultVectorSize);
     tracking.setZero();
     try {
       tracking = this->solveNextStep(pb1.conditions, pb1.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
 
-    //Eigen::VectorXf compensation = this->solveNextStep(pb2.conditions, pb2.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
+      //Eigen::VectorXf compensation = this->solveNextStep(pb2.conditions, pb2.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
     }
     catch (...)
     {
       // catch all
       tracking.setZero();
-      PRINT("Exeption in looking for a solution");
+      PRINTNL("Exeption in looking for a solution");
+      PRINT("matrix size : (";PRINT(pb1.conditions.rows());PRINT(", ");PRINT(pb1.conditions.cols());PRINTNL(")");
     }
     // sum of all problems as command
-    out_torques_var.torques = (tracking).block(0, 0, this->DOFsize, 1);
+    Eigen::Vector<float, this->DOFsize> acceleration = (tracking).block(0, 0, this->DOFsize, 1);
+    Eigen::Vector<float, this->DOFsize> torques = (tracking).block(this->DOFsize, 0, this->DOFsize, 1) + in_inertia_var*acceleration+in_h_var;
+    out_torques_var.torques = (tracking).block(this->DOFsize, 0, this->DOFsize, 1);
 
 
     // write it to port
