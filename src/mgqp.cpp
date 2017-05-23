@@ -92,32 +92,32 @@ bool MotionGenerationQuadraticProgram::configureHook() {
           << RTT::endlog();
           continue;
         }
-        if (!in_desiredTaskSpaceVelocity_port.connected()) {
+        if (!in_desiredTaskSpaceVelocity_port[i].connected()) {
           RTT::log(RTT::Info) << "in_desiredTaskSpaceVelocity_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
         }
-        if (!in_desiredTaskSpaceAcceleration_port.connected()) {
+        if (!in_desiredTaskSpaceAcceleration_port[i].connected()) {
           RTT::log(RTT::Info) << "in_desiredTaskSpaceAcceleration_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
         }
-        if (!in_currentTaskSpacePosition_port.connected()) {
+        if (!in_currentTaskSpacePosition_port[i].connected()) {
           RTT::log(RTT::Info) << "in_currentTaskSpacePosition_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
         }
-        if (!in_currentTaskSpaceVelocity_port.connected()) {
+        if (!in_currentTaskSpaceVelocity_port[i].connected()) {
           RTT::log(RTT::Info) << "in_currentTaskSpaceVelocity_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
         }
-        if (!in_jacobian_port.connected()) {
+        if (!in_jacobian_port[i].connected()) {
           RTT::log(RTT::Info) << "in_jacobian_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
         }
-        if (!in_jacobianDot_port.connected()) {
+        if (!in_jacobianDot_port[i].connected()) {
           RTT::log(RTT::Info) << "in_jacobianDot_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
@@ -219,7 +219,7 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
       in_desiredTaskSpaceVelocity_flow[i] = RTT::NoData;
 
       in_desiredTaskSpaceAcceleration_var = Eigen::VectorXf();
-      in_desiredTaskSpaceAcceleration_port[i].setName(cat("in_desiredTaskSpaceAcceleration_port"),i);
+      in_desiredTaskSpaceAcceleration_port[i].setName(cat("in_desiredTaskSpaceAcceleration_port",i));
       in_desiredTaskSpaceAcceleration_port[i].doc("to receive the Acceleration to track from a trajectory generator");
       ports()->addPort(in_desiredTaskSpaceAcceleration_port[i]);
       in_desiredTaskSpaceAcceleration_flow[i] = RTT::NoData;
@@ -319,73 +319,79 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(const Eigen::Mat
 
 void MotionGenerationQuadraticProgram::updateHook() {
     // this is the actual body of a component. it is called on each cycle
-    in_desiredTaskSpacePosition_flow = in_desiredTaskSpacePosition_port.read(in_desiredTaskSpacePosition_var);
-    in_desiredTaskSpaceVelocity_flow = in_desiredTaskSpaceVelocity_port.read(in_desiredTaskSpaceVelocity_var);
-    in_desiredTaskSpaceAcceleration_flow = in_desiredTaskSpaceAcceleration_port.read(in_desiredTaskSpaceAcceleration_var);
-    in_currentTaskSpacePosition_flow = in_currentTaskSpacePosition_port.read(in_currentTaskSpacePosition_var);
-    in_currentTaskSpaceVelocity_flow = in_currentTaskSpaceVelocity_port.read(in_currentTaskSpaceVelocity_var);
     in_robotstatus_flow = in_robotstatus_port.read(in_robotstatus_var);
-
-    in_jacobian_flow = in_jacobian_port.read(in_jacobian_var);
-    in_jacobianDot_flow = in_jacobianDot_port.read(in_jacobianDot_var);
     in_h_flow = in_h_port.read(in_h_var);
     in_inertia_flow = in_inertia_port.read(in_inertia_var);
-
-    if (in_desiredTaskSpacePosition_flow == RTT::NoData
-      || in_desiredTaskSpaceVelocity_flow == RTT::NoData
-      || in_desiredTaskSpaceAcceleration_flow == RTT::NoData
-      || in_currentTaskSpacePosition_flow == RTT::NoData
-      || in_currentTaskSpaceVelocity_flow == RTT::NoData
-      || in_robotstatus_flow == RTT::NoData
-      || in_jacobian_flow == RTT::NoData
-      || in_jacobianDot_flow == RTT::NoData
-      || in_h_flow == RTT::NoData
-      || in_inertia_flow == RTT::NoData)
+    if (in_h_flow == RTT::NoData
+        || in_inertia_flow == RTT::NoData
+        || in_robotstatus_flow == RTT::NoData)
     {
         PRINT("FAILED, NO DATA, RETURN");
         return;
     }
 
+    QuadraticProblem jointTrackPos; jointTrackPos.init(2*this->DOFsize);
 
-    // reading the variables from the flows
 
-    //PRINT(WorkspaceDimension);3
-    //PRINT(desiredPosition); [0 0 0]
-    //PRINT(in_desiredTaskSpacePosition_var); [0.7 0 0.7]
-    //PRINT(in_desiredTaskSpacePosition_var.head(WorkspaceDimension)); [0.7 0 0.7]
-    desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);
-    currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);
-    desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
-    currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
+    for (int j=0; j<this->constrainedJoints.size(); j++)
+    {
+        int jointN = this->constrainedJoints[j];
 
-    QuadraticProblem pb1 = QuadraticProblem(); pb1.init(2*this->DOFsize);
-    QuadraticProblem pb2 = QuadraticProblem(); pb2.init(2*this->DOFsize);
-    Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
-    rDot = in_jacobian_var.transpose()*in_desiredTaskSpaceVelocity_var;
-    rDotDot = in_jacobian_var.transpose()*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var.transpose()*in_desiredTaskSpaceVelocity_var;
-    q = in_robotstatus_var.angles;
-    qDot = in_robotstatus_var.velocities;
-    //qDotDot =
+        in_desiredTaskSpacePosition_flow[jointN] = in_desiredTaskSpacePosition_port[jointN].read(in_desiredTaskSpacePosition_var);
+        in_desiredTaskSpaceVelocity_flow[jointN] = in_desiredTaskSpaceVelocity_port[jointN].read(in_desiredTaskSpaceVelocity_var);
+        in_desiredTaskSpaceAcceleration_flow[jointN] = in_desiredTaskSpaceAcceleration_port[jointN].read(in_desiredTaskSpaceAcceleration_var);
+        in_currentTaskSpacePosition_flow[jointN] = in_currentTaskSpacePosition_port[jointN].read(in_currentTaskSpacePosition_var);
+        in_currentTaskSpaceVelocity_flow[jointN] = in_currentTaskSpaceVelocity_port[jointN].read(in_currentTaskSpaceVelocity_var);
 
-    int resultVectorSize = in_jacobian_var.cols()*2;
-    int nbEquality = in_jacobian_var.rows();
-    int nbInequality = 1;
-    Eigen::MatrixXf A = Eigen::MatrixXf(nbEquality, resultVectorSize);A.setZero();
+        in_jacobian_flow[jointN] = in_jacobian_port[jointN].read(in_jacobian_var);
+        in_jacobianDot_flow[jointN] = in_jacobianDot_port[jointN].read(in_jacobianDot_var);
 
-    // Position tracking in Task space
-    A.block(0,0, nbEquality, resultVectorSize/2) = in_jacobian_var; // setting acceleration equality constraint
-    A.block(0, resultVectorSize/2, nbEquality, resultVectorSize/2) = Eigen::MatrixXf::Zero(nbEquality, resultVectorSize/2); // A = [J, 0]
-    a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
-        this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var)  -
-        in_jacobianDot_var*qDot);
-    addToProblem(A, a, pb1);
 
-    // Gravity and weight compensation
-//*
-    A = Eigen::MatrixXf(resultVectorSize/2, resultVectorSize);A.setZero();
-    A.block(0, 0, resultVectorSize/2, resultVectorSize/2) = in_inertia_var;// */
-    a = -in_h_var;
+        if (in_desiredTaskSpacePosition_flow[jointN] == RTT::NoData
+          || in_desiredTaskSpaceVelocity_flow[jointN] == RTT::NoData
+          || in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData
+          || in_currentTaskSpacePosition_flow[jointN] == RTT::NoData
+          || in_currentTaskSpaceVelocity_flow[jointN] == RTT::NoData
+          || in_jacobian_flow[jointN] == RTT::NoData
+          || in_jacobianDot_flow[jointN] == RTT::NoData)
+        {
+            PRINT("FAILED, NO DATA FOR JOINT ");PRINT(jointN);PRINTNL(" RETURN");
+            return;
+        }
 
+
+        // reading the variables from the flows
+
+        //PRINT(WorkspaceDimension);3
+        //PRINT(desiredPosition); [0 0 0]
+        //PRINT(in_desiredTaskSpacePosition_var); [0.7 0 0.7]
+        //PRINT(in_desiredTaskSpacePosition_var.head(WorkspaceDimension)); [0.7 0 0.7]
+        desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);
+        currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);
+        desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
+        currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
+
+
+        Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
+        rDot = in_jacobian_var.transpose()*in_desiredTaskSpaceVelocity_var;
+        rDotDot = in_jacobian_var.transpose()*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var.transpose()*in_desiredTaskSpaceVelocity_var;
+        q = in_robotstatus_var.angles;
+        qDot = in_robotstatus_var.velocities;
+        //qDotDot =
+
+        int A_rows = in_jacobian_var.rows();
+        int A_cols = this->DOFsize * 2;
+
+        Eigen::MatrixXf A = Eigen::MatrixXf(A_rows, A_cols);A.setZero();
+
+        // Position tracking in Task space
+        A.block(0,0, A_rows, A_cols/2) = in_jacobian_var; // setting acceleration equality constraint // jacobian may be smaller as the space
+        A.block(0, A_cols/2, A_rows, A_cols/2) = Eigen::MatrixXf::Zero(A_rows, A_cols/2); // A = [J, 0]
+        a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
+            this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var)  -
+            in_jacobianDot_var*qDot);
+        addToProblem(A, a, jointTrackPos);
+    }
     //addToProblem(A, a, pb1);
     //*/
     // Energy economy, minimize torque
@@ -397,10 +403,14 @@ void MotionGenerationQuadraticProgram::updateHook() {
     addToProblem(A, a, pb1);
     //*/
 
-    Eigen::VectorXf tracking = Eigen::VectorXf(resultVectorSize);
+    int nbEquality = jointTrackPos.rows();
+    int nbInequality = 1;
+    int resultVectorSize = jointTrackPos.dof();
+
+    Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     try {
-      tracking = this->solveNextStep(pb1.conditions, pb1.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
+      tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
 
       //Eigen::VectorXf compensation = this->solveNextStep(pb2.conditions, pb2.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
     }
@@ -409,8 +419,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
       // catch all
       tracking.setZero();
       PRINTNL("Exeption in looking for a solution");
-      PRINT("matrix size : (");PRINT(pb1.conditions.rows());PRINT(", ");PRINT(pb1.conditions.cols());PRINTNL(")");
-      PRINTNL(pb1.conditions);
+      PRINT("matrix size : (");PRINT(jointTrackPos.conditions.rows());PRINT(", ");PRINT(jointTrackPos.conditions.cols());PRINTNL(")");
+      PRINTNL(jointTrackPos.conditions);
     }
     // sum of all problems as command
     Eigen::VectorXf acceleration = (tracking).block(0, 0, this->DOFsize, 1);

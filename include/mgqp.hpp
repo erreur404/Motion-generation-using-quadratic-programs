@@ -41,6 +41,7 @@ struct {
       goal = Eigen::VectorXf(0);
   };
   int dof() {return pbDOF;};
+  void dof(int dof) {init(dof);};
 } typedef QuadraticProblem;
 
 /* =======================================================
