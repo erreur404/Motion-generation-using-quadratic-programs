@@ -83,11 +83,11 @@ for (var int i = 0; i < DOFsize; i = i + 1 ) {
       eval("fkin"+i+".configure()")
 }
 
-loadComponent("fkin", "WrapperKDL")
-setActivity("fkin",0.01,10,ORO_SCHED_OTHER)
-fkin.loadModel(path_model_urdf, "lwr_arm_base_link","lwr_arm_7_link")
-fkin.setDOFsize(DOFsize);
-fkin.configure()
+#loadComponent("fkin", "WrapperKDL")
+#setActivity("fkin",0.01,10,ORO_SCHED_OTHER)
+#fkin.loadModel(path_model_urdf, "lwr_arm_base_link","lwr_arm_7_link")
+#fkin.setDOFsize(DOFsize);
+#fkin.configure()
 
 
 
@@ -121,26 +121,48 @@ import("MotionGenerationQuadraticProgram")
 # you can do displayComponentTypes
 
 loadComponent("myTorqueController", "MotionGenerationQuadraticProgram")
+
+print.ln("SegFault ! before<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 setActivity("myTorqueController", 0.05, 50, ORO_SCHED_OTHER)
+print.ln("SegFault set ! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
 myTorqueController.setDOFsize(DOFsize)
+print.ln("SegFault DOF ! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
 var ConnPolicy cp
 # send joint status to the controller
 connect("robot_gazebo.full_arm_JointFeedback", "myTorqueController.in_robotstatus_port", cp)
 # send joint status to KDL for Jacobian computing
 
-connect("robot_gazebo.full_arm_JointFeedback", "fkin.in_robotstatus_port", cp)
-connect("fkin.out_jacobianTranslation_port", "myTorqueController.in_jacobian_port", cp)
-connect("fkin.out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port", cp)
-connect("fkin.out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port", cp)
-connect("fkin.out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port", cp)
-connect("fkin.out_robotstatus_port", "myTorqueController.in_robotstatus_port", cp)
-connect("fkin.out_coriolisAndGravity_port", "myTorqueController.in_h_port", cp)
-connect("fkin.out_inertia_port", "myTorqueController.in_inertia_port", cp)
-connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port", cp)
-connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port", cp)
-connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port", cp)
+for (var int i = 0; i < DOFsize; i = i + 1 )
+{
+  connect("robot_gazebo.full_arm_JointFeedback", "fkin"+i+".in_robotstatus_port", cp)
+}
+var int n = DOFsize;
+
+connect("fkin"+n+".out_robotstatus_port", "myTorqueController.in_robotstatus_port", cp);
+connect("fkin"+n+".out_coriolisAndGravity_port", "myTorqueController.in_h_port", cp);
+connect("fkin"+n+".out_inertia_port", "myTorqueController.in_inertia_port", cp);
+
+n = DOFsize;
+
+connect("fkin"+n+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+n, cp);
+connect("fkin"+n+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+n, cp);
+connect("fkin"+n+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+n, cp);
+connect("fkin"+n+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+n, cp);
+connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port"+n, cp);
+connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port"+n, cp);
+connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port"+n, cp);
+
+n = 4;
+
+connect("fkin"+n+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+n, cp);
+connect("fkin"+n+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+n, cp);
+connect("fkin"+n+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+n, cp);
+connect("fkin"+n+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+n, cp);
+connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port"+n, cp);
+connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port"+n, cp);
+connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port"+n, cp);
 
 # send commands to the robot
 connect("myTorqueController.out_torques_port", "robot_gazebo.full_arm_JointTorqueCtrl", cp)
