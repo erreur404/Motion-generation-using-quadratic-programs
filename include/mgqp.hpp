@@ -67,15 +67,15 @@ public:
 
 private:
     // Declare ports and their datatypes
-    std::vector<RTT::InputPort<Eigen::VectorXf> > in_desiredTaskSpacePosition_port;
-    std::vector<RTT::InputPort<Eigen::VectorXf> > in_desiredTaskSpaceVelocity_port;
-    std::vector<RTT::InputPort<Eigen::VectorXf> > in_desiredTaskSpaceAcceleration_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredTaskSpacePosition_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredTaskSpaceVelocity_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredTaskSpaceAcceleration_port;
 
-    std::vector<RTT::InputPort<Eigen::VectorXf> > in_currentTaskSpacePosition_port;
-    std::vector<RTT::InputPort<Eigen::VectorXf> > in_currentTaskSpaceVelocity_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf>* > in_currentTaskSpacePosition_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf>* > in_currentTaskSpaceVelocity_port;
 
-    std::vector<RTT::InputPort<Eigen::MatrixXf> > in_jacobian_port;
-    std::vector<RTT::InputPort<Eigen::MatrixXf> > in_jacobianDot_port;
+    std::vector<RTT::InputPort<Eigen::MatrixXf>* > in_jacobian_port;
+    std::vector<RTT::InputPort<Eigen::MatrixXf>* > in_jacobianDot_port;
 
     RTT::InputPort<Eigen::VectorXf> in_h_port;
     RTT::InputPort<Eigen::MatrixXf> in_inertia_port;
