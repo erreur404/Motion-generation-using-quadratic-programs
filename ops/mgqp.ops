@@ -123,7 +123,6 @@ import("MotionGenerationQuadraticProgram")
 loadComponent("myTorqueController", "MotionGenerationQuadraticProgram");
 setActivity("myTorqueController", 0.05, 50, ORO_SCHED_OTHER);
 myTorqueController.setDOFsize(DOFsize);
-print.ln("SegFault DOF ! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
 var ConnPolicy cp
 # send joint status to the controller

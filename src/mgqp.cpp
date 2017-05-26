@@ -237,16 +237,12 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
     //*
     for (i=0; i<this->DOFsize; i++)
     {
-      PRINT(i);PRINTNL(" joint ================================================");
+      PRINT("mgqp ================================================ Joint ");PRINTNL(i);
       PRINT("Jacobian ...");
       in_jacobian_var = Eigen::MatrixXf();
-      PRINTNL("1");
       in_jacobian_port[i]->setName(cat("in_jacobian_port_",i));
-      PRINTNL("2");
       in_jacobian_port[i]->doc(cat(cat("Input port for receiving the Jacobian for joint", i), "from fkin"));
-      PRINTNL("3");
       ports()->addPort(*in_jacobian_port[i]);
-      PRINTNL("4");
       in_jacobian_flow[i] = RTT::NoData;
       PRINTNL(" OK");
 
