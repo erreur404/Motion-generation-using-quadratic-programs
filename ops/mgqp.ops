@@ -120,13 +120,9 @@ trajectorygenerator.configure()
 import("MotionGenerationQuadraticProgram")
 # you can do displayComponentTypes
 
-loadComponent("myTorqueController", "MotionGenerationQuadraticProgram")
-
-print.ln("SegFault ! before<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-setActivity("myTorqueController", 0.05, 50, ORO_SCHED_OTHER)
-print.ln("SegFault set ! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-
-myTorqueController.setDOFsize(DOFsize)
+loadComponent("myTorqueController", "MotionGenerationQuadraticProgram");
+setActivity("myTorqueController", 0.05, 50, ORO_SCHED_OTHER);
+myTorqueController.setDOFsize(DOFsize);
 print.ln("SegFault DOF ! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
 var ConnPolicy cp

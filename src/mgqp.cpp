@@ -43,6 +43,16 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     addOperation("setGains", &MotionGenerationQuadraticProgram::setGains, this, RTT::ClientThread).doc("set gains setGains(int kp, int kd)");
     addOperation("printCurrentState", &MotionGenerationQuadraticProgram::printCurrentState, this, RTT::ClientThread).doc("print current state");
 
+    in_desiredTaskSpacePosition_port = new std::vector<RTT::InputPort<Eigen::VectorXf> >();
+    in_desiredTaskSpaceVelocity_port = new std::vector<RTT::InputPort<Eigen::VectorXf> >();
+    in_desiredTaskSpaceAcceleration_port = new std::vector<RTT::InputPort<Eigen::VectorXf> >();
+
+    in_currentTaskSpacePosition_port = new std::vector<RTT::InputPort<Eigen::VectorXf> >();
+    in_currentTaskSpaceVelocity_port = new std::vector<RTT::InputPort<Eigen::VectorXf> >();
+
+    in_jacobian_port = new std::vector<RTT::InputPort<Eigen::MatrixXf> >();
+    in_jacobianDot_port = new std::vector<RTT::InputPort<Eigen::MatrixXf> >();
+
     portsPrepared = false;
 
     velocityLimit = 0.2;
@@ -157,10 +167,11 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
         // removign the old ports
         ports()->removePort("in_robotstatus_port");
         ports()->removePort("out_torques_port");
-
+        PRINTNL("removing iterative ports");
         for (int i=0; i<this->DOFsize; i++)
         {
             std::string s;
+            PRINT(i);
             ports()->removePort(cat("in_jacobian_port_", i));
             ports()->removePort(cat("in_currentTaskSpacePosition_port_", i));
             ports()->removePort(cat("in_currentTaskSpaceVelocity_port_", i));
@@ -168,7 +179,12 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
             ports()->removePort(cat("in_desiredTaskSpaceVelocity_port_", i));
             ports()->removePort(cat("in_desiredTaskSpaceAcceleration_port_", i));
             //delete s;
+            PRINTNL("-OK");
         }
+        PRINTNL("iterative ports removed");
+        ports()->removePort("in_h_port");
+        ports()->removePort("in_inertia_port");
+        PRINTNL("all ports removed");
     }
 
     this->DOFsize = DOFsize;
@@ -180,49 +196,69 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
     ports()->addPort(in_robotstatus_port);
     in_robotstatus_flow = RTT::NoData;
 
+    PRINTNL("Adding the number ports");
     for (int i=0; i<this->DOFsize; i++)
     {
+      PRINT(i);PRINTNL(" joint ================================================");
+      PRINT("Jacobian ...");
       in_jacobian_var = Eigen::MatrixXf();
+      PRINTNL("1");
       in_jacobian_port[i].setName(cat("in_jacobian_port_",i));
+      PRINTNL("2");
       in_jacobian_port[i].doc(cat(cat("Input port for receiving the Jacobian for joint", i), "from fkin"));
+      PRINTNL("3");
       ports()->addPort(in_jacobian_port[i]);
+      PRINTNL("4");
       in_jacobian_flow[i] = RTT::NoData;
+      PRINTNL(" OK");
 
+      PRINT("JacobianDot ...");
       in_jacobianDot_var = Eigen::MatrixXf();
       in_jacobianDot_port[i].setName(cat("in_jacobianDot_port_", i));
       in_jacobianDot_port[i].doc("Input port for receiving the EE JacobianDot from fkin");
       ports()->addPort(in_jacobianDot_port[i]);
       in_jacobianDot_flow[i] = RTT::NoData;
+      PRINTNL(" OK");
 
+      PRINT("CurPos ...");
       in_currentTaskSpacePosition_var = Eigen::VectorXf();
       in_currentTaskSpacePosition_port[i].setName(cat("in_currentTaskSpacePosition_port", i));
       in_currentTaskSpacePosition_port[i].doc("Input port for receiving the current task space position of the robot");
       ports()->addPort(in_currentTaskSpacePosition_port[i]);
       in_currentTaskSpacePosition_flow[i] = RTT::NoData;
+      PRINTNL(" OK");
 
+      PRINT("CurVel ...");
       in_currentTaskSpaceVelocity_var = Eigen::VectorXf();
       in_currentTaskSpaceVelocity_port[i].setName(cat("in_currentTaskSpaceVelocity_port", i));
       in_currentTaskSpaceVelocity_port[i].doc("Input port for receiving the current task space velocity of the robot");
       ports()->addPort(in_currentTaskSpaceVelocity_port[i]);
       in_currentTaskSpaceVelocity_flow[i] = RTT::NoData;
+      PRINTNL(" OK");
 
+      PRINT("DesPos ...");
       in_desiredTaskSpacePosition_var = Eigen::VectorXf();
       in_desiredTaskSpacePosition_port[i].setName(cat("in_desiredTaskSpacePosition_port", i));
       in_desiredTaskSpacePosition_port[i].doc("to receive the position to track from a trajectory generator");
       ports()->addPort(in_desiredTaskSpacePosition_port[i]);
       in_desiredTaskSpacePosition_flow[i] = RTT::NoData;
+      PRINTNL(" OK");
 
+      PRINT("DesVel ...");
       in_desiredTaskSpaceVelocity_var = Eigen::VectorXf();
       in_desiredTaskSpaceVelocity_port[i].setName(cat("in_desiredTaskSpaceVelocity_port", i));
       in_desiredTaskSpaceVelocity_port[i].doc("to receive the Velocity to track from a trajectory generator");
       ports()->addPort(in_desiredTaskSpaceVelocity_port[i]);
       in_desiredTaskSpaceVelocity_flow[i] = RTT::NoData;
+      PRINTNL(" OK");
 
+      PRINT("DevAcc ...");
       in_desiredTaskSpaceAcceleration_var = Eigen::VectorXf();
       in_desiredTaskSpaceAcceleration_port[i].setName(cat("in_desiredTaskSpaceAcceleration_port",i));
       in_desiredTaskSpaceAcceleration_port[i].doc("to receive the Acceleration to track from a trajectory generator");
       ports()->addPort(in_desiredTaskSpaceAcceleration_port[i]);
       in_desiredTaskSpaceAcceleration_flow[i] = RTT::NoData;
+      PRINTNL(" OK");
     }
 
     in_h_var = Eigen::VectorXf();
