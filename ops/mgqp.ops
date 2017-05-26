@@ -73,14 +73,15 @@ robot_gazebo.setControlMode("full_arm", "JointTorqueCtrl")
 gazebo.toggleDynamicsSimulation(true)
 
 #   Compute forward dynamics for all links
-var array jointsFkin = (0)*DOFsize
-for (var int i = 0; i < DOFsize; i = i + 1 ) {
-      jointsFkin[i] = i
-      loadComponent("fkin"+i, "WrapperKDL")
-      setActivity("fkin"+i,0.01,10,ORO_SCHED_OTHER)
-      eval("fkin"+i+".loadModel(path_model_urdf, \"lwr_arm_base_link\",\"lwr_arm_"+i+"_link)")
-      eval("fkin"+i+".setDOFsize(i)")
-      eval("fkin"+i+".configure()")
+for (var int i = 1; i <= DOFsize; i = i + 1 ) {
+      loadComponent("fkin"+i, "WrapperKDL");
+      setActivity("fkin"+i,0.01,10,ORO_SCHED_OTHER);
+      print.ln("commande ========================================");
+      print.ln("fkin"+i+".loadModel(\""+path_model_urdf+"\", \"lwr_arm_base_link\",\"lwr_arm_"+i+"_link\")");
+      eval("fkin"+i+".loadModel(\""+path_model_urdf+"\", \"lwr_arm_base_link\",\"lwr_arm_"+i+"_link\")");
+
+      eval("fkin"+i+".setDOFsize("+i+")");
+      eval("fkin"+i+".configure()");
 }
 
 #loadComponent("fkin", "WrapperKDL")
@@ -94,8 +95,8 @@ for (var int i = 0; i < DOFsize; i = i + 1 ) {
 # LETS PLAY HERE !!
 
 # for debug : generates a trajectory
-loadComponent("trajectorygenerator", "TrajectoryGenerator")
-setActivity("trajectorygenerator",0.01,10,ORO_SCHED_OTHER)
+loadComponent("trajectorygenerator", "TrajectoryGenerator");
+setActivity("trajectorygenerator",0.01,10,ORO_SCHED_OTHER);
 #trajectorygenerator.setTranslationOnly(translationOnly);
 trajectorygenerator.setCenter(0.6,0.0,0.7)
 trajectorygenerator.radius = 0.1
@@ -103,6 +104,15 @@ trajectorygenerator.timescale = 1.0;
 trajectorygenerator.setWaitTime(10)
 trajectorygenerator.preparePorts()
 trajectorygenerator.configure()
+
+loadComponent("trajectorygenerator2", "TrajectoryGenerator");
+setActivity("trajectorygenerator2",0.01,10,ORO_SCHED_OTHER);
+trajectorygenerator2.setCenter(1.6,0.0,1.7)
+trajectorygenerator2.radius = 0.2
+trajectorygenerator2.timescale = 2.0;
+trajectorygenerator2.setWaitTime(10)
+trajectorygenerator2.preparePorts()
+trajectorygenerator2.configure()
 
 
 # for debug : generates points to follow the trajectory
@@ -129,9 +139,9 @@ var ConnPolicy cp
 connect("robot_gazebo.full_arm_JointFeedback", "myTorqueController.in_robotstatus_port", cp)
 # send joint status to KDL for Jacobian computing
 
-for (var int i = 0; i < DOFsize; i = i + 1 )
+for (var int j = 1; j <= DOFsize; j = j + 1 )
 {
-  connect("robot_gazebo.full_arm_JointFeedback", "fkin"+i+".in_robotstatus_port", cp)
+  connect("robot_gazebo.full_arm_JointFeedback", "fkin"+j+".in_robotstatus_port", cp)
 }
 var int n = DOFsize;
 
@@ -145,9 +155,9 @@ connect("fkin"+n+".out_jacobianTranslation_port", "myTorqueController.in_jacobia
 connect("fkin"+n+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+n, cp);
 connect("fkin"+n+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+n, cp);
 connect("fkin"+n+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+n, cp);
-connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port"+n, cp);
-connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port"+n, cp);
-connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port"+n, cp);
+connect("trajectorygenerator2.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+n, cp);
+connect("trajectorygenerator2.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+n, cp);
+connect("trajectorygenerator2.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+n, cp);
 
 n = 4;
 
@@ -155,14 +165,17 @@ connect("fkin"+n+".out_jacobianTranslation_port", "myTorqueController.in_jacobia
 connect("fkin"+n+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+n, cp);
 connect("fkin"+n+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+n, cp);
 connect("fkin"+n+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+n, cp);
-connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port"+n, cp);
-connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port"+n, cp);
-connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port"+n, cp);
+connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+n, cp);
+connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+n, cp);
+connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+n, cp);
 
 # send commands to the robot
 connect("myTorqueController.out_torques_port", "robot_gazebo.full_arm_JointTorqueCtrl", cp)
 
-fkin.start()
+for (var int k = 0; j < DOFsize; k = k + 1 )
+{
+  eval("fkin"+k+".start()");
+}
 trajectorygenerator.start()
 myTorqueController.configure()
 myTorqueController.start()

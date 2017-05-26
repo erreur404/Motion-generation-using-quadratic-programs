@@ -88,7 +88,7 @@ bool MotionGenerationQuadraticProgram::configureHook() {
       << RTT::endlog();
       return false;
     }
-    for (int i=0; i<this->DOFsize; i++)
+    for (int i=1; i<=this->DOFsize; i++)
     {
         if (!in_desiredTaskSpacePosition_port[i]->connected()) {
           RTT::log(RTT::Info) << "in_desiredTaskSpacePosition_port_"<<i<<" not connected"
@@ -162,7 +162,7 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
         ports()->removePort("out_torques_port");
         PRINTNL("removing iterative ports");
 
-        for (i=0; i<this->DOFsize; i++)
+        for (i=1; i<=this->DOFsize; i++)
         {
             PRINT(i);
             ports()->removePort(cat("in_jacobian_port_", i));
@@ -204,7 +204,7 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
 
     this->DOFsize = DOFsize;
 
-    for (i=0; i<this->DOFsize; i++)
+    for (i=1; i<=this->DOFsize; i++)
     {
 
       in_desiredTaskSpacePosition_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_desiredTaskSpacePosition_port_",i), RTT::ConnPolicy()));
@@ -235,7 +235,7 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
 
     PRINTNL("Adding the number ports");
     //*
-    for (i=0; i<this->DOFsize; i++)
+    for (i=1; i<=this->DOFsize; i++)
     {
       PRINT("mgqp ================================================ Joint ");PRINTNL(i);
       PRINT("Jacobian ...");
