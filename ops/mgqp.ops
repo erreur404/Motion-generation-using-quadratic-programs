@@ -72,17 +72,30 @@ robot_gazebo.setControlMode("full_arm", "JointTorqueCtrl")
 # enable physics simulation again
 gazebo.toggleDynamicsSimulation(true)
 
+
+print.ln("");
+print.ln("");
+print.ln("");
+print.ln("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< forward kinematic modules initialisation");
+print.ln("");
+print.ln("");
+print.ln("");
 #   Compute forward dynamics for all links
 for (var int i = 1; i <= DOFsize; i = i + 1 ) {
       loadComponent("fkin"+i, "WrapperKDL");
       setActivity("fkin"+i,0.01,10,ORO_SCHED_OTHER);
-      print.ln("commande ========================================");
-      print.ln("fkin"+i+".loadModel(\""+path_model_urdf+"\", \"lwr_arm_base_link\",\"lwr_arm_"+i+"_link\")");
       eval("fkin"+i+".loadModel(\""+path_model_urdf+"\", \"lwr_arm_base_link\",\"lwr_arm_"+i+"_link\")");
 
       eval("fkin"+i+".setDOFsize("+i+")");
       eval("fkin"+i+".configure()");
 }
+print.ln("");
+print.ln("");
+print.ln("");
+print.ln(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> forward kinematic modules initialisation");
+print.ln("");
+print.ln("");
+print.ln("");
 
 #loadComponent("fkin", "WrapperKDL")
 #setActivity("fkin",0.01,10,ORO_SCHED_OTHER)
@@ -143,6 +156,7 @@ for (var int j = 1; j <= DOFsize; j = j + 1 )
 {
   connect("robot_gazebo.full_arm_JointFeedback", "fkin"+j+".in_robotstatus_port", cp)
 }
+
 var int n = DOFsize;
 
 connect("fkin"+n+".out_robotstatus_port", "myTorqueController.in_robotstatus_port", cp);
@@ -172,11 +186,12 @@ connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueCo
 # send commands to the robot
 connect("myTorqueController.out_torques_port", "robot_gazebo.full_arm_JointTorqueCtrl", cp)
 
-for (var int k = 0; j < DOFsize; k = k + 1 )
+for (var int k = 1; k <= DOFsize; k = k + 1 )
 {
   eval("fkin"+k+".start()");
 }
 trajectorygenerator.start()
+trajectorygenerator2.start()
 myTorqueController.configure()
 myTorqueController.start()
 

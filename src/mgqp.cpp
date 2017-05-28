@@ -90,37 +90,37 @@ bool MotionGenerationQuadraticProgram::configureHook() {
     }
     for (int i=1; i<=this->DOFsize; i++)
     {
-        if (!in_desiredTaskSpacePosition_port[i]->connected()) {
+        if (!in_desiredTaskSpacePosition_port[i-1]->connected()) {
           RTT::log(RTT::Info) << "in_desiredTaskSpacePosition_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
         }
-        if (!in_desiredTaskSpaceVelocity_port[i]->connected()) {
+        if (!in_desiredTaskSpaceVelocity_port[i-1]->connected()) {
           RTT::log(RTT::Info) << "in_desiredTaskSpaceVelocity_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
         }
-        if (!in_desiredTaskSpaceAcceleration_port[i]->connected()) {
+        if (!in_desiredTaskSpaceAcceleration_port[i-1]->connected()) {
           RTT::log(RTT::Info) << "in_desiredTaskSpaceAcceleration_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
         }
-        if (!in_currentTaskSpacePosition_port[i]->connected()) {
+        if (!in_currentTaskSpacePosition_port[i-1]->connected()) {
           RTT::log(RTT::Info) << "in_currentTaskSpacePosition_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
         }
-        if (!in_currentTaskSpaceVelocity_port[i]->connected()) {
+        if (!in_currentTaskSpaceVelocity_port[i-1]->connected()) {
           RTT::log(RTT::Info) << "in_currentTaskSpaceVelocity_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
         }
-        if (!in_jacobian_port[i]->connected()) {
+        if (!in_jacobian_port[i-1]->connected()) {
           RTT::log(RTT::Info) << "in_jacobian_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
         }
-        if (!in_jacobianDot_port[i]->connected()) {
+        if (!in_jacobianDot_port[i-1]->connected()) {
           RTT::log(RTT::Info) << "in_jacobianDot_port_"<<i<<" not connected"
           << RTT::endlog();
           continue;
@@ -209,9 +209,9 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
 
       in_desiredTaskSpacePosition_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_desiredTaskSpacePosition_port_",i), RTT::ConnPolicy()));
       in_desiredTaskSpaceVelocity_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_desiredTaskSpaceVelocity_port_",i), RTT::ConnPolicy()));
-      in_desiredTaskSpaceAcceleration_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_desiredTaskSpacePosition_port_",i), RTT::ConnPolicy()));
+      in_desiredTaskSpaceAcceleration_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_desiredTaskSpaceAcceleration_port_",i), RTT::ConnPolicy()));
 
-      in_currentTaskSpacePosition_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_desiredTaskSpaceAcceleration_port_",i), RTT::ConnPolicy()));
+      in_currentTaskSpacePosition_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_currentTaskSpacePosition_port_",i), RTT::ConnPolicy()));
       in_currentTaskSpaceVelocity_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_currentTaskSpaceVelocity_port_",i), RTT::ConnPolicy()));
 
       in_jacobian_port.push_back(new RTT::InputPort<Eigen::MatrixXf>(cat("in_jacobian_port_",i), RTT::ConnPolicy()));
@@ -240,58 +240,58 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
       PRINT("mgqp ================================================ Joint ");PRINTNL(i);
       PRINT("Jacobian ...");
       in_jacobian_var = Eigen::MatrixXf();
-      in_jacobian_port[i]->setName(cat("in_jacobian_port_",i));
-      in_jacobian_port[i]->doc(cat(cat("Input port for receiving the Jacobian for joint", i), "from fkin"));
-      ports()->addPort(*in_jacobian_port[i]);
-      in_jacobian_flow[i] = RTT::NoData;
+      in_jacobian_port[i-1]->setName(cat("in_jacobian_port_",i));
+      in_jacobian_port[i-1]->doc(cat(cat("Input port for receiving the Jacobian for joint", i), "from fkin"));
+      ports()->addPort(*in_jacobian_port[i-1]);
+      in_jacobian_flow[i-1] = RTT::NoData;
       PRINTNL(" OK");
 
       PRINT("JacobianDot ...");
       in_jacobianDot_var = Eigen::MatrixXf();
-      in_jacobianDot_port[i]->setName(cat("in_jacobianDot_port_", i));
-      in_jacobianDot_port[i]->doc("Input port for receiving the EE JacobianDot from fkin");
-      ports()->addPort(*in_jacobianDot_port[i]);
-      in_jacobianDot_flow[i] = RTT::NoData;
+      in_jacobianDot_port[i-1]->setName(cat("in_jacobianDot_port_", i));
+      in_jacobianDot_port[i-1]->doc("Input port for receiving the EE JacobianDot from fkin");
+      ports()->addPort(*in_jacobianDot_port[i-1]);
+      in_jacobianDot_flow[i-1] = RTT::NoData;
       PRINTNL(" OK");
 
       PRINT("CurPos ...");
       in_currentTaskSpacePosition_var = Eigen::VectorXf();
-      in_currentTaskSpacePosition_port[i]->setName(cat("in_currentTaskSpacePosition_port", i));
-      in_currentTaskSpacePosition_port[i]->doc("Input port for receiving the current task space position of the robot");
-      ports()->addPort(*in_currentTaskSpacePosition_port[i]);
-      in_currentTaskSpacePosition_flow[i] = RTT::NoData;
+      in_currentTaskSpacePosition_port[i-1]->setName(cat("in_currentTaskSpacePosition_port_", i));
+      in_currentTaskSpacePosition_port[i-1]->doc("Input port for receiving the current task space position of the robot");
+      ports()->addPort(*in_currentTaskSpacePosition_port[i-1]);
+      in_currentTaskSpacePosition_flow[i-1] = RTT::NoData;
       PRINTNL(" OK");
 
       PRINT("CurVel ...");
       in_currentTaskSpaceVelocity_var = Eigen::VectorXf();
-      in_currentTaskSpaceVelocity_port[i]->setName(cat("in_currentTaskSpaceVelocity_port", i));
-      in_currentTaskSpaceVelocity_port[i]->doc("Input port for receiving the current task space velocity of the robot");
-      ports()->addPort(*in_currentTaskSpaceVelocity_port[i]);
-      in_currentTaskSpaceVelocity_flow[i] = RTT::NoData;
+      in_currentTaskSpaceVelocity_port[i-1]->setName(cat("in_currentTaskSpaceVelocity_port_", i));
+      in_currentTaskSpaceVelocity_port[i-1]->doc("Input port for receiving the current task space velocity of the robot");
+      ports()->addPort(*in_currentTaskSpaceVelocity_port[i-1]);
+      in_currentTaskSpaceVelocity_flow[i-1] = RTT::NoData;
       PRINTNL(" OK");
 
       PRINT("DesPos ...");
       in_desiredTaskSpacePosition_var = Eigen::VectorXf();
-      in_desiredTaskSpacePosition_port[i]->setName(cat("in_desiredTaskSpacePosition_port", i));
-      in_desiredTaskSpacePosition_port[i]->doc("to receive the position to track from a trajectory generator");
-      ports()->addPort(*in_desiredTaskSpacePosition_port[i]);
-      in_desiredTaskSpacePosition_flow[i] = RTT::NoData;
+      in_desiredTaskSpacePosition_port[i-1]->setName(cat("in_desiredTaskSpacePosition_port_", i));
+      in_desiredTaskSpacePosition_port[i-1]->doc("to receive the position to track from a trajectory generator");
+      ports()->addPort(*in_desiredTaskSpacePosition_port[i-1]);
+      in_desiredTaskSpacePosition_flow[i-1] = RTT::NoData;
       PRINTNL(" OK");
 
       PRINT("DesVel ...");
       in_desiredTaskSpaceVelocity_var = Eigen::VectorXf();
-      in_desiredTaskSpaceVelocity_port[i]->setName(cat("in_desiredTaskSpaceVelocity_port", i));
-      in_desiredTaskSpaceVelocity_port[i]->doc("to receive the Velocity to track from a trajectory generator");
-      ports()->addPort(*in_desiredTaskSpaceVelocity_port[i]);
-      in_desiredTaskSpaceVelocity_flow[i] = RTT::NoData;
+      in_desiredTaskSpaceVelocity_port[i-1]->setName(cat("in_desiredTaskSpaceVelocity_port_", i));
+      in_desiredTaskSpaceVelocity_port[i-1]->doc("to receive the Velocity to track from a trajectory generator");
+      ports()->addPort(*in_desiredTaskSpaceVelocity_port[i-1]);
+      in_desiredTaskSpaceVelocity_flow[i-1] = RTT::NoData;
       PRINTNL(" OK");
 
       PRINT("DevAcc ...");
       in_desiredTaskSpaceAcceleration_var = Eigen::VectorXf();
-      in_desiredTaskSpaceAcceleration_port[i]->setName(cat("in_desiredTaskSpaceAcceleration_port",i));
-      in_desiredTaskSpaceAcceleration_port[i]->doc("to receive the Acceleration to track from a trajectory generator");
-      ports()->addPort(*in_desiredTaskSpaceAcceleration_port[i]);
-      in_desiredTaskSpaceAcceleration_flow[i] = RTT::NoData;
+      in_desiredTaskSpaceAcceleration_port[i-1]->setName(cat("in_desiredTaskSpaceAcceleration_port_",i));
+      in_desiredTaskSpaceAcceleration_port[i-1]->doc("to receive the Acceleration to track from a trajectory generator");
+      ports()->addPort(*in_desiredTaskSpaceAcceleration_port[i-1]);
+      in_desiredTaskSpaceAcceleration_flow[i-1] = RTT::NoData;
       PRINTNL(" OK");
     }
     // */
@@ -396,7 +396,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
         || in_inertia_flow == RTT::NoData
         || in_robotstatus_flow == RTT::NoData)
     {
-        PRINT("FAILED, NO DATA, RETURN");
+        //PRINTNL("FAILED, NO DATA, RETURN");
         return;
     }
 
