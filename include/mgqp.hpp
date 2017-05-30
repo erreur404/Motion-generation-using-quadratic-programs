@@ -63,6 +63,9 @@ public:
     void setGains(float kp, float kd);
     void setGainsOrientation(float kp, float kd);
 
+    void setTorqueLimits(Eigen::VectorXf torques);
+    void setAccelerationLimits(Eigen::VectorXf accelerations);
+
     void preparePorts();
 
 private:
@@ -70,6 +73,10 @@ private:
     std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredTaskSpacePosition_port;
     std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredTaskSpaceVelocity_port;
     std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredTaskSpaceAcceleration_port;
+
+    std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredJointSpacePosition_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredJointSpaceVelocity_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredJointSpaceAcceleration_port;
 
     std::vector<RTT::InputPort<Eigen::VectorXf>* > in_currentTaskSpacePosition_port;
     std::vector<RTT::InputPort<Eigen::VectorXf>* > in_currentTaskSpaceVelocity_port;
@@ -107,20 +114,28 @@ private:
 
     // variables
     bool portsPrepared;
-      Eigen::VectorXf in_desiredTaskSpacePosition_var;
-      Eigen::VectorXf in_desiredTaskSpaceVelocity_var;
-      Eigen::VectorXf in_desiredTaskSpaceAcceleration_var;
+    // to handle task space conditions
+    Eigen::VectorXf in_desiredTaskSpacePosition_var;
+    Eigen::VectorXf in_desiredTaskSpaceVelocity_var;
+    Eigen::VectorXf in_desiredTaskSpaceAcceleration_var;
 
-    // for the sake of receiving feedback !
+    // to handle joint space condition
+    Eigen::VectorXf in_desiredJointSpacePosition_var;
+    Eigen::VectorXf in_desiredJointSpaceVelocity_var;
+    Eigen::VectorXf in_desiredJointSpaceAcceleration_var;
+
+    // feedback from the real world
     Eigen::VectorXf in_currentTaskSpacePosition_var;
     Eigen::VectorXf in_currentTaskSpaceVelocity_var;
     rstrt::robot::JointState in_robotstatus_var;
+
 
     Eigen::MatrixXf in_jacobian_var;
     Eigen::MatrixXf in_jacobianDot_var;
     Eigen::VectorXf in_h_var;
     Eigen::MatrixXf in_inertia_var;
 
+    // commands sent to the robot
     rstrt::dynamics::JointTorques out_torques_var;
     Eigen::VectorXf out_force_var;
 
@@ -130,10 +145,15 @@ private:
     Eigen::Vector3f errorOrientationPosition, errorOrientationVelocity;
     Eigen::VectorXf errorPosition, errorVelocity;
     Eigen::Vector3f desiredPosition, currentPosition, desiredVelocity, currentVelocity, desiredAcceleration, currentAcceleration;
+    Eigen::VectorXf desiredJointPosition, desiredJointVelocity, desiredJointAcceleration;
 
     unsigned int DOFsize;
     std::vector<int> constrainedJoints;
-    Eigen::VectorXf JointTorquesLimits;
+    Eigen::VectorXf JointTorquesLimitsP;
+    Eigen::VectorXf JointAccelerationLimitsP;
+    Eigen::VectorXf JointTorquesLimitsN;
+    Eigen::VectorXf JointAccelerationLimitsN;
+
     bool receiveTranslationOnly;
     unsigned int TaskSpaceDimension;
     float gainTranslationP, gainTranslationD, gainOrientationP, gainOrientationD;

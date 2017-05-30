@@ -286,7 +286,7 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
       in_desiredTaskSpaceVelocity_flow[i-1] = RTT::NoData;
       PRINTNL(" OK");
 
-      PRINT("DevAcc ...");
+      PRINT("DesAcc ...");
       in_desiredTaskSpaceAcceleration_var = Eigen::VectorXf();
       in_desiredTaskSpaceAcceleration_port[i-1]->setName(cat("in_desiredTaskSpaceAcceleration_port_",i));
       in_desiredTaskSpaceAcceleration_port[i-1]->doc("to receive the Acceleration to track from a trajectory generator");
@@ -326,6 +326,27 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
     qDot_des.velocities.setZero();
 
     WorkspaceDimension = 3;
+}
+
+bool MotionGenerationQuadraticProgram::setTorqueLimits(Eigen::VectorXf torquesP, Eigen::VectorXf torquesN)
+{
+  if (torquesP.rows() != this->DOFsize || torquesN.rows() != this->DOFsize)
+  {
+    PRINTNL("Can't assign ");PRINT(torquesP.rows());PRINT(" torque limits to ");PRINT(this->DOFsize);PRINT(" joints robot");
+    return false;
+  }
+  this->JointTorquesLimitsP = torquesP;
+  this->JointTorquesLimitsN = torquesN;
+}
+bool MotionGenerationQuadraticProgram::setAccelerationLimits(Eigen::VectorXf accelerationsP, Eigen::VectorXf accelerationsN)
+{
+  if (accelerationsP.rows() != this->DOFsize || accelerationsN.rows() != this->DOFsize)
+  {
+    PRINTNL("Can't assign ");PRINT(accelerationsP.rows());PRINT(" acceleration limits to ");PRINT(this->DOFsize);PRINT(" joints robot");
+    return false;
+  }
+  this->JointAccelerationLimitsP = accelerationsP;
+  this->JointAccelerationLimitsN = accelerationsN;
 }
 
 void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticProblem &problem)
@@ -425,14 +446,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
           || in_jacobian_flow[jointN] == RTT::NoData
           || in_jacobianDot_flow[jointN] == RTT::NoData)
         {
-            PRINT(in_desiredTaskSpacePosition_flow[jointN]);
-            PRINT(in_desiredTaskSpaceVelocity_flow[jointN]);
-            PRINT(in_desiredTaskSpaceAcceleration_flow[jointN]);
-            PRINT(in_currentTaskSpacePosition_flow[jointN]);
-            PRINT(in_currentTaskSpaceVelocity_flow[jointN]);
-            PRINT(in_jacobian_flow[jointN]);
-            PRINT(in_jacobianDot_flow[jointN]);
-            PRINT("FAILED, NO DATA FOR JOINT ");PRINT(jointN);PRINTNL(" RETURN");
+            PRINT("FAILED, NO JaCOBIAN FOR JOINT ");PRINT(jointN);PRINTNL(" RETURN");
             return;
         }
 
@@ -448,6 +462,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
         desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
         currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
 
+        PRINTNL("still there !")
+
 
         Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
         rDot = in_jacobian_var.transpose()*in_desiredTaskSpaceVelocity_var;
@@ -456,6 +472,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
         qDot = in_robotstatus_var.velocities;
         //qDotDot =
 
+        PRINTNL("still there ! 2")
+
         int A_rows = in_jacobian_var.rows();
         int A_cols = this->DOFsize * 2;
 
@@ -463,11 +481,16 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
         // Position tracking in Task space
         A.block(0,0, A_rows, A_cols/2) = in_jacobian_var; // setting acceleration equality constraint // jacobian may be smaller as the space
+        PRINTNL("still there !3")
         A.block(0, A_cols/2, A_rows, A_cols/2) = Eigen::MatrixXf::Zero(A_rows, A_cols/2); // A = [J, 0]
+        PRINTNL("still there ! 4")
         a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
             this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var)  -
             in_jacobianDot_var*qDot);
+        PRINTNL("still there ! 5")
         addToProblem(A, a, jointTrackPos);
+
+        PRINTNL("still there ! 6")
     }
     //addToProblem(A, a, pb1);
     //*/
@@ -481,13 +504,48 @@ void MotionGenerationQuadraticProgram::updateHook() {
     //*/
 
     int nbEquality = jointTrackPos.rows();
-    int nbInequality = 1;
-    int resultVectorSize = jointTrackPos.dof();
+    int nbInequality = 4*this->DOFsize;
+    int resultVectorSize = 2*this->DOFsize;
+
+    Eigen::MatrixXf limitsMatrix(nbInequality, resultVectorSize);
+    limitsMatrix.setZero();
+    /*
+        NOTE : the QuadProgpp library solves inequality as Ax+a >= 0. Not exceeding a torque limit like Ax <= a would then be
+                    -Ax >= -a --> -Ax + a >= 0
+
+                    limitsMatrix :
+                    (for a 4 DOF robot in plan)
+                    -1 0 0 0   0 0 0 0                      AccelLimit+
+                    0 -1 0 0   0 0 0 0                      AccelLimit+
+                    0 0 -1 0   0 0 0 0                      AccelLimit+
+                    0 0 0 -1   0 0 0 0                      AccelLimit+
+                                          X   Solution  -                 >= 0
+                    0 0 0 0   -1 0 0 0                      TorqueLimit+
+                    0 0 0 0   0 -1 0 0                      TorqueLimit+
+                    0 0 0 0   0 0 -1 0                      TorqueLimit+
+                    0 0 0 0   0 0 0 -1                      TorqueLimit+
+
+                    +1 0 0 0   0 0 0 0                      AccelLimit-
+                    0 +1 0 0   0 0 0 0                      AccelLimit-
+                    0 0 +1 0   0 0 0 0                      AccelLimit-
+                    0 0 0 +1   0 0 0 0                      AccelLimit-
+
+                    0 0 0 0   +1 0 0 0                      TorqueLimit-
+                    0 0 0 0   0 +1 0 0                      TorqueLimit-
+                    0 0 0 0   0 0 +1 0                      TorqueLimit-
+                    0 0 0 0   0 0 0 +1                      TorqueLimit-
+    */
+    limitsMatrix.block(0, 0, nbInequality/2, nbInequality/2) = -MatrixXf::Indentity(nbInequality/2, nbInequality/2); // acceleration limit + and torque limit +
+    limitsMatrix.block(0, nbInequality/2, nbInequality/2, nbInequality/2) = MatrixXf::Identity(nbInequality/2,nbInequality/2) // acceleration limit - and torque limit -
+    Eigen::VectorXf limits(nbInequality);
+    limits.setZero();
+    limits.block(0*nbInequality/4, 0, nbInequality/4, 1) = this->JointAccelerationLimits.block(0*nbInequality/4, 0, nbInequality/4, 1);
+
 
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     try {
-      tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
+      tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, Eigen::VectorXf::Zero(nbInequality));
 
       //Eigen::VectorXf compensation = this->solveNextStep(pb2.conditions, pb2.goal, Eigen::MatrixXf::Zero (nbInequality, resultVectorSize), Eigen::VectorXf::Zero(nbInequality));
     }
