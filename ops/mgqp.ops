@@ -16,7 +16,7 @@ import("CosimaUtilities")
 require("os")
 require("print")
 
-var int DOFsize = 7;
+var int DOFsize = 11;
 var string model_name = "";
 var string path_model_urdf = "";
 var string path_model_srdf = "";
@@ -26,8 +26,8 @@ if (DOFsize == 7) then {
   path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-lwr-4plus/model.srdf";
 } else {
   model_name = "model://kuka-artificial11DOF";
-  path_model_urdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-artificial11DOF/model.urdf";
-  path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-artificial11DOF/model.srdf";
+  path_model_urdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-artificial11DOForderly/model.urdf";
+  path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-artificial11DOForderly/model.srdf";
 }
 
 # instantiate components
@@ -38,9 +38,11 @@ setActivity("gazebo",0,10,ORO_SCHED_OTHER)
 gazebo.argv = strings("--verbose")
 gazebo.add_plugin("libRTTGazeboClockPlugin.so")
 
+
 # robot sim
 loadComponent("robot_gazebo","cogimon::robotSim")
 setActivity("robot_gazebo",0,11,ORO_SCHED_OTHER)
+
 
 # load simulation related parts (i.e. models)
 
@@ -52,7 +54,6 @@ gazebo.start()
 gazebo.toggleDynamicsSimulation(false)
 # load model
 gazebo.spawn_model("robotmodel", model_name, 10)
-
 
 # configure components
 
@@ -173,7 +174,7 @@ connect("trajectorygenerator2.out_desiredTaskSpacePosition_port", "myTorqueContr
 connect("trajectorygenerator2.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+n, cp);
 connect("trajectorygenerator2.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+n, cp);
 
-#n = 2;
+#n = 5;
 
 #connect("fkin"+n+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+n, cp);
 #connect("fkin"+n+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+n, cp);
