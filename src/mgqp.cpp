@@ -449,7 +449,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
           || in_jacobian_flow[jointN] == RTT::NoData
           || in_jacobianDot_flow[jointN] == RTT::NoData)
         {
-            PRINT("FAILED, NO JaCOBIAN FOR JOINT ");PRINT(jointN);PRINTNL(" RETURN");
+            PRINT("FAILED, NO JACOBIAN FOR JOINT ");PRINT(jointN);PRINTNL(" RETURN");
             return;
         }
 
@@ -471,6 +471,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
         rDotDot = in_jacobian_var.transpose()*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var.transpose()*in_desiredTaskSpaceVelocity_var;
         q = in_robotstatus_var.angles;
         qDot = in_robotstatus_var.velocities;
+        q = q.block(0, 0, in_jacobian_var.cols(), 1);
+        qDot = qDot.block(0, 0, in_jacobian_var.cols(), 1);
         //qDotDot =
 
 
@@ -479,19 +481,17 @@ void MotionGenerationQuadraticProgram::updateHook() {
         int A_cols = this->DOFsize * 2;
 
         Eigen::MatrixXf A = Eigen::MatrixXf(A_rows, A_cols);A.setZero();
-        PRINTNL("still there ! 2");
         // Position tracking in Task space
-        A.block(0,0, A_rows, A_cols/2) = in_jacobian_var; // setting acceleration equality constraint // jacobian may be smaller as the space
-        PRINTNL("still there !3");
+        A.block(0,0, A_rows, in_jacobian_var.cols()) = in_jacobian_var; // setting acceleration equality constraint // jacobian may be smaller as the space, the rest is 0 filled
         A.block(0, A_cols/2, A_rows, A_cols/2) = Eigen::MatrixXf::Zero(A_rows, A_cols/2); // A = [J, 0]
-        PRINTNL("still there ! 4");
         a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
             this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var)  -
             in_jacobianDot_var*qDot);
-        PRINTNL("still there ! 5");
+        /*
+            NOTE : the goal matches the dimension of the result vector. When we work on an inferior degree of freedom,
+            the jacobian is null on these joints, and so are the associated goals
+        */
         addToProblem(A, a, jointTrackPos);
-
-        PRINTNL("still there ! 6");
     }
     //addToProblem(A, a, pb1);
     //*/
@@ -504,10 +504,12 @@ void MotionGenerationQuadraticProgram::updateHook() {
     addToProblem(A, a, pb1);
     //*/
 
+    PRINTNL("Next segfault");
     int nbEquality = jointTrackPos.rows();
     int nbInequality = 4*this->DOFsize;
     int resultVectorSize = 2*this->DOFsize;
 
+    PRINTNL("Adding inequalities");
     Eigen::MatrixXf limitsMatrix(nbInequality, resultVectorSize);
     limitsMatrix.setZero();
     /*
@@ -536,14 +538,24 @@ void MotionGenerationQuadraticProgram::updateHook() {
                     0 0 0 0   0 0 +1 0                      TorqueLimit-
                     0 0 0 0   0 0 0 +1                      TorqueLimit-
     */
+    PRINTNL(limitsMatrix);
     limitsMatrix.block(0, 0, nbInequality/2, nbInequality/2) = -Eigen::MatrixXf::Identity(nbInequality/2, nbInequality/2); // acceleration limit + and torque limit +
-    limitsMatrix.block(0, nbInequality/2, nbInequality/2, nbInequality/2) = Eigen::MatrixXf::Identity(nbInequality/2,nbInequality/2); // acceleration limit - and torque limit -
+    PRINTNL(limitsMatrix);
+    limitsMatrix.block(nbInequality/2, 0, nbInequality/2, nbInequality/2) = Eigen::MatrixXf::Identity(nbInequality/2,nbInequality/2); // acceleration limit - and torque limit -
+    PRINTNL(limitsMatrix);
     Eigen::VectorXf limits(nbInequality);
     limits.setZero();
+    PRINTNL(limits);
     limits.block(0*nbInequality/4, 0, nbInequality/4, 1) = this->JointAccelerationLimitsP;
+    PRINTNL(limits);
     limits.block(1*nbInequality/4, 0, nbInequality/4, 1) = this->JointTorquesLimitsP;
+    PRINTNL(limits);
     limits.block(2*nbInequality/4, 0, nbInequality/4, 1) = -this->JointAccelerationLimitsN;
+    PRINTNL(limits);
     limits.block(3*nbInequality/4, 0, nbInequality/4, 1) = -this->JointTorquesLimitsN;
+    PRINTNL(limits);
+
+    PRINTNL("Ineq finished");
 
 
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
