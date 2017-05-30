@@ -126,7 +126,7 @@ bool MotionGenerationQuadraticProgram::configureHook() {
           continue;
         }
         // if all the ports are connected for a joint, the joint is added to the "constrainedjoints" vector
-        this->constrainedJoints.push_back(i);
+        this->constrainedJoints.push_back(i-1);
     }
     if (!in_h_port.connected()) {
       RTT::log(RTT::Info) << "in_h_port not connected"
@@ -425,6 +425,13 @@ void MotionGenerationQuadraticProgram::updateHook() {
           || in_jacobian_flow[jointN] == RTT::NoData
           || in_jacobianDot_flow[jointN] == RTT::NoData)
         {
+            PRINT(in_desiredTaskSpacePosition_flow[jointN]);
+            PRINT(in_desiredTaskSpaceVelocity_flow[jointN]);
+            PRINT(in_desiredTaskSpaceAcceleration_flow[jointN]);
+            PRINT(in_currentTaskSpacePosition_flow[jointN]);
+            PRINT(in_currentTaskSpaceVelocity_flow[jointN]);
+            PRINT(in_jacobian_flow[jointN]);
+            PRINT(in_jacobianDot_flow[jointN]);
             PRINT("FAILED, NO DATA FOR JOINT ");PRINT(jointN);PRINTNL(" RETURN");
             return;
         }
