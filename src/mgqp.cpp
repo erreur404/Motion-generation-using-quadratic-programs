@@ -551,7 +551,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
-    PRINTNL(limits);
     tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
     /*
     try {
