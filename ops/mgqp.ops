@@ -173,15 +173,15 @@ connect("trajectorygenerator2.out_desiredTaskSpacePosition_port", "myTorqueContr
 connect("trajectorygenerator2.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+n, cp);
 connect("trajectorygenerator2.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+n, cp);
 
-n = 2;
+#n = 2;
 
-connect("fkin"+n+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+n, cp);
-connect("fkin"+n+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+n, cp);
-connect("fkin"+n+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+n, cp);
-connect("fkin"+n+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+n, cp);
-connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+n, cp);
-connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+n, cp);
-connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+n, cp);
+#connect("fkin"+n+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+n, cp);
+#connect("fkin"+n+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+n, cp);
+#connect("fkin"+n+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+n, cp);
+#connect("fkin"+n+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+n, cp);
+#connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+n, cp);
+#connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+n, cp);
+#connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+n, cp);
 
 # send commands to the robot
 connect("myTorqueController.out_torques_port", "robot_gazebo.full_arm_JointTorqueCtrl", cp)
