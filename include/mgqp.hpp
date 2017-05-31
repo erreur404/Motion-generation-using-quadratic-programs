@@ -78,9 +78,9 @@ private:
     std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredTaskSpaceVelocity_port;
     std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredTaskSpaceAcceleration_port;
 
-    std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredJointSpacePosition_port;
-    std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredJointSpaceVelocity_port;
-    std::vector<RTT::InputPort<Eigen::VectorXf>* > in_desiredJointSpaceAcceleration_port;
+    std::vector<RTT::InputPort<float>* > in_desiredJointSpacePosition_port;
+    std::vector<RTT::InputPort<float>* > in_desiredJointSpaceVelocity_port;
+    std::vector<RTT::InputPort<float>* > in_desiredJointSpaceAcceleration_port;
 
     std::vector<RTT::InputPort<Eigen::VectorXf>* > in_currentTaskSpacePosition_port;
     std::vector<RTT::InputPort<Eigen::VectorXf>* > in_currentTaskSpaceVelocity_port;
@@ -105,6 +105,10 @@ private:
     std::vector<RTT::FlowStatus> in_desiredTaskSpaceVelocity_flow;
     std::vector<RTT::FlowStatus> in_desiredTaskSpaceAcceleration_flow;
 
+    std::vector<RTT::FlowStatus> in_desiredJointSpacePosition_flow;
+    std::vector<RTT::FlowStatus> in_desiredJointSpaceVelocity_flow;
+    std::vector<RTT::FlowStatus> in_desiredJointSpaceAcceleration_flow;
+
     std::vector<RTT::FlowStatus> in_currentTaskSpacePosition_flow;
     std::vector<RTT::FlowStatus> in_currentTaskSpaceVelocity_flow;
 
@@ -124,9 +128,9 @@ private:
     Eigen::VectorXf in_desiredTaskSpaceAcceleration_var;
 
     // to handle joint space condition
-    Eigen::VectorXf in_desiredJointSpacePosition_var;
-    Eigen::VectorXf in_desiredJointSpaceVelocity_var;
-    Eigen::VectorXf in_desiredJointSpaceAcceleration_var;
+    float in_desiredJointSpacePosition_var;
+    float in_desiredJointSpaceVelocity_var;
+    float in_desiredJointSpaceAcceleration_var;
 
     // feedback from the real world
     Eigen::VectorXf in_currentTaskSpacePosition_var;
@@ -149,7 +153,7 @@ private:
     Eigen::Vector3f errorOrientationPosition, errorOrientationVelocity;
     Eigen::VectorXf errorPosition, errorVelocity;
     Eigen::Vector3f desiredPosition, currentPosition, desiredVelocity, currentVelocity, desiredAcceleration, currentAcceleration;
-    Eigen::VectorXf desiredJointPosition, desiredJointVelocity, desiredJointAcceleration;
+    float desiredJointPosition, desiredJointVelocity, desiredJointAcceleration;
 
     unsigned int DOFsize;
     std::vector<int> constrainedJoints;

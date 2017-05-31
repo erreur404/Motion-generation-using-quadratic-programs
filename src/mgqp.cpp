@@ -179,6 +179,12 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
             free(in_desiredTaskSpaceVelocity_port[i]);
             ports()->removePort(cat("in_desiredTaskSpaceAcceleration_port_", i));
             free(in_desiredTaskSpaceAcceleration_port[i]);
+            ports()->removePort(cat("in_desiredJointSpacePosition_port_", i));
+            free(in_desiredJointSpacePosition_port[i]);
+            ports()->removePort(cat("in_desiredJointSpaceVelocity_port_", i));
+            free(in_desiredJointSpaceVelocity_port[i]);
+            ports()->removePort(cat("in_desiredJointSpaceAcceleration_port_", i));
+            free(in_desiredJointSpaceAcceleration_port[i]);
             //delete s;
             PRINTNL("-OK");
         }
@@ -186,6 +192,9 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
         in_desiredTaskSpacePosition_port.clear();
         in_desiredTaskSpaceVelocity_port.clear();
         in_desiredTaskSpaceAcceleration_port.clear();
+        in_desiredJointSpacePosition_port.clear();
+        in_desiredJointSpaceVelocity_port.clear();
+        in_desiredJointSpaceAcceleration_port.clear();
         in_currentTaskSpacePosition_port.clear();
         in_currentTaskSpaceVelocity_port.clear();
         in_jacobian_port.clear();
@@ -194,6 +203,9 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
         in_desiredTaskSpacePosition_flow.clear();
         in_desiredTaskSpaceVelocity_flow.clear();
         in_desiredTaskSpaceAcceleration_flow.clear();
+        in_desiredJointSpacePosition_flow.clear();
+        in_desiredJointSpaceVelocity_flow.clear();
+        in_desiredJointSpaceAcceleration_flow.clear();
         in_currentTaskSpacePosition_flow.clear();
         in_currentTaskSpaceVelocity_flow.clear();
         in_jacobian_flow.clear();
@@ -213,6 +225,10 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
       in_desiredTaskSpaceVelocity_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_desiredTaskSpaceVelocity_port_",i), RTT::ConnPolicy()));
       in_desiredTaskSpaceAcceleration_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_desiredTaskSpaceAcceleration_port_",i), RTT::ConnPolicy()));
 
+      in_desiredJointSpacePosition_port.push_back(new RTT::InputPort<float>(cat("in_desiredJointSpacePosition_port_",i), RTT::ConnPolicy()));
+      in_desiredJointSpaceVelocity_port.push_back(new RTT::InputPort<float>(cat("in_desiredJointSpaceVelocity_port_",i), RTT::ConnPolicy()));
+      in_desiredJointSpaceAcceleration_port.push_back(new RTT::InputPort<float>(cat("in_desiredJointSpaceAcceleration_port_",i), RTT::ConnPolicy()));
+
       in_currentTaskSpacePosition_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_currentTaskSpacePosition_port_",i), RTT::ConnPolicy()));
       in_currentTaskSpaceVelocity_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_currentTaskSpaceVelocity_port_",i), RTT::ConnPolicy()));
 
@@ -222,6 +238,9 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
       in_desiredTaskSpacePosition_flow.push_back(RTT::FlowStatus());
       in_desiredTaskSpaceVelocity_flow.push_back(RTT::FlowStatus());
       in_desiredTaskSpaceAcceleration_flow.push_back(RTT::FlowStatus());
+      in_desiredJointSpacePosition_flow.push_back(RTT::FlowStatus());
+      in_desiredJointSpaceVelocity_flow.push_back(RTT::FlowStatus());
+      in_desiredJointSpaceAcceleration_flow.push_back(RTT::FlowStatus());
       in_currentTaskSpacePosition_flow.push_back(RTT::FlowStatus());
       in_currentTaskSpaceVelocity_flow.push_back(RTT::FlowStatus());
       in_jacobian_flow.push_back(RTT::FlowStatus());
@@ -294,6 +313,30 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
       in_desiredTaskSpaceAcceleration_port[i-1]->doc("to receive the Acceleration to track from a trajectory generator");
       ports()->addPort(*in_desiredTaskSpaceAcceleration_port[i-1]);
       in_desiredTaskSpaceAcceleration_flow[i-1] = RTT::NoData;
+      PRINTNL(" OK");
+
+      PRINT("DesJointPos ...");
+      in_desiredJointSpacePosition_var = 0.0;
+      in_desiredJointSpacePosition_port[i-1]->setName(cat("in_desiredJointSpacePosition_port_", i));
+      in_desiredJointSpacePosition_port[i-1]->doc("to receive the angle to track from a trajectory generator");
+      ports()->addPort(*in_desiredJointSpacePosition_port[i-1]);
+      in_desiredJointSpacePosition_flow[i-1] = RTT::NoData;
+      PRINTNL(" OK");
+
+      PRINT("DesJointVel ...");
+      in_desiredJointSpaceVelocity_var = 0.0;
+      in_desiredJointSpaceVelocity_port[i-1]->setName(cat("in_desiredJointSpaceVelocity_port_", i));
+      in_desiredJointSpaceVelocity_port[i-1]->doc("to receive the Velocity to track from a trajectory generator");
+      ports()->addPort(*in_desiredJointSpaceVelocity_port[i-1]);
+      in_desiredJointSpaceVelocity_flow[i-1] = RTT::NoData;
+      PRINTNL(" OK");
+
+      PRINT("DesJointAcc ...");
+      in_desiredJointSpaceAcceleration_var = 0.0;
+      in_desiredJointSpaceAcceleration_port[i-1]->setName(cat("in_desiredJointSpaceAcceleration_port_",i));
+      in_desiredJointSpaceAcceleration_port[i-1]->doc("to receive the Acceleration to track from a trajectory generator");
+      ports()->addPort(*in_desiredJointSpaceAcceleration_port[i-1]);
+      in_desiredJointSpaceAcceleration_flow[i-1] = RTT::NoData;
       PRINTNL(" OK");
     }
     // */
@@ -470,6 +513,11 @@ void MotionGenerationQuadraticProgram::updateHook() {
         in_desiredTaskSpacePosition_flow[jointN] = in_desiredTaskSpacePosition_port[jointN]->read(in_desiredTaskSpacePosition_var);
         in_desiredTaskSpaceVelocity_flow[jointN] = in_desiredTaskSpaceVelocity_port[jointN]->read(in_desiredTaskSpaceVelocity_var);
         in_desiredTaskSpaceAcceleration_flow[jointN] = in_desiredTaskSpaceAcceleration_port[jointN]->read(in_desiredTaskSpaceAcceleration_var);
+
+        in_desiredJointSpacePosition_flow[jointN] = in_desiredJointSpacePosition_port[jointN]->read(in_desiredJointSpacePosition_var);
+        in_desiredJointSpaceVelocity_flow[jointN] = in_desiredJointSpaceVelocity_port[jointN]->read(in_desiredJointSpaceVelocity_var);
+        in_desiredJointSpaceAcceleration_flow[jointN] = in_desiredJointSpaceAcceleration_port[jointN]->read(in_desiredJointSpaceAcceleration_var);
+
         in_currentTaskSpacePosition_flow[jointN] = in_currentTaskSpacePosition_port[jointN]->read(in_currentTaskSpacePosition_var);
         in_currentTaskSpaceVelocity_flow[jointN] = in_currentTaskSpaceVelocity_port[jointN]->read(in_currentTaskSpaceVelocity_var);
 
@@ -503,7 +551,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
         if (in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData)
         {
-          in_desiredTaskSpaceAcceleration_var = Eigen::VectorXf::Zero(3);
+          desiredAcceleration = Eigen::VectorXf::Zero(3);
         }
         else
         {
@@ -515,6 +563,37 @@ void MotionGenerationQuadraticProgram::updateHook() {
         {
             PRINT("FAILED, NO JACOBIAN FOR JOINT ");PRINT(jointN);PRINTNL(" RETURN");
             return;
+        }
+
+        if (in_desiredJointSpacePosition_flow[jointN] == RTT::NoData)
+        {
+          //desiredJointPosition = Eigen::VectorXf::Zero(jointN); // targets the 0
+          desiredJointPosition = in_robotstatus_var.angles[jointN];
+        }
+        else
+        {
+          desiredJointPosition = in_desiredJointSpacePosition_var;
+          jointSpaceOperation |= true;
+        }
+
+        if (in_desiredJointSpaceVelocity_flow[jointN] == RTT::NoData)
+        {
+          desiredJointVelocity = in_robotstatus_var.angles[jointN];
+        }
+        else
+        {
+          desiredJointVelocity = in_desiredJointSpaceVelocity_var;
+          jointSpaceOperation |= true;
+        }
+
+        if (in_desiredJointSpaceAcceleration_flow[jointN] == RTT::NoData)
+        {
+          desiredJointAcceleration = in_robotstatus_var.angles[jointN];
+        }
+        else
+        {
+          desiredJointAcceleration = in_desiredJointSpaceAcceleration_var;
+          jointSpaceOperation |= true;
         }
 
 
@@ -548,20 +627,15 @@ void MotionGenerationQuadraticProgram::updateHook() {
         }
         if (jointSpaceOperation)
         {
-            int A_rows = in_jacobian_var.rows();
+            int A_rows = 1;
             int A_cols = this->DOFsize * 2;
 
-            Eigen::MatrixXf A = Eigen::MatrixXf(A_rows, A_cols);A.setZero();
+            Eigen::MatrixXf A = Eigen::MatrixXf::Zero(A_rows, A_cols);
             // Position tracking in Task space
-            A.block(0,0, A_rows, in_jacobian_var.cols()) = in_jacobian_var; // setting acceleration equality constraint // jacobian may be smaller as the space, the rest is 0 filled
-            A.block(0, A_cols/2, A_rows, A_cols/2) = Eigen::MatrixXf::Zero(A_rows, A_cols/2); // A = [J, 0]
-            a = -(this->gainTranslationP*(desiredPosition - currentPosition) +
-                this->gainTranslationD*(desiredVelocity - currentVelocity)  -
-                in_jacobianDot_var*qDot);
-            /*
-                NOTE : the goal matches the dimension of the result vector. When we work on an inferior degree of freedom,
-                the jacobian is null on these joints, and so are the associated goals
-            */
+            A(0, jointN) = 1;
+            a = Eigen::VectorXf(1);
+            a(0) = -(this->gainTranslationP*(desiredJointPosition - in_robotstatus_var.angles[jointN]) +
+                this->gainTranslationD*(desiredJointVelocity - in_robotstatus_var.velocities[jointN]));
             addToProblem(A, a, jointTrackPos);
 
         }
