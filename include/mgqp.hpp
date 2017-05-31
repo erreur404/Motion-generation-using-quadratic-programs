@@ -63,8 +63,12 @@ public:
     void setGains(float kp, float kd);
     void setGainsOrientation(float kp, float kd);
 
-    bool setTorqueLimits(Eigen::VectorXf torquesP, Eigen::VectorXf torquesN);
-    bool setAccelerationLimits(Eigen::VectorXf accelerationsP, Eigen::VectorXf accelerationsN);
+    bool setTorqueLimitsE(Eigen::VectorXf torquesP, Eigen::VectorXf torquesN);
+    bool setAccelerationLimitsE(Eigen::VectorXf accelerationsP, Eigen::VectorXf accelerationsN);
+    //*
+    bool setTorqueLimits(std::vector<double> torquesP, std::vector<double> torquesN);
+    bool setAccelerationLimits(std::vector<double> accelerationsP, std::vector<double> accelerationsN);
+    // */
 
     void preparePorts();
 

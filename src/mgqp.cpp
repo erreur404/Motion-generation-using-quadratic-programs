@@ -42,6 +42,8 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     addOperation("setDOFsize", &MotionGenerationQuadraticProgram::setDOFsize, this, RTT::ClientThread).doc("set DOF size");
     addOperation("setGains", &MotionGenerationQuadraticProgram::setGains, this, RTT::ClientThread).doc("set gains setGains(int kp, int kd)");
     addOperation("printCurrentState", &MotionGenerationQuadraticProgram::printCurrentState, this, RTT::ClientThread).doc("print current state");
+    addOperation("setAccelerationLimits", &MotionGenerationQuadraticProgram::setAccelerationLimits, this, RTT::ClientThread).doc("set acceleration limits setAccelerationLimits(Eigen::VectorXf limitPositiv, Eigen::VectorXf limitNegativ)");
+    addOperation("setTorqueLimits", &MotionGenerationQuadraticProgram::setTorqueLimits, this, RTT::ClientThread).doc("set torque limits setTorqueLimits(Eigen::VectorXf limitPositiv, Eigen::VectorXf limitNegativ)");
 
     in_jacobian_port;
     in_jacobianDot_port;
@@ -328,7 +330,38 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
     WorkspaceDimension = 3;
 }
 
-bool MotionGenerationQuadraticProgram::setTorqueLimits(Eigen::VectorXf torquesP, Eigen::VectorXf torquesN)
+//*
+bool MotionGenerationQuadraticProgram::setTorqueLimits(std::vector<double> torquesP, std::vector<double> torquesN)
+{
+  Eigen::VectorXf p, n;
+  assert(torquesP.size()==torquesN.size());
+  p = Eigen::VectorXf(torquesP.size());
+  n = Eigen::VectorXf(torquesN.size());
+  for (int i=0; i<torquesP.size(); i++)
+  {
+    p[i] = torquesP[i];
+    n[i] = torquesN[i];
+  }
+  return setTorqueLimitsE(p, n);
+}
+
+bool MotionGenerationQuadraticProgram::setAccelerationLimits(std::vector<double> accelerationsP, std::vector<double> accelerationsN)
+{
+  Eigen::VectorXf p, n;
+  assert(accelerationsP.size()==accelerationsN.size());
+  p = Eigen::VectorXf(accelerationsP.size());
+  n = Eigen::VectorXf(accelerationsN.size());
+  for (int i=0; i<accelerationsP.size(); i++)
+  {
+    p[i] = accelerationsP[i];
+    n[i] = accelerationsN[i];
+  }
+  return setAccelerationLimitsE(p, n);
+}
+// */
+
+//*
+bool MotionGenerationQuadraticProgram::setTorqueLimitsE(Eigen::VectorXf torquesP, Eigen::VectorXf torquesN)
 {
   if (torquesP.rows() != this->DOFsize || torquesN.rows() != this->DOFsize)
   {
@@ -340,7 +373,7 @@ bool MotionGenerationQuadraticProgram::setTorqueLimits(Eigen::VectorXf torquesP,
   return true;
 }
 
-bool MotionGenerationQuadraticProgram::setAccelerationLimits(Eigen::VectorXf accelerationsP, Eigen::VectorXf accelerationsN)
+bool MotionGenerationQuadraticProgram::setAccelerationLimitsE(Eigen::VectorXf accelerationsP, Eigen::VectorXf accelerationsN)
 {
   if (accelerationsP.rows() != this->DOFsize || accelerationsN.rows() != this->DOFsize)
   {
@@ -351,6 +384,7 @@ bool MotionGenerationQuadraticProgram::setAccelerationLimits(Eigen::VectorXf acc
   this->JointAccelerationLimitsN = accelerationsN;
   return true;
 }
+// */
 
 void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticProblem &problem)
 {

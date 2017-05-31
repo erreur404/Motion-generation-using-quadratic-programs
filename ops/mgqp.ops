@@ -16,7 +16,7 @@ import("CosimaUtilities")
 require("os")
 require("print")
 
-var int DOFsize = 11;
+var int DOFsize = 7;
 var string model_name = "";
 var string path_model_urdf = "";
 var string path_model_srdf = "";
@@ -26,8 +26,8 @@ if (DOFsize == 7) then {
   path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-lwr-4plus/model.srdf";
 } else {
   model_name = "model://kuka-artificial11DOF";
-  path_model_urdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-artificial11DOForderly/model.urdf";
-  path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-artificial11DOForderly/model.srdf";
+  path_model_urdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-artificial11DOF/model.urdf";
+  path_model_srdf = os.getenv("GAZEBO_MODEL_PATH")+"/kuka-artificial11DOF/model.srdf";
 }
 
 # instantiate components
@@ -82,13 +82,32 @@ print.ln("");
 print.ln("");
 print.ln("");
 #   Compute forward dynamics for all links
-for (var int i = 1; i <= DOFsize; i = i + 1 ) {
-      loadComponent("fkin"+i, "WrapperKDL");
-      setActivity("fkin"+i,0.01,10,ORO_SCHED_OTHER);
-      eval("fkin"+i+".loadModel(\""+path_model_urdf+"\", \"lwr_arm_base_link\",\"lwr_arm_"+i+"_link\")");
+if (DOFsize == 7) then {
 
-      eval("fkin"+i+".setDOFsize("+i+")");
-      eval("fkin"+i+".configure()");
+        for (var int i = 1; i <= DOFsize; i = i + 1 ) {
+              loadComponent("fkin"+i, "WrapperKDL");
+              setActivity("fkin"+i,0.01,10,ORO_SCHED_OTHER);
+              eval("fkin"+i+".loadModel(\""+path_model_urdf+"\", \"lwr_arm_base_link\",\"lwr_arm_"+i+"_link\")");
+
+              eval("fkin"+i+".setDOFsize("+i+")");
+              eval("fkin"+i+".configure()");
+        }
+
+
+} else {
+        loadComponent("fkin"+i, "WrapperKDL");
+        setActivity("fkin"+i,0.01,10,ORO_SCHED_OTHER);
+        eval("fkin"+i+".loadModel(\""+path_model_urdf+"\", \"lwr_arm_base_link\",\"lwr_arm_"+i+"_link\")");
+
+        eval("fkin"+i+".setDOFsize("+i+")");
+        eval("fkin"+i+".configure()");
+
+        loadComponent("fkin"+i, "WrapperKDL");
+        setActivity("fkin"+i,0.01,10,ORO_SCHED_OTHER);
+        eval("fkin"+i+".loadModel(\""+path_model_urdf+"\", \"lwr_arm_base_link\",\"lwr_arm_"+i+"_link\")");
+
+        eval("fkin"+i+".setDOFsize("+i+")");
+        eval("fkin"+i+".configure()");
 }
 print.ln("");
 print.ln("");
@@ -147,6 +166,8 @@ import("MotionGenerationQuadraticProgram")
 loadComponent("myTorqueController", "MotionGenerationQuadraticProgram");
 setActivity("myTorqueController", 0.05, 50, ORO_SCHED_OTHER);
 myTorqueController.setDOFsize(DOFsize);
+myTorqueController.setTorqueLimits(array(100, DOFsize), array(-100, DOFsize))
+myTorqueController.setAccelerationLimits(array(100, DOFsize), array(-100, DOFsize))
 
 var ConnPolicy cp
 # send joint status to the controller
