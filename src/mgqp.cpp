@@ -148,7 +148,6 @@ bool MotionGenerationQuadraticProgram::configureHook() {
         << RTT::endlog();
         return false;
     }
-    << RTT::endlog();
 }
 
 bool MotionGenerationQuadraticProgram::startHook() {
@@ -465,6 +464,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
     for (int j=0; j<this->constrainedJoints.size(); j++)
     {
         int jointN = this->constrainedJoints[j];
+        bool taskSpaceOperation = false;
+        bool jointSpaceOperation = false;
 
         in_desiredTaskSpacePosition_flow[jointN] = in_desiredTaskSpacePosition_port[jointN]->read(in_desiredTaskSpacePosition_var);
         in_desiredTaskSpaceVelocity_flow[jointN] = in_desiredTaskSpaceVelocity_port[jointN]->read(in_desiredTaskSpaceVelocity_var);
@@ -476,19 +477,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
         in_jacobianDot_flow[jointN] = in_jacobianDot_port[jointN]->read(in_jacobianDot_var);
 
 
-        if (in_desiredTaskSpacePosition_flow[jointN] == RTT::NoData
-          || in_desiredTaskSpaceVelocity_flow[jointN] == RTT::NoData
-          || in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData
-          || in_currentTaskSpacePosition_flow[jointN] == RTT::NoData
-          || in_currentTaskSpaceVelocity_flow[jointN] == RTT::NoData
-          || in_jacobian_flow[jointN] == RTT::NoData
-          || in_jacobianDot_flow[jointN] == RTT::NoData)
-        {
-            PRINT("FAILED, NO JACOBIAN FOR JOINT ");PRINT(jointN);PRINTNL(" RETURN");
-            return;
-        }
-
-        if (in_desiredTaskSpacePosition_flow == RTT:NoData || in_currentTaskSpacePosition_flow == RTT::NoData)
+        if (in_desiredTaskSpacePosition_flow[jointN] == RTT::NoData || in_currentTaskSpacePosition_flow[jointN] == RTT::NoData)
         {
           desiredPosition = Eigen::VectorXf::Zero(3);
           currentPosition = Eigen::VectorXf::Zero(3);
@@ -497,9 +486,10 @@ void MotionGenerationQuadraticProgram::updateHook() {
         {
           desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);
           currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);
+          taskSpaceOperation |= true;
         }
 
-        if (in_desiredTaskSpaceVelocity_flow == RTT::NoData || in_currentTaskSpaceVelocity_flow == RTT::NoData)
+        if (in_desiredTaskSpaceVelocity_flow[jointN] == RTT::NoData || in_currentTaskSpaceVelocity_flow[jointN] == RTT::NoData)
         {
           desiredVelocity = Eigen::VectorXf::Zero(3);
           currentVelocity = Eigen::VectorXf::Zero(3);
@@ -508,44 +498,73 @@ void MotionGenerationQuadraticProgram::updateHook() {
         {
           desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
           currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
+          taskSpaceOperation |= true;
         }
 
-        if (in_desiredTaskSpaceAcceleration_flow == RTT::NoData)
+        if (in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData)
         {
           in_desiredTaskSpaceAcceleration_var = Eigen::VectorXf::Zero(3);
         }
         else
         {
           desiredAcceleration = in_desiredTaskSpaceAcceleration_var;
+          taskSpaceOperation |= true;
+        }
+
+        if (taskSpaceOperation && (in_jacobian_flow[jointN] == RTT::NoData || in_jacobianDot_flow[jointN] == RTT::NoData))
+        {
+            PRINT("FAILED, NO JACOBIAN FOR JOINT ");PRINT(jointN);PRINTNL(" RETURN");
+            return;
         }
 
 
         Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
-        rDot = in_jacobian_var.transpose()*desiredVelocity;
-        rDotDot = in_jacobian_var.transpose()*desiredAcceleration+in_jacobianDot_var.transpose()*desiredVelocity;
+
         q = in_robotstatus_var.angles;
         qDot = in_robotstatus_var.velocities;
         q = q.block(0, 0, in_jacobian_var.cols(), 1);
         qDot = qDot.block(0, 0, in_jacobian_var.cols(), 1);
-        //qDotDot =
 
+        if (taskSpaceOperation)
+        {
+            rDot = in_jacobian_var.transpose()*desiredVelocity;
+            rDotDot = in_jacobian_var.transpose()*desiredAcceleration+in_jacobianDot_var.transpose()*desiredVelocity;
 
+            int A_rows = in_jacobian_var.rows();
+            int A_cols = this->DOFsize * 2;
 
-        int A_rows = in_jacobian_var.rows();
-        int A_cols = this->DOFsize * 2;
+            Eigen::MatrixXf A = Eigen::MatrixXf(A_rows, A_cols);A.setZero();
+            // Position tracking in Task space
+            A.block(0,0, A_rows, in_jacobian_var.cols()) = in_jacobian_var; // setting acceleration equality constraint // jacobian may be smaller as the space, the rest is 0 filled
+            A.block(0, A_cols/2, A_rows, A_cols/2) = Eigen::MatrixXf::Zero(A_rows, A_cols/2); // A = [J, 0]
+            a = -(this->gainTranslationP*(desiredPosition - currentPosition) +
+                this->gainTranslationD*(desiredVelocity - currentVelocity)  -
+                in_jacobianDot_var*qDot);
+            /*
+                NOTE : the goal matches the dimension of the result vector. When we work on an inferior degree of freedom,
+                the jacobian is null on these joints, and so are the associated goals
+            */
+            addToProblem(A, a, jointTrackPos);
+        }
+        if (jointSpaceOperation)
+        {
+            int A_rows = in_jacobian_var.rows();
+            int A_cols = this->DOFsize * 2;
 
-        Eigen::MatrixXf A = Eigen::MatrixXf(A_rows, A_cols);A.setZero();
-        // Position tracking in Task space
-        A.block(0,0, A_rows, in_jacobian_var.cols()) = in_jacobian_var; // setting acceleration equality constraint // jacobian may be smaller as the space, the rest is 0 filled
-        A.block(0, A_cols/2, A_rows, A_cols/2) = Eigen::MatrixXf::Zero(A_rows, A_cols/2); // A = [J, 0]
-        a = -(this->gainTranslationP*(in_desiredTaskSpacePosition_var - in_currentTaskSpacePosition_var) +
-            this->gainTranslationD*(in_desiredTaskSpaceVelocity_var - in_currentTaskSpaceVelocity_var)  -
-            in_jacobianDot_var*qDot);
-        /*
-            NOTE : the goal matches the dimension of the result vector. When we work on an inferior degree of freedom,
-            the jacobian is null on these joints, and so are the associated goals
-        */
-        addToProblem(A, a, jointTrackPos);
+            Eigen::MatrixXf A = Eigen::MatrixXf(A_rows, A_cols);A.setZero();
+            // Position tracking in Task space
+            A.block(0,0, A_rows, in_jacobian_var.cols()) = in_jacobian_var; // setting acceleration equality constraint // jacobian may be smaller as the space, the rest is 0 filled
+            A.block(0, A_cols/2, A_rows, A_cols/2) = Eigen::MatrixXf::Zero(A_rows, A_cols/2); // A = [J, 0]
+            a = -(this->gainTranslationP*(desiredPosition - currentPosition) +
+                this->gainTranslationD*(desiredVelocity - currentVelocity)  -
+                in_jacobianDot_var*qDot);
+            /*
+                NOTE : the goal matches the dimension of the result vector. When we work on an inferior degree of freedom,
+                the jacobian is null on these joints, and so are the associated goals
+            */
+            addToProblem(A, a, jointTrackPos);
+
+        }
     }
     //addToProblem(A, a, pb1);
     //*/
