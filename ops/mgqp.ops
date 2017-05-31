@@ -166,8 +166,8 @@ import("MotionGenerationQuadraticProgram")
 loadComponent("myTorqueController", "MotionGenerationQuadraticProgram");
 setActivity("myTorqueController", 0.05, 50, ORO_SCHED_OTHER);
 myTorqueController.setDOFsize(DOFsize);
-myTorqueController.setTorqueLimits(array(100, DOFsize), array(-100, DOFsize))
-myTorqueController.setAccelerationLimits(array(100, DOFsize), array(-100, DOFsize))
+myTorqueController.setTorqueLimits(array(DOFsize, 100), array(DOFsize, -100))
+myTorqueController.setAccelerationLimits(array(DOFsize, 100), array(DOFsize, -100))
 
 var ConnPolicy cp
 # send joint status to the controller
