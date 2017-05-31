@@ -136,7 +136,8 @@ bool MotionGenerationQuadraticProgram::configureHook() {
       RTT::log(RTT::Info) << "in_h_port not connected"
       << RTT::endlog();
       return false;
-    }/*
+    }
+    /*
     if (!in_constraintMinvP_port.connected()) {
       RTT::log(RTT::Info) << "in_constraintMinvP_port not connected"
       << RTT::endlog();
@@ -148,6 +149,7 @@ bool MotionGenerationQuadraticProgram::configureHook() {
         << RTT::endlog();
         return false;
     }
+    PRINTNL("Controller configured SUCCESS !");
 }
 
 bool MotionGenerationQuadraticProgram::startHook() {
@@ -503,10 +505,10 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     QuadraticProblem jointTrackPos; jointTrackPos.init(2*this->DOFsize);
 
-
     for (int j=0; j<this->constrainedJoints.size(); j++)
     {
         int jointN = this->constrainedJoints[j];
+        PRINT("joint nb°");PRINTNL(jointN);
         bool taskSpaceOperation = false;
         bool jointSpaceOperation = false;
 
@@ -698,7 +700,10 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
-    tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
+    //PRINTNL(jointTrackPos.conditions);
+    //PRINTNL(jointTrackPos.goal);
+    tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero(1, 14), Eigen::VectorXf::Zero(1));// without constraints
+    //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
     /*
     try {
       //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
