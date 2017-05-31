@@ -92,6 +92,7 @@ bool MotionGenerationQuadraticProgram::configureHook() {
     }
     for (int i=1; i<=this->DOFsize; i++)
     {
+        /*
         if (!in_desiredTaskSpacePosition_port[i-1]->connected()) {
           RTT::log(RTT::Info) << "in_desiredTaskSpacePosition_port_"<<i<<" not connected"
           << RTT::endlog();
@@ -117,6 +118,7 @@ bool MotionGenerationQuadraticProgram::configureHook() {
           << RTT::endlog();
           continue;
         }
+        // */
         if (!in_jacobian_port[i-1]->connected()) {
           RTT::log(RTT::Info) << "in_jacobian_port_"<<i<<" not connected"
           << RTT::endlog();
@@ -146,7 +148,6 @@ bool MotionGenerationQuadraticProgram::configureHook() {
         << RTT::endlog();
         return false;
     }
-    RTT::log(RTT::Info) << "??????????????? MotionGenerationQuadraticProgram configure success"
     << RTT::endlog();
 }
 
@@ -487,22 +488,41 @@ void MotionGenerationQuadraticProgram::updateHook() {
             return;
         }
 
+        if (in_desiredTaskSpacePosition_flow == RTT:NoData || in_currentTaskSpacePosition_flow == RTT::NoData)
+        {
+          desiredPosition = Eigen::VectorXf::Zero(3);
+          currentPosition = Eigen::VectorXf::Zero(3);
+        }
+        else
+        {
+          desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);
+          currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);
+        }
 
-        // reading the variables from the flows
+        if (in_desiredTaskSpaceVelocity_flow == RTT::NoData || in_currentTaskSpaceVelocity_flow == RTT::NoData)
+        {
+          desiredVelocity = Eigen::VectorXf::Zero(3);
+          currentVelocity = Eigen::VectorXf::Zero(3);
+        }
+        else
+        {
+          desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
+          currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
+        }
 
-        //PRINT(WorkspaceDimension);3
-        //PRINT(desiredPosition); [0 0 0]
-        //PRINT(in_desiredTaskSpacePosition_var); [0.7 0 0.7]
-        //PRINT(in_desiredTaskSpacePosition_var.head(WorkspaceDimension)); [0.7 0 0.7]
-        desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);
-        currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);
-        desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
-        currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
+        if (in_desiredTaskSpaceAcceleration_flow == RTT::NoData)
+        {
+          in_desiredTaskSpaceAcceleration_var = Eigen::VectorXf::Zero(3);
+        }
+        else
+        {
+          desiredAcceleration = in_desiredTaskSpaceAcceleration_var;
+        }
 
 
         Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
-        rDot = in_jacobian_var.transpose()*in_desiredTaskSpaceVelocity_var;
-        rDotDot = in_jacobian_var.transpose()*in_desiredTaskSpaceAcceleration_var+in_jacobianDot_var.transpose()*in_desiredTaskSpaceVelocity_var;
+        rDot = in_jacobian_var.transpose()*desiredVelocity;
+        rDotDot = in_jacobian_var.transpose()*desiredAcceleration+in_jacobianDot_var.transpose()*desiredVelocity;
         q = in_robotstatus_var.angles;
         qDot = in_robotstatus_var.velocities;
         q = q.block(0, 0, in_jacobian_var.cols(), 1);
