@@ -65,9 +65,11 @@ public:
 
     bool setTorqueLimitsE(Eigen::VectorXf torquesP, Eigen::VectorXf torquesN);
     bool setAccelerationLimitsE(Eigen::VectorXf accelerationsP, Eigen::VectorXf accelerationsN);
+    bool setAngularLimitsE(Eigen::VectorXf jointsP, Eigen::VectorXf jointsN);
     //*
     bool setTorqueLimits(std::vector<double> torquesP, std::vector<double> torquesN);
     bool setAccelerationLimits(std::vector<double> accelerationsP, std::vector<double> accelerationsN);
+    bool setAngularLimits(std::vector<double> limitSup, std::vector<double> limitInf);
     // */
 
     void preparePorts();
@@ -157,10 +159,14 @@ private:
 
     unsigned int DOFsize;
     std::vector<int> constrainedJoints;
+
+    // Joints limits
     Eigen::VectorXf JointTorquesLimitsP;
-    Eigen::VectorXf JointAccelerationLimitsP;
     Eigen::VectorXf JointTorquesLimitsN;
+    Eigen::VectorXf JointAccelerationLimitsP;
     Eigen::VectorXf JointAccelerationLimitsN;
+    Eigen::VectorXf JointLimitsSup;
+    Eigen::VectorXf JointLimitsInf;
 
     bool receiveTranslationOnly;
     unsigned int TaskSpaceDimension;

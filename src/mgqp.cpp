@@ -44,6 +44,7 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     addOperation("printCurrentState", &MotionGenerationQuadraticProgram::printCurrentState, this, RTT::ClientThread).doc("print current state");
     addOperation("setAccelerationLimits", &MotionGenerationQuadraticProgram::setAccelerationLimits, this, RTT::ClientThread).doc("set acceleration limits setAccelerationLimits(Eigen::VectorXf limitPositiv, Eigen::VectorXf limitNegativ)");
     addOperation("setTorqueLimits", &MotionGenerationQuadraticProgram::setTorqueLimits, this, RTT::ClientThread).doc("set torque limits setTorqueLimits(Eigen::VectorXf limitPositiv, Eigen::VectorXf limitNegativ)");
+    addOperation("setAngularLimits", &MotionGenerationQuadraticProgram::setAngularLimits, this, RTT::ClientThread).doc("set angular limits setAngularLimits(Eigen::VectorXf limitSup, Eigen::VectorXf limitInf)");
 
     in_jacobian_port;
     in_jacobianDot_port;
@@ -376,17 +377,21 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
 }
 
 //*
+void doubleVToEigenV(std::vector<double> v, Eigen::VectorXf &e)
+{
+  e = Eigen::VectorXf(v.size());
+  for (int i=0; i<v.size(); i++)
+  {
+    e[i] = v[i];
+  }
+}
+
 bool MotionGenerationQuadraticProgram::setTorqueLimits(std::vector<double> torquesP, std::vector<double> torquesN)
 {
   Eigen::VectorXf p, n;
   assert(torquesP.size()==torquesN.size());
-  p = Eigen::VectorXf(torquesP.size());
-  n = Eigen::VectorXf(torquesN.size());
-  for (int i=0; i<torquesP.size(); i++)
-  {
-    p[i] = torquesP[i];
-    n[i] = torquesN[i];
-  }
+  doubleVToEigenV(torquesP, p);
+  doubleVToEigenV(torquesN, n);
   return setTorqueLimitsE(p, n);
 }
 
@@ -394,14 +399,18 @@ bool MotionGenerationQuadraticProgram::setAccelerationLimits(std::vector<double>
 {
   Eigen::VectorXf p, n;
   assert(accelerationsP.size()==accelerationsN.size());
-  p = Eigen::VectorXf(accelerationsP.size());
-  n = Eigen::VectorXf(accelerationsN.size());
-  for (int i=0; i<accelerationsP.size(); i++)
-  {
-    p[i] = accelerationsP[i];
-    n[i] = accelerationsN[i];
-  }
+  doubleVToEigenV(accelerationsP, p);
+  doubleVToEigenV(accelerationsN, n);
   return setAccelerationLimitsE(p, n);
+}
+
+bool MotionGenerationQuadraticProgram::setAngularLimits(std::vector<double> limitSup, std::vector<double> limitInf)
+{
+  Eigen::VectorXf s, i;
+  assert(limitSup.size()==limitInf.size());
+  doubleVToEigenV(limitSup, s);
+  doubleVToEigenV(limitInf, i);
+  return setAccelerationLimitsE(s, i);
 }
 // */
 
@@ -429,6 +438,18 @@ bool MotionGenerationQuadraticProgram::setAccelerationLimitsE(Eigen::VectorXf ac
   this->JointAccelerationLimitsN = accelerationsN;
   return true;
 }
+
+bool MotionGenerationQuadraticProgram::setAngularLimitsE(Eigen::VectorXf jointsP, Eigen::VectorXf jointsN)
+{
+  if (jointsP.rows() != this->DOFsize || jointsN.rows() != this->DOFsize)
+  {
+    PRINTNL("Can't assign ");PRINT(jointsP.rows());PRINT(" joint limits to ");PRINT(this->DOFsize);PRINT(" joints robot");
+    return false;
+  }
+  this->JointLimitsSup = jointsP;
+  this->JointLimitsInf = jointsN;
+  return true;
+}
 // */
 
 void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticProblem &problem)
@@ -443,7 +464,7 @@ void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticPro
   }
   problem.conditions.conservativeResize((Eigen::Index) (problem.rows()+conditions.rows()), (Eigen::NoChange_t) problem.cols());
   problem.conditions.block(problem.rows()-conditions.rows(), 0, conditions.rows(), problem.cols()) = conditions;
-  problem.goal.conservativeResize((Eigen::Index) (problem.rows()), (Eigen::NoChange_t) problem.cols());
+  problem.goal.conservativeResize((Eigen::Index) (problem.rows()), (Eigen::NoChange_t) 1);
   problem.conditions.block(problem.rows()-conditions.rows(), 0, conditions.rows(), 1) = goal;
 }
 
@@ -505,10 +526,9 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     QuadraticProblem jointTrackPos; jointTrackPos.init(2*this->DOFsize);
 
-    for (int j=0; j<this->constrainedJoints.size(); j++)
+    for (int j=0; j<this->DOFsize; j++)
     {
-        int jointN = this->constrainedJoints[j];
-        PRINT("joint nb°");PRINTNL(jointN);
+        int jointN = j;//this->constrainedJoints[j];
         bool taskSpaceOperation = false;
         bool jointSpaceOperation = false;
 
@@ -700,10 +720,10 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
-    //PRINTNL(jointTrackPos.conditions);
-    //PRINTNL(jointTrackPos.goal);
-    tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero(1, 14), Eigen::VectorXf::Zero(1));// without constraints
-    //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
+    //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero(1, 2*this->DOFsize), Eigen::VectorXf::Zero(1));// without constraints
+    PRINT("A");PRINTNL(jointTrackPos.conditions);
+    PRINT("a");PRINTNL(jointTrackPos.goal);
+    tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
     /*
     try {
       //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
@@ -751,6 +771,12 @@ void MotionGenerationQuadraticProgram::setGains(float kp, float kd)
 
 void MotionGenerationQuadraticProgram::printCurrentState(){
     std::cout << "############## MotionGenerationQuadraticProgram State begin " << std::endl;
+
+    std::cout << " degrees of freedom " << DOFsize << std::endl;
+    std::cout << " torque limits+ " << JointTorquesLimitsP.transpose() << std::endl;
+    std::cout << " torque limits- " << JointTorquesLimitsN.transpose() << std::endl;
+    std::cout << " acceleration limits+ " << JointAccelerationLimitsP.transpose() << std::endl;
+    std::cout << " acceleration limits- " << JointAccelerationLimitsN.transpose() << std::endl;
 
     std::cout << " feedback angles " << in_robotstatus_var.angles << std::endl;
     std::cout << " feedback velocities " << in_robotstatus_var.velocities << std::endl;

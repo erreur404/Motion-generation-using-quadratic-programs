@@ -126,17 +126,31 @@ print.ln("");
 
 
 # LETS PLAY HERE !!
+var int AngleLimit = 120;
+var int AccelLimit = 1000;
+var int TorqueLimit = 1000;
+
+
+import("RttExamples1")
+loadComponent("singen", "SimpleExample")
+setActivity("singen", 0.05, 50, ORO_SCHED_OTHER)
+singen.setDOFsize(1);
+
+
+singen.configure()
+singen.start()
+
 
 # for debug : generates a trajectory
 loadComponent("trajectorygenerator", "TrajectoryGenerator");
 setActivity("trajectorygenerator",0.01,10,ORO_SCHED_OTHER);
 #trajectorygenerator.setTranslationOnly(translationOnly);
-trajectorygenerator.setCenter(0.6,0.0,0.7)
-trajectorygenerator.radius = 0.1
+trajectorygenerator.setCenter(0.6,0.0,0.7);
+trajectorygenerator.radius = 0.1;
 trajectorygenerator.timescale = 1.0;
-trajectorygenerator.setWaitTime(10)
-trajectorygenerator.preparePorts()
-trajectorygenerator.configure()
+trajectorygenerator.setWaitTime(10);
+trajectorygenerator.preparePorts();
+trajectorygenerator.configure();
 
 loadComponent("trajectorygenerator2", "TrajectoryGenerator");
 setActivity("trajectorygenerator2",0.01,10,ORO_SCHED_OTHER);
@@ -166,8 +180,9 @@ import("MotionGenerationQuadraticProgram")
 loadComponent("myTorqueController", "MotionGenerationQuadraticProgram");
 setActivity("myTorqueController", 0.05, 50, ORO_SCHED_OTHER);
 myTorqueController.setDOFsize(DOFsize);
-myTorqueController.setTorqueLimits(array(DOFsize, 100), array(DOFsize, -100))
-myTorqueController.setAccelerationLimits(array(DOFsize, 100), array(DOFsize, -100))
+myTorqueController.setTorqueLimits(array(DOFsize, TorqueLimit), array(DOFsize, -TorqueLimit))
+myTorqueController.setAccelerationLimits(array(DOFsize, AccelLimit), array(DOFsize, -AccelLimit))
+myTorqueController.setAngularLimits(array(DOFsize, AngleLimit), array(DOFsize, -AngleLimit))
 
 var ConnPolicy cp
 # send joint status to the controller
@@ -187,13 +202,13 @@ connect("fkin"+n+".out_inertia_port", "myTorqueController.in_inertia_port", cp);
 
 n = DOFsize;
 
-connect("fkin"+n+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+n, cp);
-connect("fkin"+n+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+n, cp);
-connect("fkin"+n+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+n, cp);
-connect("fkin"+n+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+n, cp);
-connect("trajectorygenerator2.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+n, cp);
-connect("trajectorygenerator2.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+n, cp);
-connect("trajectorygenerator2.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+n, cp);
+#connect("fkin"+n+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+n, cp);
+#connect("fkin"+n+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+n, cp);
+#connect("fkin"+n+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+n, cp);
+#connect("fkin"+n+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+n, cp);
+#connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+n, cp);
+#connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+n, cp);
+#connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+n, cp);
 
 #n = 5;
 
@@ -204,6 +219,9 @@ connect("trajectorygenerator2.out_desiredTaskSpaceAcceleration_port", "myTorqueC
 #connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+n, cp);
 #connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+n, cp);
 #connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+n, cp);
+
+connect("singen.out_sin_port", "myTorqueController.in_desiredJointSpacePosition_port_1", cp);
+#connect("singen.out_sin_port", "myTorqueController.in_desiredJointSpacePosition_port_3", cp);
 
 # send commands to the robot
 connect("myTorqueController.out_torques_port", "robot_gazebo.full_arm_JointTorqueCtrl", cp)
