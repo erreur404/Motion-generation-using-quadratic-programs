@@ -465,7 +465,7 @@ void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticPro
   problem.conditions.conservativeResize((Eigen::Index) (problem.rows()+conditions.rows()), (Eigen::NoChange_t) problem.cols());
   problem.conditions.block(problem.rows()-conditions.rows(), 0, conditions.rows(), problem.cols()) = conditions;
   problem.goal.conservativeResize((Eigen::Index) (problem.rows()), (Eigen::NoChange_t) 1);
-  problem.conditions.block(problem.rows()-conditions.rows(), 0, conditions.rows(), 1) = goal;
+  problem.goal.block(problem.rows()-conditions.rows(), 0, conditions.rows(), 1) = goal;
 }
 
 void addToProblem(Eigen::VectorXf condition, float goal, Eigen::MatrixXf &problem)
@@ -620,6 +620,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
 
         Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
+        Eigen::MatrixXf A;
 
         q = in_robotstatus_var.angles;
         qDot = in_robotstatus_var.velocities;
@@ -634,7 +635,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             int A_rows = in_jacobian_var.rows();
             int A_cols = this->DOFsize * 2;
 
-            Eigen::MatrixXf A = Eigen::MatrixXf(A_rows, A_cols);A.setZero();
+            A = Eigen::MatrixXf::Zero(A_rows, A_cols);
             // Position tracking in Task space
             A.block(0,0, A_rows, in_jacobian_var.cols()) = in_jacobian_var; // setting acceleration equality constraint // jacobian may be smaller as the space, the rest is 0 filled
             A.block(0, A_cols/2, A_rows, A_cols/2) = Eigen::MatrixXf::Zero(A_rows, A_cols/2); // A = [J, 0]
@@ -652,14 +653,13 @@ void MotionGenerationQuadraticProgram::updateHook() {
             int A_rows = 1;
             int A_cols = this->DOFsize * 2;
 
-            Eigen::MatrixXf A = Eigen::MatrixXf::Zero(A_rows, A_cols);
+            A = Eigen::MatrixXf::Zero(A_rows, A_cols);
             // Position tracking in Task space
             A(0, jointN) = 1;
             a = Eigen::VectorXf(1);
             a(0) = -(this->gainTranslationP*(desiredJointPosition - in_robotstatus_var.angles[jointN]) +
                 this->gainTranslationD*(desiredJointVelocity - in_robotstatus_var.velocities[jointN]));
             addToProblem(A, a, jointTrackPos);
-
         }
     }
     //addToProblem(A, a, pb1);
@@ -683,6 +683,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     limitsMatrix.setZero();
     Eigen::VectorXf limits(nbInequality);
     limits.setZero();
+
     /*
         NOTE : the QuadProgpp library solves inequality as Ax+a >= 0. Not exceeding a torque limit like Ax <= a would then be
                     -Ax >= -a --> -Ax + a >= 0
@@ -716,7 +717,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
     limits.block(1*nbInequality/4, 0, nbInequality/4, 1) = (this->JointTorquesLimitsP.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsP);
     limits.block(2*nbInequality/4, 0, nbInequality/4, 1) = - (this->JointAccelerationLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointAccelerationLimitsN);
     limits.block(3*nbInequality/4, 0, nbInequality/4, 1) = - (this->JointTorquesLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsN);
-
 
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
