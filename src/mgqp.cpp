@@ -583,7 +583,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
         if (taskSpaceOperation && (in_jacobian_flow[jointN] == RTT::NoData || in_jacobianDot_flow[jointN] == RTT::NoData))
         {
-            PRINT("FAILED, NO JACOBIAN FOR JOINT ");PRINT(jointN);PRINTNL(" RETURN");
+            PRINT("FAILED, NO JACOBIAN FOR JOINT ");PRINT(jointN+1);PRINTNL(" RETURN");
             return;
         }
 
@@ -721,8 +721,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero(1, 2*this->DOFsize), Eigen::VectorXf::Zero(1));// without constraints
-    PRINT("A");PRINTNL(jointTrackPos.conditions);
-    PRINT("a");PRINTNL(jointTrackPos.goal);
     tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
     /*
     try {

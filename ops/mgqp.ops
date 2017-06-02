@@ -16,7 +16,7 @@ import("CosimaUtilities")
 require("os")
 require("print")
 
-var int DOFsize = 7;
+var int DOFsize = 11;
 var string model_name = "";
 var string path_model_urdf = "";
 var string path_model_srdf = "";
@@ -95,19 +95,22 @@ if (DOFsize == 7) then {
 
 
 } else {
-        loadComponent("fkin"+i, "WrapperKDL");
-        setActivity("fkin"+i,0.01,10,ORO_SCHED_OTHER);
-        eval("fkin"+i+".loadModel(\""+path_model_urdf+"\", \"lwr_arm_base_link\",\"lwr_arm_"+i+"_link\")");
+        var string jname = "7";
+        loadComponent("fkin"+jname, "WrapperKDL");
+        setActivity("fkin"+jname,0.01,10,ORO_SCHED_OTHER);
+        eval("fkin"+jname+".loadModel(\""+path_model_urdf+"\", \"lwr_arm_base_link\",\"lwr_arm_"+jname+"_link\")");
 
-        eval("fkin"+i+".setDOFsize("+i+")");
-        eval("fkin"+i+".configure()");
+        eval("fkin"+jname+".setDOFsize("+11+")");
+        eval("fkin"+jname+".configure()");
 
-        loadComponent("fkin"+i, "WrapperKDL");
-        setActivity("fkin"+i,0.01,10,ORO_SCHED_OTHER);
-        eval("fkin"+i+".loadModel(\""+path_model_urdf+"\", \"lwr_arm_base_link\",\"lwr_arm_"+i+"_link\")");
+        jname = "2B";
 
-        eval("fkin"+i+".setDOFsize("+i+")");
-        eval("fkin"+i+".configure()");
+        loadComponent("fkin"+jname, "WrapperKDL");
+        setActivity("fkin"+jname,0.01,10,ORO_SCHED_OTHER);
+        eval("fkin"+jname+".loadModel(\""+path_model_urdf+"\", \"lwr_arm_base_link\",\"lwr_arm_"+jname+"_link\")");
+
+        eval("fkin"+jname+".setDOFsize("+6+")");
+        eval("fkin"+jname+".configure()");
 }
 print.ln("");
 print.ln("");
@@ -193,34 +196,36 @@ for (var int j = 1; j <= DOFsize; j = j + 1 )
 {
   connect("robot_gazebo.full_arm_JointFeedback", "fkin"+j+".in_robotstatus_port", cp)
 }
+connect("robot_gazebo.full_arm_JointFeedback", "fkin"+"11"+".in_robotstatus_port", cp)
+connect("robot_gazebo.full_arm_JointFeedback", "fkin"+"2B"+".in_robotstatus_port", cp)
 
-var int n = DOFsize;
+var string n = ""+7#DOFsize;
 
 connect("fkin"+n+".out_robotstatus_port", "myTorqueController.in_robotstatus_port", cp);
 connect("fkin"+n+".out_coriolisAndGravity_port", "myTorqueController.in_h_port", cp);
 connect("fkin"+n+".out_inertia_port", "myTorqueController.in_inertia_port", cp);
 
-n = DOFsize;
+n = ""+DOFsize;
 
-#connect("fkin"+n+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+n, cp);
-#connect("fkin"+n+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+n, cp);
-#connect("fkin"+n+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+n, cp);
-#connect("fkin"+n+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+n, cp);
-#connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+n, cp);
-#connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+n, cp);
-#connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+n, cp);
+connect("fkin"+7+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+n, cp);
+connect("fkin"+7+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+n, cp);
+connect("fkin"+7+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+n, cp);
+connect("fkin"+7+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+n, cp);
+connect("trajectorygenerator2.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+n, cp);
+connect("trajectorygenerator2.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+n, cp);
+connect("trajectorygenerator2.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+n, cp);
 
-#n = 5;
+n = "2B";
 
-#connect("fkin"+n+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+n, cp);
-#connect("fkin"+n+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+n, cp);
-#connect("fkin"+n+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+n, cp);
-#connect("fkin"+n+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+n, cp);
-#connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+n, cp);
-#connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+n, cp);
-#connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+n, cp);
+connect("fkin"+n+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+5, cp);
+connect("fkin"+n+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+5, cp);
+connect("fkin"+n+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+5, cp);
+connect("fkin"+n+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+5, cp);
+connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+5, cp);
+connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+5, cp);
+connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+5, cp);
 
-connect("singen.out_sin_port", "myTorqueController.in_desiredJointSpacePosition_port_1", cp);
+#connect("singen.out_sin_port", "myTorqueController.in_desiredJointSpacePosition_port_1", cp);
 #connect("singen.out_sin_port", "myTorqueController.in_desiredJointSpacePosition_port_3", cp);
 
 # send commands to the robot
@@ -230,6 +235,7 @@ for (var int k = 1; k <= DOFsize; k = k + 1 )
 {
   eval("fkin"+k+".start()");
 }
+fkin2B.start();
 trajectorygenerator.start()
 trajectorygenerator2.start()
 myTorqueController.configure()
