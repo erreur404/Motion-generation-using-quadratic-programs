@@ -46,7 +46,7 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     addOperation("setTorqueLimits", &MotionGenerationQuadraticProgram::setTorqueLimits, this, RTT::ClientThread).doc("set torque limits setTorqueLimits(Eigen::VectorXf limitPositiv, Eigen::VectorXf limitNegativ)");
     addOperation("setAngularLimits", &MotionGenerationQuadraticProgram::setAngularLimits, this, RTT::ClientThread).doc("set angular limits setAngularLimits(Eigen::VectorXf limitSup, Eigen::VectorXf limitInf)");
 
-    StackOfTasks stack_of_tasks = StackOfTasks(); stack_of_tasks.init(2);
+    stack_of_tasks = StackOfTasks(); stack_of_tasks.init(2);
 
     in_jacobian_port;
     in_jacobianDot_port;
@@ -489,7 +489,12 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
     Eigen::VectorXf res, acumul, bcumul;
     Eigen::MatrixXf Acumul, Bcumul, Z, Zcur;
 
-    Acumul = Eigen::MatrixXf::Zero(1, 1);
+    PRINTNL(Acumul);
+    PRINTNL(Bcumul);
+
+    Acumul = Eigen::MatrixXf::Zero(0, 2*this->DOFsize);
+
+    PRINTNL(Acumul);
 
     for (int lvl = 0; lvl < this->stack_of_tasks.stackSize; lvl++)
     {
@@ -523,9 +528,11 @@ void MotionGenerationQuadraticProgram::updateHook() {
         stack_of_tasks.getQP(i)->init(2*this->DOFsize);
     }
 
+    PRINTNL("Vor die Loope");
     // looping in the joints to create the quadratic problem's Matrix
     for (int j=0; j<this->DOFsize; j++)
     {
+        PRINT("Looking work for joint");PRINTNL(j);
         int jointN = j;//this->constrainedJoints[j];
         bool taskSpaceOperation = false;
         bool jointSpaceOperation = false;
@@ -544,11 +551,13 @@ void MotionGenerationQuadraticProgram::updateHook() {
         in_jacobian_flow[jointN] = in_jacobian_port[jointN]->read(in_jacobian_var);
         in_jacobianDot_flow[jointN] = in_jacobianDot_port[jointN]->read(in_jacobianDot_var);
 
+        //PRINTNL(this->stack_of_tasks);
+        PRINTNL(this->stack_of_tasks.stackSize);
         // looping among the QP problem's priority levels to create each QP's equality atrix
         for (int lvl=0; lvl < this->stack_of_tasks.stackSize; lvl ++)
         {
+            PRINT("Roaming level "); PRINTNL(lvl);
             prob = this->stack_of_tasks.getQP(lvl);
-            int taskPriotityLevel;
 
             /*
             *** The shape of a task ***
@@ -719,6 +728,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf limits(nbInequality);
     limits.setZero();
 
+    PRINTNL("Hallo");
+
     /*
         NOTE : the QuadProgpp library solves inequality as Ax+a >= 0. Not exceeding a torque limit like Ax <= a would then be
                     -Ax >= -a --> -Ax + a >= 0
@@ -753,13 +764,18 @@ void MotionGenerationQuadraticProgram::updateHook() {
     limits.block(2*nbInequality/4, 0, nbInequality/4, 1) = - (this->JointAccelerationLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointAccelerationLimitsN);
     limits.block(3*nbInequality/4, 0, nbInequality/4, 1) = - (this->JointTorquesLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsN);
 
+    PRINTNL("noch mich");
+
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
     this->stack_of_tasks.getQP(0)->constraints = limitsMatrix;
     this->stack_of_tasks.getQP(0)->limits = limits;
+    PRINTNL("9 bis 11");
+
     //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero(1, 2*this->DOFsize), Eigen::VectorXf::Zero(1));// without constraints
     tracking = this->solveNextHierarchy();
+    PRINTNL("Tchüss");
     /*
     try {
       //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
