@@ -50,13 +50,14 @@ struct {
 struct {
   int stackSize;
   std::vector<QuadraticProblem> qps;
-  std::vector<std::vector<std::string> > level;
+  std::map<std::string, int> level;
 
-  int init(int nbOfLevels) {stackSize = nbOfLevels; qps.resize(stackSize); level.resize(stackSize);};
+  int init(int nbOfLevels) {stackSize = nbOfLevels; qps.resize(stackSize);};
   QuadraticProblem * getQP(int level) {return &(qps[level]);}; // has to be addresses because otherwise the return will only send a copy
-  int getLevel(std::string task) {int l = -1; for (int i=0; i<level.size(); i++){for(int j=0; j<level[i].size(); j++) {if (level[i][j] == task){l = i;}}} return l;};
-  int getAddress(std::string task) {int l = -1; for (int i=0; i<level.size(); i++){for(int j=0; j<level[i].size(); j++) {if (level[i][j] == task){l = j;}}} return l;};
-  bool setPriority(std::string task, int priorityLevel) {int oldPos = getLevel(task); if (oldPos != -1){/*level[oldPos].erase(getAddress(task))*/} level[priorityLevel].push_back(task);};
+  //int getLevel(std::string task) {int l = -1; for (int i=0; i<level.size(); i++){for(int j=0; j<level[i].size(); j++) {if (level[i][j] == task){l = i;}}} return l;};
+  //int getAddress(std::string task) {int l = -1; for (int i=0; i<level.size(); i++){for(int j=0; j<level[i].size(); j++) {if (level[i][j] == task){l = j;}}} return l;};
+  int getLevel(std::string task) {int l = -1; l = level[task]; return l;}
+  bool setPriority(std::string task, int priorityLevel) {if (priorityLevel >= stackSize) {return false;} level[task] = priorityLevel;};
 } typedef StackOfTasks;
 
 /* =======================================================
@@ -174,6 +175,7 @@ private:
 
     unsigned int DOFsize;
     StackOfTasks stack_of_tasks;
+    QuadraticProblem * prob;
 
     // Joints limits
     Eigen::VectorXf JointTorquesLimitsP;

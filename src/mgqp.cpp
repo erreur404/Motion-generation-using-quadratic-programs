@@ -46,6 +46,8 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     addOperation("setTorqueLimits", &MotionGenerationQuadraticProgram::setTorqueLimits, this, RTT::ClientThread).doc("set torque limits setTorqueLimits(Eigen::VectorXf limitPositiv, Eigen::VectorXf limitNegativ)");
     addOperation("setAngularLimits", &MotionGenerationQuadraticProgram::setAngularLimits, this, RTT::ClientThread).doc("set angular limits setAngularLimits(Eigen::VectorXf limitSup, Eigen::VectorXf limitInf)");
 
+    StackOfTasks stack_of_tasks = StackOfTasks(); stack_of_tasks.init(2);
+
     in_jacobian_port;
     in_jacobianDot_port;
 
@@ -91,48 +93,10 @@ bool MotionGenerationQuadraticProgram::configureHook() {
       << RTT::endlog();
       return false;
     }
-    for (int i=1; i<=this->DOFsize; i++)
-    {
-        /*
-        if (!in_desiredTaskSpacePosition_port[i-1]->connected()) {
-          RTT::log(RTT::Info) << "in_desiredTaskSpacePosition_port_"<<i<<" not connected"
-          << RTT::endlog();
-          continue;
-        }
-        if (!in_desiredTaskSpaceVelocity_port[i-1]->connected()) {
-          RTT::log(RTT::Info) << "in_desiredTaskSpaceVelocity_port_"<<i<<" not connected"
-          << RTT::endlog();
-          continue;
-        }
-        if (!in_desiredTaskSpaceAcceleration_port[i-1]->connected()) {
-          RTT::log(RTT::Info) << "in_desiredTaskSpaceAcceleration_port_"<<i<<" not connected"
-          << RTT::endlog();
-          continue;
-        }
-        if (!in_currentTaskSpacePosition_port[i-1]->connected()) {
-          RTT::log(RTT::Info) << "in_currentTaskSpacePosition_port_"<<i<<" not connected"
-          << RTT::endlog();
-          continue;
-        }
-        if (!in_currentTaskSpaceVelocity_port[i-1]->connected()) {
-          RTT::log(RTT::Info) << "in_currentTaskSpaceVelocity_port_"<<i<<" not connected"
-          << RTT::endlog();
-          continue;
-        }
-        // */
-        if (!in_jacobian_port[i-1]->connected()) {
-          RTT::log(RTT::Info) << "in_jacobian_port_"<<i<<" not connected"
-          << RTT::endlog();
-          continue;
-        }
-        if (!in_jacobianDot_port[i-1]->connected()) {
-          RTT::log(RTT::Info) << "in_jacobianDot_port_"<<i<<" not connected"
-          << RTT::endlog();
-          continue;
-        }
-        // if all the ports are connected for a joint, the joint is added to the "constrainedjoints" vector
-        this->constrainedJoints.push_back(i-1);
-    }
+    /*
+        loop made useless since the joint conditions can now dynamically be added during execution
+        the availability of information is therefore checked in the updateHook
+    */
     if (!in_h_port.connected()) {
       RTT::log(RTT::Info) << "in_h_port not connected"
       << RTT::endlog();
@@ -468,11 +432,6 @@ void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticPro
   problem.goal.block(problem.rows()-conditions.rows(), 0, conditions.rows(), 1) = goal;
 }
 
-void addToProblem(Eigen::VectorXf condition, float goal, Eigen::MatrixXf &problem)
-{
-
-}
-
 #define COPYMAT(a, toB) for(int i=0; i<a.rows(); i++) {for (int j=0; j<a.cols(); j++) {toB[i][j] = a(i,j);}}
 #define COPYVEC(a, toB) for(int i=0; i<a.rows(); i++) {toB[i] = a(i);}
 
@@ -520,12 +479,16 @@ void MotionGenerationQuadraticProgram::updateHook() {
         || in_inertia_flow == RTT::NoData
         || in_robotstatus_flow == RTT::NoData)
     {
-        //PRINTNL("FAILED, NO DATA, RETURN");
+        PRINTNL("FAILED, NO DATA, RETURN");
         return;
     }
 
-    QuadraticProblem jointTrackPos; jointTrackPos.init(2*this->DOFsize);
+    for (int i=0; i<stack_of_tasks.stackSize; i++)
+    {
+        stack_of_tasks.getQP(i)->init(2*this->DOFsize);
+    }
 
+    // looping in the joints to create the quadratic problem's Matrix
     for (int j=0; j<this->DOFsize; j++)
     {
         int jointN = j;//this->constrainedJoints[j];
@@ -546,120 +509,157 @@ void MotionGenerationQuadraticProgram::updateHook() {
         in_jacobian_flow[jointN] = in_jacobian_port[jointN]->read(in_jacobian_var);
         in_jacobianDot_flow[jointN] = in_jacobianDot_port[jointN]->read(in_jacobianDot_var);
 
+        // looping among the QP problem's priority levels to create each QP's equality atrix
+        for (int lvl=0; lvl < this->stack_of_tasks.stackSize; lvl ++)
+        {
+            prob = this->stack_of_tasks.getQP(lvl);
+            int taskPriotityLevel;
 
-        if (in_desiredTaskSpacePosition_flow[jointN] == RTT::NoData || in_currentTaskSpacePosition_flow[jointN] == RTT::NoData)
-        {
-          desiredPosition = Eigen::VectorXf::Zero(3);
-          currentPosition = Eigen::VectorXf::Zero(3);
-        }
-        else
-        {
-          desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);
-          currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);
-          taskSpaceOperation |= true;
-        }
-
-        if (in_desiredTaskSpaceVelocity_flow[jointN] == RTT::NoData || in_currentTaskSpaceVelocity_flow[jointN] == RTT::NoData)
-        {
-          desiredVelocity = Eigen::VectorXf::Zero(3);
-          currentVelocity = Eigen::VectorXf::Zero(3);
-        }
-        else
-        {
-          desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
-          currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
-          taskSpaceOperation |= true;
-        }
-
-        if (in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData)
-        {
-          desiredAcceleration = Eigen::VectorXf::Zero(3);
-        }
-        else
-        {
-          desiredAcceleration = in_desiredTaskSpaceAcceleration_var;
-          taskSpaceOperation |= true;
-        }
-
-        if (taskSpaceOperation && (in_jacobian_flow[jointN] == RTT::NoData || in_jacobianDot_flow[jointN] == RTT::NoData))
-        {
-            PRINT("FAILED, NO JACOBIAN FOR JOINT ");PRINT(jointN+1);PRINTNL(" RETURN");
-            return;
-        }
-
-        if (in_desiredJointSpacePosition_flow[jointN] == RTT::NoData)
-        {
-          //desiredJointPosition = Eigen::VectorXf::Zero(jointN); // targets the 0
-          desiredJointPosition = in_robotstatus_var.angles[jointN];
-        }
-        else
-        {
-          desiredJointPosition = in_desiredJointSpacePosition_var;
-          jointSpaceOperation |= true;
-        }
-
-        if (in_desiredJointSpaceVelocity_flow[jointN] == RTT::NoData)
-        {
-          desiredJointVelocity = in_robotstatus_var.angles[jointN];
-        }
-        else
-        {
-          desiredJointVelocity = in_desiredJointSpaceVelocity_var;
-          jointSpaceOperation |= true;
-        }
-
-        if (in_desiredJointSpaceAcceleration_flow[jointN] == RTT::NoData)
-        {
-          desiredJointAcceleration = in_robotstatus_var.angles[jointN];
-        }
-        else
-        {
-          desiredJointAcceleration = in_desiredJointSpaceAcceleration_var;
-          jointSpaceOperation |= true;
-        }
-
-
-        Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
-        Eigen::MatrixXf A;
-
-        q = in_robotstatus_var.angles;
-        qDot = in_robotstatus_var.velocities;
-        q = q.block(0, 0, in_jacobian_var.cols(), 1);
-        qDot = qDot.block(0, 0, in_jacobian_var.cols(), 1);
-
-        if (taskSpaceOperation)
-        {
-            rDot = in_jacobian_var.transpose()*desiredVelocity;
-            rDotDot = in_jacobian_var.transpose()*desiredAcceleration+in_jacobianDot_var.transpose()*desiredVelocity;
-
-            int A_rows = in_jacobian_var.rows();
-            int A_cols = this->DOFsize * 2;
-
-            A = Eigen::MatrixXf::Zero(A_rows, A_cols);
-            // Position tracking in Task space
-            A.block(0,0, A_rows, in_jacobian_var.cols()) = in_jacobian_var; // setting acceleration equality constraint // jacobian may be smaller as the space, the rest is 0 filled
-            A.block(0, A_cols/2, A_rows, A_cols/2) = Eigen::MatrixXf::Zero(A_rows, A_cols/2); // A = [J, 0]
-            a = -(this->gainTranslationP*(desiredPosition - currentPosition) +
-                this->gainTranslationD*(desiredVelocity - currentVelocity)  -
-                in_jacobianDot_var*qDot);
             /*
-                NOTE : the goal matches the dimension of the result vector. When we work on an inferior degree of freedom,
-                the jacobian is null on these joints, and so are the associated goals
-            */
-            addToProblem(A, a, jointTrackPos);
-        }
-        if (jointSpaceOperation)
-        {
-            int A_rows = 1;
-            int A_cols = this->DOFsize * 2;
+            *** The shape of a task ***
+            if (the flows required have no data, or the task is not in this prio level)
+            {
+                set the values to default
+            }
+            else
+            {
+                use the received values
+            }
 
-            A = Eigen::MatrixXf::Zero(A_rows, A_cols);
-            // Position tracking in Task space
-            A(0, jointN) = 1;
-            a = Eigen::VectorXf(1);
-            a(0) = -(this->gainTranslationP*(desiredJointPosition - in_robotstatus_var.angles[jointN]) +
-                this->gainTranslationD*(desiredJointVelocity - in_robotstatus_var.velocities[jointN]));
-            addToProblem(A, a, jointTrackPos);
+            *** The name of a task
+            naming convention :
+            joint : 5
+            port : in_desiredTaskName_port_[5] || in_desiredTaskName_port_5 (in deployer)
+            flow : in_desiredTaskName_flow[5]
+            var  : in_desiredTaskName_var
+            name : in_desiredTaskName_5
+            */
+
+
+            if (in_desiredTaskSpacePosition_flow[jointN] == RTT::NoData ||
+                in_currentTaskSpacePosition_flow[jointN] == RTT::NoData ||
+                this->stack_of_tasks.getLevel(cat("in_desiredTaskSpacePosition_", jointN)) != lvl)
+            {
+              desiredPosition = Eigen::VectorXf::Zero(3);
+              currentPosition = Eigen::VectorXf::Zero(3);
+            }
+            else
+            {
+              // ending up here only if it is the right level and data is there. Otherwise, default values
+              desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);
+              currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);
+              taskSpaceOperation |= true;
+            }
+
+            if (in_desiredTaskSpaceVelocity_flow[jointN] == RTT::NoData ||
+                in_currentTaskSpaceVelocity_flow[jointN] == RTT::NoData ||
+                this->stack_of_tasks.getLevel(cat("in_desiredTaskSpaceVelocity_", jointN)) != lvl)
+            {
+              desiredVelocity = Eigen::VectorXf::Zero(3);
+              currentVelocity = Eigen::VectorXf::Zero(3);
+            }
+            else
+            {
+              desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
+              currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
+              taskSpaceOperation |= true;
+            }
+
+            if (in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData ||
+              this->stack_of_tasks.getLevel(cat("in_desiredTaskSpaceAcceleration_", jointN)) != lvl)
+            {
+              desiredAcceleration = Eigen::VectorXf::Zero(3);
+            }
+            else
+            {
+              desiredAcceleration = in_desiredTaskSpaceAcceleration_var;
+              taskSpaceOperation |= true;
+            }
+
+            if (taskSpaceOperation && (in_jacobian_flow[jointN] == RTT::NoData ||
+                in_jacobianDot_flow[jointN] == RTT::NoData))
+            {
+                PRINT("FAILED, NO JACOBIAN FOR JOINT ");PRINT(jointN+1);PRINTNL(" RETURN");
+                return;
+            }
+
+            if (in_desiredJointSpacePosition_flow[jointN] == RTT::NoData ||
+                this->stack_of_tasks.getLevel(cat("in_desiredJointSpacePosition_", jointN)) != lvl)
+            {
+              //desiredJointPosition = Eigen::VectorXf::Zero(jointN); // targets the 0
+              desiredJointPosition = in_robotstatus_var.angles[jointN];
+            }
+            else
+            {
+              desiredJointPosition = in_desiredJointSpacePosition_var;
+              jointSpaceOperation |= true;
+            }
+
+            if (in_desiredJointSpaceVelocity_flow[jointN] == RTT::NoData ||
+                this->stack_of_tasks.getLevel(cat("in_desiredJointSpaceVelocity_", jointN)) != lvl)
+            {
+              desiredJointVelocity = in_robotstatus_var.angles[jointN];
+            }
+            else
+            {
+              desiredJointVelocity = in_desiredJointSpaceVelocity_var;
+              jointSpaceOperation |= true;
+            }
+
+            if (in_desiredJointSpaceAcceleration_flow[jointN] == RTT::NoData ||
+                this->stack_of_tasks.getLevel(cat("in_desiredJointSpaceAcceleration_", jointN)) != lvl)
+            {
+              desiredJointAcceleration = in_robotstatus_var.angles[jointN];
+            }
+            else
+            {
+              desiredJointAcceleration = in_desiredJointSpaceAcceleration_var;
+              jointSpaceOperation |= true;
+            }
+
+
+            Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
+            Eigen::MatrixXf A;
+
+            q = in_robotstatus_var.angles;
+            qDot = in_robotstatus_var.velocities;
+            q = q.block(0, 0, in_jacobian_var.cols(), 1);
+            qDot = qDot.block(0, 0, in_jacobian_var.cols(), 1);
+
+            if (taskSpaceOperation)
+            {
+                rDot = in_jacobian_var.transpose()*desiredVelocity;
+                rDotDot = in_jacobian_var.transpose()*desiredAcceleration+in_jacobianDot_var.transpose()*desiredVelocity;
+
+                int A_rows = in_jacobian_var.rows();
+                int A_cols = this->DOFsize * 2;
+
+                A = Eigen::MatrixXf::Zero(A_rows, A_cols);
+                // Position tracking in Task space
+                A.block(0,0, A_rows, in_jacobian_var.cols()) = in_jacobian_var; // setting acceleration equality constraint // jacobian may be smaller as the space, the rest is 0 filled
+                A.block(0, A_cols/2, A_rows, A_cols/2) = Eigen::MatrixXf::Zero(A_rows, A_cols/2); // A = [J, 0]
+                a = -(this->gainTranslationP*(desiredPosition - currentPosition) +
+                    this->gainTranslationD*(desiredVelocity - currentVelocity)  -
+                    in_jacobianDot_var*qDot);
+                /*
+                    NOTE : the goal matches the dimension of the result vector. When we work on an inferior degree of freedom,
+                    the jacobian is null on these joints, and so are the associated goals
+                */
+                addToProblem(A, a, *prob);
+            }
+            if (jointSpaceOperation)
+            {
+                int A_rows = 1;
+                int A_cols = this->DOFsize * 2;
+
+                A = Eigen::MatrixXf::Zero(A_rows, A_cols);
+                // Position tracking in Task space
+                A(0, jointN) = 1;
+                a = Eigen::VectorXf(1);
+                a(0) = -(this->gainTranslationP*(desiredJointPosition - in_robotstatus_var.angles[jointN]) +
+                    this->gainTranslationD*(desiredJointVelocity - in_robotstatus_var.velocities[jointN]));
+                addToProblem(A, a, *prob);
+            }
         }
     }
     //addToProblem(A, a, pb1);
@@ -674,7 +674,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     //*/
 
 
-    int nbEquality = jointTrackPos.rows();
+    int nbEquality = prob->rows();
     int nbInequality = 4*this->DOFsize;
     int resultVectorSize = 2*this->DOFsize;
 
@@ -721,7 +721,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero(1, 2*this->DOFsize), Eigen::VectorXf::Zero(1));// without constraints
-    tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
+    tracking = this->solveNextStep(prob->conditions, prob->goal, limitsMatrix, limits);
     /*
     try {
       //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
