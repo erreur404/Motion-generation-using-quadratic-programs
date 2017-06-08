@@ -416,6 +416,14 @@ bool MotionGenerationQuadraticProgram::setAngularLimitsE(Eigen::VectorXf jointsP
 }
 // */
 
+void matrixAppend(Eigen::MatrixXf a, Eigen::MatrixXf b)
+{
+  /* puts b after a */
+  int oldRows = a.rows();
+  a.conservativeResize((Eigen::Index)(a.rows()+b.rows()), (Eigen::NoChange_t) a.cols());
+  a.block(oldRows, 0, b.rows(), a.cols()) = b;
+}
+
 void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticProblem &problem)
 {
   if (conditions.cols() != problem.dof())
@@ -426,10 +434,15 @@ void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticPro
   {
     throw std::length_error("condition matrix number of rows is different than the goals number of rows");
   }
+
+  matrixAppend(problem.conditions, conditions);
+  matrixAppend(problem.goal, goal);
+  /*
   problem.conditions.conservativeResize((Eigen::Index) (problem.rows()+conditions.rows()), (Eigen::NoChange_t) problem.cols());
   problem.conditions.block(problem.rows()-conditions.rows(), 0, conditions.rows(), problem.cols()) = conditions;
   problem.goal.conservativeResize((Eigen::Index) (problem.rows()), (Eigen::NoChange_t) 1);
   problem.goal.block(problem.rows()-conditions.rows(), 0, conditions.rows(), 1) = goal;
+  */
 }
 
 #define COPYMAT(a, toB) for(int i=0; i<a.rows(); i++) {for (int j=0; j<a.cols(); j++) {toB[i][j] = a(i,j);}}
@@ -467,6 +480,28 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(const Eigen::Mat
     res[i] = x[i];
   }
   return res;
+}
+
+Eigen::VectorXf MotionGenerationQuadraticProgram::solveHierarchy()
+{
+    QuadraticProblem * p
+
+    Eigen::VectorXf res, acumul, bcumul;
+    Eigen::MatrixXf Acumul, Bcumul, Z, Zcur;
+
+    Acumul = Eigen::MatrixXf::Zero(1, 1);
+
+    for (int lvl = 0; lvl < this->stack_of_tasks.stackSize; lvl++)
+    {
+        p = this->stack_of_tasks.getQP(lvl);
+        matrixAppend(Bcumul, p->constraints);
+        matrixAppend(bcumul, p->limits);
+
+        // in hierarchy solving, the constraints are simply stacked upon each other
+        
+        solveNextStep(p->conditions, p->goals, Bcumul, bcumul);
+
+    }
 }
 
 
@@ -720,8 +755,11 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
+    // setting these inequalities as part of the top priority
+    this->stack_of_tasks.getLevel(0).constraints = limitsMatrix;
+    this->stack_of_tasks.getLevel(0).limits = limits;
     //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero(1, 2*this->DOFsize), Eigen::VectorXf::Zero(1));// without constraints
-    tracking = this->solveNextStep(prob->conditions, prob->goal, limitsMatrix, limits);
+    tracking = this->solveNextHierarchy();
     /*
     try {
       //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
