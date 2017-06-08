@@ -482,9 +482,9 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(const Eigen::Mat
   return res;
 }
 
-Eigen::VectorXf MotionGenerationQuadraticProgram::solveHierarchy()
+Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 {
-    QuadraticProblem * p
+    QuadraticProblem * p;
 
     Eigen::VectorXf res, acumul, bcumul;
     Eigen::MatrixXf Acumul, Bcumul, Z, Zcur;
@@ -498,8 +498,8 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveHierarchy()
         matrixAppend(bcumul, p->limits);
 
         // in hierarchy solving, the constraints are simply stacked upon each other
-        
-        solveNextStep(p->conditions, p->goals, Bcumul, bcumul);
+
+        solveNextStep(p->conditions, p->goal, Bcumul, bcumul);
 
     }
 }
@@ -756,8 +756,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
-    this->stack_of_tasks.getLevel(0).constraints = limitsMatrix;
-    this->stack_of_tasks.getLevel(0).limits = limits;
+    this->stack_of_tasks.getQP(0)->constraints = limitsMatrix;
+    this->stack_of_tasks.getQP(0)->limits = limits;
     //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero(1, 2*this->DOFsize), Eigen::VectorXf::Zero(1));// without constraints
     tracking = this->solveNextHierarchy();
     /*
