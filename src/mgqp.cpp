@@ -45,6 +45,7 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     addOperation("setAccelerationLimits", &MotionGenerationQuadraticProgram::setAccelerationLimits, this, RTT::ClientThread).doc("set acceleration limits setAccelerationLimits(Eigen::VectorXf limitPositiv, Eigen::VectorXf limitNegativ)");
     addOperation("setTorqueLimits", &MotionGenerationQuadraticProgram::setTorqueLimits, this, RTT::ClientThread).doc("set torque limits setTorqueLimits(Eigen::VectorXf limitPositiv, Eigen::VectorXf limitNegativ)");
     addOperation("setAngularLimits", &MotionGenerationQuadraticProgram::setAngularLimits, this, RTT::ClientThread).doc("set angular limits setAngularLimits(Eigen::VectorXf limitSup, Eigen::VectorXf limitInf)");
+    addOperation("setPriorityLevel", &MotionGenerationQuadraticProgram::setPriorityLevel, this, RTT::ClientThread).doc("set priority level of a task or it will be ignored");
 
     stack_of_tasks = StackOfTasks(); stack_of_tasks.init(2);
 
@@ -416,10 +417,26 @@ bool MotionGenerationQuadraticProgram::setAngularLimitsE(Eigen::VectorXf jointsP
 }
 // */
 
+bool MotionGenerationQuadraticProgram::setPriorityLevel(std::string task, int level)
+{
+  if (level > this->stack_of_tasks.stackSize)
+  {
+    std::cerr << "priority level greater than the priority task size" << '\n';
+    return false;
+  }
+  this->stack_of_tasks.setPriority(task, level);
+  return true;
+}
+
 void matrixAppend(Eigen::MatrixXf a, Eigen::MatrixXf b)
 {
   /* puts b after a */
   int oldRows = a.rows();
+  if (a.rows() == 0 && a.cols() == 0)
+  {
+      a = b;
+      return;
+  }
   a.conservativeResize((Eigen::Index)(a.rows()+b.rows()), (Eigen::NoChange_t) a.cols());
   a.block(oldRows, 0, b.rows(), a.cols()) = b;
 }
@@ -489,19 +506,14 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
     Eigen::VectorXf res, acumul, bcumul;
     Eigen::MatrixXf Acumul, Bcumul, Z, Zcur;
 
-    PRINTNL(Acumul);
-    PRINTNL(Bcumul);
-
-    Acumul = Eigen::MatrixXf::Zero(0, 2*this->DOFsize);
-
-    PRINTNL(Acumul);
-
     for (int lvl = 0; lvl < this->stack_of_tasks.stackSize; lvl++)
     {
         p = this->stack_of_tasks.getQP(lvl);
         matrixAppend(Bcumul, p->constraints);
         matrixAppend(bcumul, p->limits);
 
+        PRINTNL(Bcumul);
+        PRINTNL(bcumul);
         // in hierarchy solving, the constraints are simply stacked upon each other
 
         solveNextStep(p->conditions, p->goal, Bcumul, bcumul);
@@ -528,11 +540,9 @@ void MotionGenerationQuadraticProgram::updateHook() {
         stack_of_tasks.getQP(i)->init(2*this->DOFsize);
     }
 
-    PRINTNL("Vor die Loope");
     // looping in the joints to create the quadratic problem's Matrix
     for (int j=0; j<this->DOFsize; j++)
     {
-        PRINT("Looking work for joint");PRINTNL(j);
         int jointN = j;//this->constrainedJoints[j];
         bool taskSpaceOperation = false;
         bool jointSpaceOperation = false;
@@ -551,12 +561,9 @@ void MotionGenerationQuadraticProgram::updateHook() {
         in_jacobian_flow[jointN] = in_jacobian_port[jointN]->read(in_jacobian_var);
         in_jacobianDot_flow[jointN] = in_jacobianDot_port[jointN]->read(in_jacobianDot_var);
 
-        //PRINTNL(this->stack_of_tasks);
-        PRINTNL(this->stack_of_tasks.stackSize);
         // looping among the QP problem's priority levels to create each QP's equality atrix
         for (int lvl=0; lvl < this->stack_of_tasks.stackSize; lvl ++)
         {
-            PRINT("Roaming level "); PRINTNL(lvl);
             prob = this->stack_of_tasks.getQP(lvl);
 
             /*
@@ -728,8 +735,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf limits(nbInequality);
     limits.setZero();
 
-    PRINTNL("Hallo");
-
     /*
         NOTE : the QuadProgpp library solves inequality as Ax+a >= 0. Not exceeding a torque limit like Ax <= a would then be
                     -Ax >= -a --> -Ax + a >= 0
@@ -764,14 +769,11 @@ void MotionGenerationQuadraticProgram::updateHook() {
     limits.block(2*nbInequality/4, 0, nbInequality/4, 1) = - (this->JointAccelerationLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointAccelerationLimitsN);
     limits.block(3*nbInequality/4, 0, nbInequality/4, 1) = - (this->JointTorquesLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsN);
 
-    PRINTNL("noch mich");
-
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
     this->stack_of_tasks.getQP(0)->constraints = limitsMatrix;
     this->stack_of_tasks.getQP(0)->limits = limits;
-    PRINTNL("9 bis 11");
 
     //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero(1, 2*this->DOFsize), Eigen::VectorXf::Zero(1));// without constraints
     tracking = this->solveNextHierarchy();
@@ -822,7 +824,45 @@ void MotionGenerationQuadraticProgram::setGains(float kp, float kd)
 }
 
 void MotionGenerationQuadraticProgram::printCurrentState(){
-    std::cout << "############## MotionGenerationQuadraticProgram State begin " << std::endl;
+    std::cout << "############## MotionGenerationQuadraticProgram State begin " << std::endl << std::endl;
+
+    std::vector<std::string> v1;
+    v1.push_back("in_desiredTaskSpacePosition");
+    v1.push_back("in_desiredTaskSpaceVelocity");
+    v1.push_back("in_desiredTaskSpaceAcceleration");
+    v1.push_back("in_desiredJointSpacePosition");
+    v1.push_back("in_desiredJointSpaceVelocity");
+    v1.push_back("in_desiredJointSpaceAcceleration");
+
+    std::vector<void*> v2;
+    v2.push_back(&in_desiredTaskSpacePosition_port);
+    v2.push_back(&in_desiredTaskSpaceVelocity_port);
+    v2.push_back(&in_desiredTaskSpaceAcceleration_port);
+    v2.push_back(&in_desiredJointSpacePosition_port);
+    v2.push_back(&in_desiredJointSpaceVelocity_port);
+    v2.push_back(&in_desiredJointSpaceAcceleration_port);
+
+    for (int i=1; i <= this->DOFsize; i++)
+    {
+      for (int j=0; j<v1.size(); j++)
+      {
+        if (((std::vector<RTT::InputPort<float>*> *) v2.at(j))->at(i-1)->connected())
+        {
+          std::cout << cat(v1[j], "_port_") << i << " connected -- ";
+          int lvl = stack_of_tasks.getLevel(cat(v1[j], cat("_", i))); // in_taskName + _ + i
+          if (lvl != -1)
+          {
+            std::cout << " with priority " << lvl;
+          }
+          else
+          {
+            std::cout << " no priority // not considered ";
+          }
+          std::cout << std::endl;
+        }
+      }
+    }
+    std::cout << std::endl << std::endl;
 
     std::cout << " degrees of freedom " << DOFsize << std::endl;
     std::cout << " torque limits+ " << JointTorquesLimitsP.transpose() << std::endl;

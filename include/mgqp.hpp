@@ -56,7 +56,7 @@ struct {
   QuadraticProblem * getQP(int level) {return &(qps[level]);}; // has to be addresses because otherwise the return will only send a copy
   //int getLevel(std::string task) {int l = -1; for (int i=0; i<level.size(); i++){for(int j=0; j<level[i].size(); j++) {if (level[i][j] == task){l = i;}}} return l;};
   //int getAddress(std::string task) {int l = -1; for (int i=0; i<level.size(); i++){for(int j=0; j<level[i].size(); j++) {if (level[i][j] == task){l = j;}}} return l;};
-  int getLevel(std::string task) {int l = -1; l = level[task]; return l;}
+  int getLevel(std::string task) {if(level.find(task) == level.end()){return -1;} return level[task];}
   bool setPriority(std::string task, int priorityLevel) {if (priorityLevel >= stackSize) {return false;} level[task] = priorityLevel;};
 } typedef StackOfTasks;
 
@@ -87,6 +87,8 @@ public:
     bool setAccelerationLimits(std::vector<double> accelerationsP, std::vector<double> accelerationsN);
     bool setAngularLimits(std::vector<double> limitSup, std::vector<double> limitInf);
     // */
+
+    bool setPriorityLevel(std::string task, int level);
 
     void preparePorts();
 
