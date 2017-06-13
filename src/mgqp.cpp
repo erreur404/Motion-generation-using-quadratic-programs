@@ -428,17 +428,30 @@ bool MotionGenerationQuadraticProgram::setPriorityLevel(std::string task, int le
   return true;
 }
 
-void matrixAppend(Eigen::MatrixXf a, Eigen::MatrixXf b)
+void matrixAppend(Eigen::VectorXf * a, Eigen::VectorXf * b)
 {
   /* puts b after a */
-  int oldRows = a.rows();
-  if (a.rows() == 0 && a.cols() == 0)
+  int oldRows = a->rows();
+  if (a->rows() == 0 && a->cols() == 0)
   {
-      a = b;
+      *a = *b; // copy, so that b won't be affected
       return;
   }
-  a.conservativeResize((Eigen::Index)(a.rows()+b.rows()), (Eigen::NoChange_t) a.cols());
-  a.block(oldRows, 0, b.rows(), a.cols()) = b;
+  a->conservativeResize((Eigen::Index)(a->rows()+b->rows()), (Eigen::NoChange_t) a->cols());
+  a->block(oldRows, 0, b->rows(), a->cols()) = *b;
+}
+
+void matrixAppend(Eigen::MatrixXf * a, Eigen::MatrixXf * b)
+{
+  /* puts b after a */
+  int oldRows = a->rows();
+  if (a->rows() == 0 && a->cols() == 0)
+  {
+      *a = *b; // copy, so that b won't be affected
+      return;
+  }
+  a->conservativeResize((Eigen::Index)(a->rows()+b->rows()), (Eigen::NoChange_t) a->cols());
+  a->block(oldRows, 0, b->rows(), a->cols()) = *b;
 }
 
 void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticProblem &problem)
@@ -452,8 +465,8 @@ void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticPro
     throw std::length_error("condition matrix number of rows is different than the goals number of rows");
   }
 
-  matrixAppend(problem.conditions, conditions);
-  matrixAppend(problem.goal, goal);
+  matrixAppend(&problem.conditions, &conditions);
+  matrixAppend(&problem.goal, &goal);
   /*
   problem.conditions.conservativeResize((Eigen::Index) (problem.rows()+conditions.rows()), (Eigen::NoChange_t) problem.cols());
   problem.conditions.block(problem.rows()-conditions.rows(), 0, conditions.rows(), problem.cols()) = conditions;
@@ -503,32 +516,54 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 {
     QuadraticProblem * p;
 
-    Eigen::VectorXf res, acumul, bcumul;
-    Eigen::MatrixXf Acumul, Bcumul, Z, Zcur;
+    Eigen::VectorXf res, last_res, acumul, bcumul;
+    Eigen::MatrixXf Acumul, Bcumul, Z;
+
+    res = Eigen::VectorXf::Zero(this->DOFsize*2);
+    Z = Eigen::MatrixXf::Identity(this->DOFsize*2, this->DOFsize*2);
 
     for (int lvl = 0; lvl < this->stack_of_tasks.stackSize; lvl++)
     {
         p = this->stack_of_tasks.getQP(lvl);
-        PRINT("p :");PRINTNL(p);
-        PRINT("conditions lvl ");PRINT(lvl);PRINTNL(p->conditions);
-        PRINT("constraints lvl ");PRINT(lvl);PRINTNL(p->constraints);
-        matrixAppend(Bcumul, p->constraints);
-        matrixAppend(bcumul, p->limits);
+        matrixAppend(&Bcumul, &p->constraints);
+        matrixAppend(&bcumul, &p->limits);
 
-        matrixAppend(Acumul, p->conditions);
-        matrixAppend(acumul, p->goal);
-        Eigen::FullPivLU <Eigen::MatrixXf> lu (Acumul);
-        Z = lu.kernel();
-
-        PRINT("Z : ");PRINTNL(Z);
-        PRINT("cumuls :");PRINTNL(Bcumul);
-        PRINTNL(bcumul);
         // in hierarchy solving, the constraints are simply stacked upon each other
 
-        //solveNextStep(p->conditions, p->goal, Bcumul, bcumul);
-
+        last_res = res;
+        Eigen::MatrixXf a1, a2, a3, a4, a5, a6, a;
+        /*
+        a1 = p->conditions * Z;
+        a = a1;
+        PRINT("a1.size() : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        a2 = p->goal + p->conditions * res;
+        a = a2;
+        PRINT("a2.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        a3 = Bcumul;
+        a = a3;
+        PRINT("a3.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        a4 = bcumul;
+        a = a4;
+        PRINT("a4.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")"); // */
+        // u_1                     A_1*Z_0         a_1 + A_1*y_0
+        if (p->conditions.rows() > 0)
+        {
+            res = solveNextStep(p->conditions * Z, p->goal + p->conditions * res, Bcumul, bcumul);
+        }
+        matrixAppend(&Acumul, &p->conditions);
+        matrixAppend(&acumul, &p->goal);
+        /*
+        a3 = Acumul;
+        a = a5;
+        PRINT("a5.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        a4 = acumul;
+        a = a6;
+        PRINT("a6.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")"); // */
+        Eigen::FullPivLU <Eigen::MatrixXf> lu (Acumul);
+        //Z = lu.kernel();
+        //PRINT("Z : ");PRINTNL(Z);
     }
-    return Eigen::VectorXf::Zero(this->DOFsize);
+    return res;
 }
 
 
@@ -596,6 +631,23 @@ void MotionGenerationQuadraticProgram::updateHook() {
             name : in_desiredTaskName_5
             */
 
+            std::vector<std::string> v1;
+            v1.push_back("in_desiredTaskSpacePosition");
+            v1.push_back("in_desiredTaskSpaceVelocity");
+            v1.push_back("in_desiredTaskSpaceAcceleration");
+            v1.push_back("in_desiredJointSpacePosition");
+            v1.push_back("in_desiredJointSpaceVelocity");
+            v1.push_back("in_desiredJointSpaceAcceleration");
+
+            for (int lmfao=0; lmfao<v1.size(); lmfao ++)
+            {
+                if (this->stack_of_tasks.getLevel(cat(cat(v1[lmfao], "_"), jointN)) != lvl)
+                {
+                  PRINT(cat(cat(v1[lmfao], "_"), jointN)); PRINT(" not in level ");PRINT(lvl);PRINT(" but in level ");PRINTNL(this->stack_of_tasks.getLevel(cat(cat(v1[lmfao], "_"), jointN)));
+                }
+            }
+
+
 
             if (in_desiredTaskSpacePosition_flow[jointN] == RTT::NoData ||
                 in_currentTaskSpacePosition_flow[jointN] == RTT::NoData ||
@@ -609,7 +661,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
               // ending up here only if it is the right level and data is there. Otherwise, default values
               desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);
               currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);
-              taskSpaceOperation |= true;
+              taskSpaceOperation |= true;PRINTNL("HI");
             }
 
             if (in_desiredTaskSpaceVelocity_flow[jointN] == RTT::NoData ||
@@ -623,7 +675,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             {
               desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
               currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
-              taskSpaceOperation |= true;
+              taskSpaceOperation |= true;PRINTNL("HI");
             }
 
             if (in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData ||
@@ -634,7 +686,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             else
             {
               desiredAcceleration = in_desiredTaskSpaceAcceleration_var;
-              taskSpaceOperation |= true;
+              taskSpaceOperation |= true;PRINTNL("HI");
             }
 
             if (taskSpaceOperation && (in_jacobian_flow[jointN] == RTT::NoData ||
@@ -653,7 +705,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             else
             {
               desiredJointPosition = in_desiredJointSpacePosition_var;
-              jointSpaceOperation |= true;
+              jointSpaceOperation |= true;PRINTNL("HI");
             }
 
             if (in_desiredJointSpaceVelocity_flow[jointN] == RTT::NoData ||
@@ -664,7 +716,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             else
             {
               desiredJointVelocity = in_desiredJointSpaceVelocity_var;
-              jointSpaceOperation |= true;
+              jointSpaceOperation |= true;PRINTNL("HI");
             }
 
             if (in_desiredJointSpaceAcceleration_flow[jointN] == RTT::NoData ||
@@ -675,7 +727,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             else
             {
               desiredJointAcceleration = in_desiredJointSpaceAcceleration_var;
-              jointSpaceOperation |= true;
+              jointSpaceOperation |= true;PRINTNL("HI");
             }
 
 
@@ -721,6 +773,12 @@ void MotionGenerationQuadraticProgram::updateHook() {
                     this->gainTranslationD*(desiredJointVelocity - in_robotstatus_var.velocities[jointN]));
                 addToProblem(A, a, *prob);
             }
+
+            PRINT("problem ");PRINTNL(lvl);
+            PRINTNL(prob->conditions);
+            PRINTNL(A);
+            PRINT("taskSpaceOperation ");PRINTNL(taskSpaceOperation);
+            PRINT("jointSpaceOperation ");PRINTNL(jointSpaceOperation);
         }
     }
     //addToProblem(A, a, pb1);
@@ -782,7 +840,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
-    PRINT("vor hierarchy");PRINTNL(limitsMatrix);
     this->stack_of_tasks.getQP(0)->constraints = limitsMatrix;
     this->stack_of_tasks.getQP(0)->limits = limits;
 
