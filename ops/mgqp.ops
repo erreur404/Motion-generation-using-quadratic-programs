@@ -231,7 +231,7 @@ connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueContro
 connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+dofname, cp);
 connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+dofname, cp);
 
-#connect("singen.out_sin_port", "myTorqueController.in_desiredJointSpacePosition_port_1", cp);
+connect("singen.out_sin_port", "myTorqueController.in_desiredJointSpacePosition_port_1", cp);
 #connect("singen.out_sin_port", "myTorqueController.in_desiredJointSpacePosition_port_3", cp);
 #singen.setMagnitude(100);
 
@@ -252,6 +252,7 @@ myTorqueController.setPriorityLevel("in_desiredTaskSpaceAcceleration_5", 1);
 myTorqueController.setPriorityLevel("in_desiredTaskSpacePosition_11", 0);
 myTorqueController.setPriorityLevel("in_desiredTaskSpaceVelocity_11", 1);
 myTorqueController.setPriorityLevel("in_desiredTaskSpaceAcceleration_11", 1);
+myTorqueController.setPriorityLevel("in_desiredJointSpacePosition_port_1", 2);
 
 
 myTorqueController.start()

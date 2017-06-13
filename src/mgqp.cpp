@@ -47,7 +47,7 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     addOperation("setAngularLimits", &MotionGenerationQuadraticProgram::setAngularLimits, this, RTT::ClientThread).doc("set angular limits setAngularLimits(Eigen::VectorXf limitSup, Eigen::VectorXf limitInf)");
     addOperation("setPriorityLevel", &MotionGenerationQuadraticProgram::setPriorityLevel, this, RTT::ClientThread).doc("set priority level of a task or it will be ignored");
 
-    stack_of_tasks = StackOfTasks(); stack_of_tasks.init(2);
+    stack_of_tasks = StackOfTasks(); stack_of_tasks.init(3);
 
     in_jacobian_port;
     in_jacobianDot_port;
@@ -565,24 +565,30 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         last_res = res;
         Eigen::MatrixXf a1, a2, a3, a4, a5, a6, a;
         //*
+        a1 = p->conditions;
+        a = a1;
+        PRINT("p->conditions : ()");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a1 = p->conditions * Z;
         a = a1;
-        PRINT("a1.size() : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        PRINT("p->conditions * Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a2 = p->goal + p->conditions * res;
         a = a2;
-        PRINT("a2.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        PRINT("p->goal + p->conditions * res; :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a3 = Bcumul;
         a = a3;
-        PRINT("a3.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        PRINT("Bcumul :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a4 = bcumul;
         a = a4;
-        PRINT("a4.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        PRINT("bcumul :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a3 = Acumul;
         a = a5;
-        PRINT("a5.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        PRINT("Acumul :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a4 = acumul;
         a = a6;
-        PRINT("a6.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")"); // */
+        PRINT("acumul :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        Z.transpose(); /******************* WICHTIG !!!!!!!! it changes the object itself ***************************/
+        a = Z;
+        PRINT("Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")"); // */
 
 
         // protection against empty problems
