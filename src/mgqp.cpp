@@ -441,7 +441,7 @@ void matrixAppend(Eigen::VectorXf * a, const Eigen::VectorXf * b)
   {
       return;
   }
-  if (a->cols() != b->cols());
+  if (a->cols() != b->cols())
   {
       PRINTNL("DIM ERR - ");
       PRINT("A.size() : (");PRINT(a->rows());PRINT("x");PRINT(a->cols());PRINTNL(")");
@@ -465,7 +465,7 @@ void matrixAppend(Eigen::MatrixXf * a, Eigen::MatrixXf * b)
   {
       return;
   }
-  if (a->cols() != b->cols());
+  if (a->cols() != b->cols())
   {
       PRINTNL("DIM ERR - ");
       PRINT("A.size() : (");PRINT(a->rows());PRINT("x");PRINT(a->cols());PRINTNL(")");
@@ -486,7 +486,17 @@ void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticPro
   {
     throw std::length_error("condition matrix number of rows is different than the goals number of rows");
   }
-
+  /* displaying the dimensions for debugging
+  PRINTNL("addToProblem");
+  Eigen::MatrixXf a;
+  a=problem.conditions;
+  PRINT("prob.cond : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+  a=problem.goal;
+  PRINT("prob.goal : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+  a=conditions;
+  PRINT("cond : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+  a=goal;
+  PRINT("goal : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")"); // */
   matrixAppend(&problem.conditions, &conditions);
   matrixAppend(&problem.goal, &goal);
   /*
@@ -554,7 +564,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
         last_res = res;
         Eigen::MatrixXf a1, a2, a3, a4, a5, a6, a;
-        /*
+        //*
         a1 = p->conditions * Z;
         a = a1;
         PRINT("a1.size() : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
@@ -590,7 +600,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
             Eigen::FullPivLU <Eigen::MatrixXf> lu (Acumul);
             Z = lu.kernel();
-            PRINT("Z : ");PRINTNL(Z);
+            //PRINT("Z : ");PRINTNL(Z);
         }
     }
     return res;
@@ -694,7 +704,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
               // ending up here only if it is the right level and data is there. Otherwise, default values
               desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);
               currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);
-              taskSpaceOperation |= true;PRINTNL("HI");
+              taskSpaceOperation |= true;
             }
 
             if (in_desiredTaskSpaceVelocity_flow[jointN] == RTT::NoData ||
@@ -708,7 +718,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             {
               desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
               currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
-              taskSpaceOperation |= true;PRINTNL("HI");
+              taskSpaceOperation |= true;
             }
 
             if (in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData ||
@@ -719,7 +729,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             else
             {
               desiredAcceleration = in_desiredTaskSpaceAcceleration_var;
-              taskSpaceOperation |= true;PRINTNL("HI");
+              taskSpaceOperation |= true;
             }
 
             if (taskSpaceOperation && (in_jacobian_flow[jointN] == RTT::NoData ||
@@ -738,7 +748,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             else
             {
               desiredJointPosition = in_desiredJointSpacePosition_var;
-              jointSpaceOperation |= true;PRINTNL("HI");
+              jointSpaceOperation |= true;
             }
 
             if (in_desiredJointSpaceVelocity_flow[jointN] == RTT::NoData ||
@@ -749,7 +759,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             else
             {
               desiredJointVelocity = in_desiredJointSpaceVelocity_var;
-              jointSpaceOperation |= true;PRINTNL("HI");
+              jointSpaceOperation |= true;
             }
 
             if (in_desiredJointSpaceAcceleration_flow[jointN] == RTT::NoData ||
@@ -760,7 +770,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             else
             {
               desiredJointAcceleration = in_desiredJointSpaceAcceleration_var;
-              jointSpaceOperation |= true;PRINTNL("HI");
+              jointSpaceOperation |= true;
             }
 
 
@@ -806,12 +816,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
                     this->gainTranslationD*(desiredJointVelocity - in_robotstatus_var.velocities[jointN]));
                 addToProblem(A, a, *prob);
             }
-
-            PRINT("problem ");PRINTNL(lvl);
-            PRINTNL(prob->conditions);
-            PRINTNL(A);
-            PRINT("taskSpaceOperation ");PRINTNL(taskSpaceOperation);
-            PRINT("jointSpaceOperation ");PRINTNL(jointSpaceOperation);
         }
     }
     //addToProblem(A, a, pb1);
