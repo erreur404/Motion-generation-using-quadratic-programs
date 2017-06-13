@@ -509,16 +509,26 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
     for (int lvl = 0; lvl < this->stack_of_tasks.stackSize; lvl++)
     {
         p = this->stack_of_tasks.getQP(lvl);
+        PRINT("p :");PRINTNL(p);
+        PRINT("conditions lvl ");PRINT(lvl);PRINTNL(p->conditions);
+        PRINT("constraints lvl ");PRINT(lvl);PRINTNL(p->constraints);
         matrixAppend(Bcumul, p->constraints);
         matrixAppend(bcumul, p->limits);
 
-        PRINTNL(Bcumul);
+        matrixAppend(Acumul, p->conditions);
+        matrixAppend(acumul, p->goal);
+        Eigen::FullPivLU <Eigen::MatrixXf> lu (Acumul);
+        Z = lu.kernel();
+
+        PRINT("Z : ");PRINTNL(Z);
+        PRINT("cumuls :");PRINTNL(Bcumul);
         PRINTNL(bcumul);
         // in hierarchy solving, the constraints are simply stacked upon each other
 
-        solveNextStep(p->conditions, p->goal, Bcumul, bcumul);
+        //solveNextStep(p->conditions, p->goal, Bcumul, bcumul);
 
     }
+    return Eigen::VectorXf::Zero(this->DOFsize);
 }
 
 
@@ -772,6 +782,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
+    PRINT("vor hierarchy");PRINTNL(limitsMatrix);
     this->stack_of_tasks.getQP(0)->constraints = limitsMatrix;
     this->stack_of_tasks.getQP(0)->limits = limits;
 
