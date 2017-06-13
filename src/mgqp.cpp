@@ -428,13 +428,24 @@ bool MotionGenerationQuadraticProgram::setPriorityLevel(std::string task, int le
   return true;
 }
 
-void matrixAppend(Eigen::VectorXf * a, Eigen::VectorXf * b)
+void matrixAppend(Eigen::VectorXf * a, const Eigen::VectorXf * b)
 {
   /* puts b after a */
   int oldRows = a->rows();
-  if (a->rows() == 0 && a->cols() == 0)
+  if (a->rows() == 0)
   {
       *a = *b; // copy, so that b won't be affected
+      return;
+  }
+  if (b->rows() == 0)
+  {
+      return;
+  }
+  if (a->cols() != b->cols());
+  {
+      PRINTNL("DIM ERR - ");
+      PRINT("A.size() : (");PRINT(a->rows());PRINT("x");PRINT(a->cols());PRINTNL(")");
+      PRINT("B.size() : (");PRINT(b->rows());PRINT("x");PRINT(b->cols());PRINTNL(")");
       return;
   }
   a->conservativeResize((Eigen::Index)(a->rows()+b->rows()), (Eigen::NoChange_t) a->cols());
@@ -445,9 +456,20 @@ void matrixAppend(Eigen::MatrixXf * a, Eigen::MatrixXf * b)
 {
   /* puts b after a */
   int oldRows = a->rows();
-  if (a->rows() == 0 && a->cols() == 0)
+  if (a->rows() == 0)
   {
       *a = *b; // copy, so that b won't be affected
+      return;
+  }
+  if (b->rows() == 0)
+  {
+      return;
+  }
+  if (a->cols() != b->cols());
+  {
+      PRINTNL("DIM ERR - ");
+      PRINT("A.size() : (");PRINT(a->rows());PRINT("x");PRINT(a->cols());PRINTNL(")");
+      PRINT("B.size() : (");PRINT(b->rows());PRINT("x");PRINT(b->cols());PRINTNL(")");
       return;
   }
   a->conservativeResize((Eigen::Index)(a->rows()+b->rows()), (Eigen::NoChange_t) a->cols());
@@ -525,9 +547,9 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
     for (int lvl = 0; lvl < this->stack_of_tasks.stackSize; lvl++)
     {
         p = this->stack_of_tasks.getQP(lvl);
+
         matrixAppend(&Bcumul, &p->constraints);
         matrixAppend(&bcumul, &p->limits);
-
         // in hierarchy solving, the constraints are simply stacked upon each other
 
         last_res = res;
@@ -544,24 +566,32 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         PRINT("a3.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a4 = bcumul;
         a = a4;
-        PRINT("a4.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")"); // */
-        // u_1                     A_1*Z_0         a_1 + A_1*y_0
-        if (p->conditions.rows() > 0)
-        {
-            res = solveNextStep(p->conditions * Z, p->goal + p->conditions * res, Bcumul, bcumul);
-        }
-        matrixAppend(&Acumul, &p->conditions);
-        matrixAppend(&acumul, &p->goal);
-        /*
+        PRINT("a4.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a3 = Acumul;
         a = a5;
         PRINT("a5.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a4 = acumul;
         a = a6;
         PRINT("a6.size() :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")"); // */
-        Eigen::FullPivLU <Eigen::MatrixXf> lu (Acumul);
-        //Z = lu.kernel();
-        //PRINT("Z : ");PRINTNL(Z);
+
+
+        // protection against empty problems
+        if (p->conditions.rows() > 0 || p->constraints.rows() > 0)
+        {
+            // u_1                     A_1*Z_0         a_1 + A_1*y_0
+            res = solveNextStep(p->conditions * Z, p->goal + p->conditions * res, Bcumul, bcumul);
+        }
+
+        // protection against empty A matrice
+        if(p->conditions.rows() > 0)
+        {
+            matrixAppend(&Acumul, &p->conditions);
+            matrixAppend(&acumul, &p->goal);
+
+            Eigen::FullPivLU <Eigen::MatrixXf> lu (Acumul);
+            Z = lu.kernel();
+            PRINT("Z : ");PRINTNL(Z);
+        }
     }
     return res;
 }
@@ -611,7 +641,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
         {
             prob = this->stack_of_tasks.getQP(lvl);
 
-            /*
+            /**
             *** The shape of a task ***
             if (the flows required have no data, or the task is not in this prio level)
             {
@@ -629,8 +659,9 @@ void MotionGenerationQuadraticProgram::updateHook() {
             flow : in_desiredTaskName_flow[5]
             var  : in_desiredTaskName_var
             name : in_desiredTaskName_5
-            */
+            **/
 
+            /*
             std::vector<std::string> v1;
             v1.push_back("in_desiredTaskSpacePosition");
             v1.push_back("in_desiredTaskSpaceVelocity");
@@ -641,17 +672,19 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
             for (int lmfao=0; lmfao<v1.size(); lmfao ++)
             {
-                if (this->stack_of_tasks.getLevel(cat(cat(v1[lmfao], "_"), jointN)) != lvl)
+                if (this->stack_of_tasks.getLevel(cat(cat(v1[lmfao], "_"), jointN)) == lvl)
                 {
-                  PRINT(cat(cat(v1[lmfao], "_"), jointN)); PRINT(" not in level ");PRINT(lvl);PRINT(" but in level ");PRINTNL(this->stack_of_tasks.getLevel(cat(cat(v1[lmfao], "_"), jointN)));
+                  PRINT(cat(cat(v1[lmfao], "_"), jointN)); PRINT(" in level ");PRINT(lvl);PRINT(" but in level ");PRINTNL(this->stack_of_tasks.getLevel(cat(cat(v1[lmfao], "_"), jointN)));
                 }
             }
+            //  the priorities may not appear from the very beginning in the program
+            */
 
 
 
             if (in_desiredTaskSpacePosition_flow[jointN] == RTT::NoData ||
                 in_currentTaskSpacePosition_flow[jointN] == RTT::NoData ||
-                this->stack_of_tasks.getLevel(cat("in_desiredTaskSpacePosition_", jointN)) != lvl)
+                this->stack_of_tasks.getLevel(cat("in_desiredTaskSpacePosition_", jointN+1)) != lvl)
             {
               desiredPosition = Eigen::VectorXf::Zero(3);
               currentPosition = Eigen::VectorXf::Zero(3);
@@ -666,7 +699,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
             if (in_desiredTaskSpaceVelocity_flow[jointN] == RTT::NoData ||
                 in_currentTaskSpaceVelocity_flow[jointN] == RTT::NoData ||
-                this->stack_of_tasks.getLevel(cat("in_desiredTaskSpaceVelocity_", jointN)) != lvl)
+                this->stack_of_tasks.getLevel(cat("in_desiredTaskSpaceVelocity_", jointN+1)) != lvl)
             {
               desiredVelocity = Eigen::VectorXf::Zero(3);
               currentVelocity = Eigen::VectorXf::Zero(3);
@@ -679,7 +712,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             }
 
             if (in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData ||
-              this->stack_of_tasks.getLevel(cat("in_desiredTaskSpaceAcceleration_", jointN)) != lvl)
+              this->stack_of_tasks.getLevel(cat("in_desiredTaskSpaceAcceleration_", jointN+1)) != lvl)
             {
               desiredAcceleration = Eigen::VectorXf::Zero(3);
             }
@@ -697,7 +730,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             }
 
             if (in_desiredJointSpacePosition_flow[jointN] == RTT::NoData ||
-                this->stack_of_tasks.getLevel(cat("in_desiredJointSpacePosition_", jointN)) != lvl)
+                this->stack_of_tasks.getLevel(cat("in_desiredJointSpacePosition_", jointN+1)) != lvl)
             {
               //desiredJointPosition = Eigen::VectorXf::Zero(jointN); // targets the 0
               desiredJointPosition = in_robotstatus_var.angles[jointN];
@@ -709,7 +742,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             }
 
             if (in_desiredJointSpaceVelocity_flow[jointN] == RTT::NoData ||
-                this->stack_of_tasks.getLevel(cat("in_desiredJointSpaceVelocity_", jointN)) != lvl)
+                this->stack_of_tasks.getLevel(cat("in_desiredJointSpaceVelocity_", jointN+1)) != lvl)
             {
               desiredJointVelocity = in_robotstatus_var.angles[jointN];
             }
@@ -720,7 +753,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             }
 
             if (in_desiredJointSpaceAcceleration_flow[jointN] == RTT::NoData ||
-                this->stack_of_tasks.getLevel(cat("in_desiredJointSpaceAcceleration_", jointN)) != lvl)
+                this->stack_of_tasks.getLevel(cat("in_desiredJointSpaceAcceleration_", jointN+1)) != lvl)
             {
               desiredJointAcceleration = in_robotstatus_var.angles[jointN];
             }
