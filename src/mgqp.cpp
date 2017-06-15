@@ -634,8 +634,6 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
             Eigen::JacobiSVD<Eigen::MatrixXf> svd(Acumul, Eigen::ComputeFullV); // in Acumul = U S V* we need only V
             Z = svd.matrixV();
             a = Z;
-            PRINT("-- Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-            //PRINT("Z : ");PRINTNL(Z);
         }
     }
     return res;
@@ -904,10 +902,15 @@ void MotionGenerationQuadraticProgram::updateHook() {
     limitsMatrix.block(0, 0, nbInequality/2, nbInequality/2) = -Eigen::MatrixXf::Identity(nbInequality/2, nbInequality/2); // acceleration limit + and torque limit +
     limitsMatrix.block(nbInequality/2, 0, nbInequality/2, nbInequality/2) = Eigen::MatrixXf::Identity(nbInequality/2,nbInequality/2); // acceleration limit - and torque limit -
 
-    limits.block(0*nbInequality/4, 0, nbInequality/4, 1) = (this->JointAccelerationLimitsP.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointAccelerationLimitsP);
+    VectorXf jointAccelAndAngleLimitP = (this->JointAccelerationLimitsP.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointAccelerationLimitsP);
+    VectorXf jointAccelAndAngleLimitN = (this->JointAccelerationLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointAccelerationLimitsN);
+
+    limits.block(0*nbInequality/4, 0, nbInequality/4, 1) = jointAccelAndAngleLimitP;
     limits.block(1*nbInequality/4, 0, nbInequality/4, 1) = (this->JointTorquesLimitsP.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsP);
-    limits.block(2*nbInequality/4, 0, nbInequality/4, 1) = - (this->JointAccelerationLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointAccelerationLimitsN);
-    limits.block(3*nbInequality/4, 0, nbInequality/4, 1) = - (this->JointTorquesLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsN);
+    limits.block(2*nbInequality/4, 0, nbInequality/4, 1) = jointAccelAndAngleLimitN;
+    limits.block(3*nbInequality/4, 0, nbInequality/4, 1) = - (this->JointTorquesLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsN),
+          0
+    );
 
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
@@ -917,7 +920,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero(1, 2*this->DOFsize), Eigen::VectorXf::Zero(1));// without constraints
     tracking = this->solveNextHierarchy();
-    PRINTNL("Tchüss");
+
     /*
     try {
       //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
