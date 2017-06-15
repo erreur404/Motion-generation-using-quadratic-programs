@@ -564,39 +564,64 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
         last_res = res;
         Eigen::MatrixXf a1, a2, a3, a4, a5, a6, a;
-        //*
+        /*
         a1 = p->conditions;
         a = a1;
-        PRINT("p->conditions : ()");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        PRINT("p->conditions : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a1 = p->conditions * Z;
         a = a1;
         PRINT("p->conditions * Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a2 = p->goal + p->conditions * res;
         a = a2;
-        PRINT("p->goal + p->conditions * res; :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        PRINT("p->goal + p->conditions * res; : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a3 = Bcumul;
         a = a3;
-        PRINT("Bcumul :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        PRINT("Bcumul : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a4 = bcumul;
         a = a4;
-        PRINT("bcumul :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        a3 = Acumul;
+        PRINT("bcumul : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        a5 = Acumul;
         a = a5;
-        PRINT("Acumul :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        a4 = acumul;
+        PRINT("Acumul : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        a6 = acumul;
         a = a6;
-        PRINT("acumul :");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        Z.transpose(); /******************* WICHTIG !!!!!!!! it changes the object itself ***************************/
+        PRINT("acumul : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+
+        a = p->constraints;
+        PRINT("p->constraints : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        a = Bcumul * Z;
+        PRINT("Bcumul * Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        a = bcumul - p->constraints * res;
+        PRINT("bcumul - p->constraints * res : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+
         a = Z;
-        PRINT("Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")"); // */
+        PRINT("Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        a = res;
+        PRINT("res : ");PRINTNL(a); // */
 
 
         // protection against empty problems
-        if (p->conditions.rows() > 0 || p->constraints.rows() > 0)
+        if (p->conditions.rows() > 0 && p->constraints.rows() > 0)
         {
             // u_1                     A_1*Z_0         a_1 + A_1*y_0
-            res = solveNextStep(p->conditions * Z, p->goal + p->conditions * res, Bcumul, bcumul);
+            res = solveNextStep(p->conditions * Z, p->goal - p->conditions * res, Bcumul * Z, bcumul - p->constraints * res);
         }
+        else if (p->conditions.rows() > 0 && p->constraints.rows() == 0)
+        {
+            res = solveNextStep(p->conditions * Z, p->goal - p->conditions * res, Eigen::MatrixXf::Zero(1,2*this->DOFsize), Eigen::VectorXf::Zero(1));
+        }
+        /*
+        else if (p->conditions.rows() == 0 && p->constraints.rows() > 0)
+        {
+            // just stack and solve nothing. the inequalities will be used on the next equality level.
+        }
+        else
+        {
+          // well, no input ? do nothing
+        }
+      }
+      }
+        */
 
         // protection against empty A matrice
         if(p->conditions.rows() > 0)
@@ -604,8 +629,12 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
             matrixAppend(&Acumul, &p->conditions);
             matrixAppend(&acumul, &p->goal);
 
-            Eigen::FullPivLU <Eigen::MatrixXf> lu (Acumul);
-            Z = lu.kernel();
+            //Eigen::FullPivLU <Eigen::MatrixXf> lu (Acumul);
+            //Z = lu.kernel();
+            Eigen::JacobiSVD<Eigen::MatrixXf> svd(Acumul, Eigen::ComputeFullV); // in Acumul = U S V* we need only V
+            Z = svd.matrixV();
+            a = Z;
+            PRINT("-- Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
             //PRINT("Z : ");PRINTNL(Z);
         }
     }
