@@ -924,8 +924,33 @@ void MotionGenerationQuadraticProgram::updateHook() {
     this->stack_of_tasks.getQP(0)->constraints = limitsMatrix;
     this->stack_of_tasks.getQP(0)->limits = limits;
 
-    //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero(1, 2*this->DOFsize), Eigen::VectorXf::Zero(1));// without constraints
-    tracking = this->solveNextHierarchy();
+    try
+    {
+        tracking = this->solveNextHierarchy();
+        // sum of all problems as command
+        Eigen::VectorXf acceleration = (tracking).block(0, 0, this->DOFsize, 1);
+        Eigen::VectorXf torques = (tracking).block(this->DOFsize, 0, this->DOFsize, 1);
+        out_torques_var.torques = torques+in_inertia_var*acceleration+in_h_var;
+
+
+        // write it to port
+        //out_torques_port.write(out_torques_var);
+    }
+    catch (...)
+    {
+        tracking = Eigen::VectorXf::Zero(this->DOFsize);
+
+        tracking[0] = 100;
+        out_torques_var.torques = tracking;
+        //out_torques_port.write(out_torques_var);
+    }
+
+    tracking = Eigen::VectorXf::Zero(this->DOFsize);
+    for (int i = 0; i<this->DOFsize; i++)
+    {tracking[i] = 100;}
+    
+    out_torques_var.torques = tracking;
+    out_torques_port.write(out_torques_var);
 
     /*
     try {
@@ -944,14 +969,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     PRINTNL("Succeed indeed !");
     */
 
-    // sum of all problems as command
-    Eigen::VectorXf acceleration = (tracking).block(0, 0, this->DOFsize, 1);
-    Eigen::VectorXf torques = (tracking).block(this->DOFsize, 0, this->DOFsize, 1);
-    out_torques_var.torques = torques+in_inertia_var*acceleration+in_h_var;
 
-
-    // write it to port
-    out_torques_port.write(out_torques_var);
 }
 
 void MotionGenerationQuadraticProgram::stopHook() {

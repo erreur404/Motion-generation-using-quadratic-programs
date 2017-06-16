@@ -16,7 +16,7 @@ import("CosimaUtilities")
 require("os")
 require("print")
 
-var int DOFsize = 11;
+var int DOFsize = 7;
 var string model_name = "";
 var string path_model_urdf = "";
 var string path_model_srdf = "";
@@ -202,6 +202,11 @@ for (var int j = 1; j <= DOFsize; j = j + 1 )
 var string dofname = ""+11; #DOFsize;
 var string fkname  = ""+7; #DOFsize;
 
+if (DOFsize == 7) then {
+    dofname = "7";
+    fkname = "7";
+}
+
 connect("robot_gazebo.full_arm_JointFeedback", "fkin"+fkname+".in_robotstatus_port", cp);
 connect("fkin"+fkname+".out_robotstatus_port", "myTorqueController.in_robotstatus_port", cp);
 connect("fkin"+fkname+".out_coriolisAndGravity_port", "myTorqueController.in_h_port", cp);
@@ -210,6 +215,11 @@ connect("fkin"+fkname+".out_inertia_port", "myTorqueController.in_inertia_port",
 # giving the robot the forward kinematics of the joint we want to control (EE)
 dofname = ""+11; #DOFsize;
 fkname = ""+7; #DOFsize;
+
+if (DOFsize == 7) then {
+    dofname = "7";
+    fkname = "7";
+}
 
 connect("fkin"+fkname+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+dofname, cp);
 connect("fkin"+fkname+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+dofname, cp);
@@ -220,16 +230,18 @@ connect("trajectorygenerator2.out_desiredTaskSpaceVelocity_port", "myTorqueContr
 connect("trajectorygenerator2.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+dofname, cp);
 
 # giving the robot the forward kinematics of another joint we want to control
-dofname = ""+5;
-fkname = "2B";
-connect("robot_gazebo.full_arm_JointFeedback", "fkin"+fkname+".in_robotstatus_port", cp)
-connect("fkin"+fkname+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+dofname, cp);
-connect("fkin"+fkname+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+dofname, cp);
-connect("fkin"+fkname+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+dofname, cp);
-connect("fkin"+fkname+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+dofname, cp);
-connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+dofname, cp);
-connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+dofname, cp);
-connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+dofname, cp);
+if (DOFsize == 11) then {
+    dofname = ""+5;
+    fkname = "2B";
+    connect("robot_gazebo.full_arm_JointFeedback", "fkin"+fkname+".in_robotstatus_port", cp)
+    connect("fkin"+fkname+".out_jacobianTranslation_port", "myTorqueController.in_jacobian_port_"+dofname, cp);
+    connect("fkin"+fkname+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+dofname, cp);
+    connect("fkin"+fkname+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+dofname, cp);
+    connect("fkin"+fkname+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+dofname, cp);
+    connect("trajectorygenerator.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+dofname, cp);
+    connect("trajectorygenerator.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+dofname, cp);
+    connect("trajectorygenerator.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+dofname, cp);
+}
 
 connect("singen.out_sin_port", "myTorqueController.in_desiredJointSpacePosition_port_1", cp);
 #connect("singen.out_sin_port", "myTorqueController.in_desiredJointSpacePosition_port_3", cp);
@@ -238,21 +250,37 @@ connect("singen.out_sin_port", "myTorqueController.in_desiredJointSpacePosition_
 # send commands to the robot
 connect("myTorqueController.out_torques_port", "robot_gazebo.full_arm_JointTorqueCtrl", cp)
 
-for (var int k = 1; k <= DOFsize; k = k + 1 )
-{
-  eval("fkin"+k+".start()");
+if (DOFsize == 11) then {
+    eval("fkin2B.start();");
 }
-fkin2B.start();
+else
+{
+    for (var int k = 1; k <= DOFsize; k = k + 1 )
+    {
+      eval("fkin"+k+".start()");
+    }
+}
+
 trajectorygenerator.start()
 trajectorygenerator2.start()
 myTorqueController.configure()
-myTorqueController.setPriorityLevel("in_desiredTaskSpacePosition_5", 0);
-myTorqueController.setPriorityLevel("in_desiredTaskSpaceVelocity_5", 1);
-myTorqueController.setPriorityLevel("in_desiredTaskSpaceAcceleration_5", 1);
-myTorqueController.setPriorityLevel("in_desiredTaskSpacePosition_11", 0);
-myTorqueController.setPriorityLevel("in_desiredTaskSpaceVelocity_11", 1);
-myTorqueController.setPriorityLevel("in_desiredTaskSpaceAcceleration_11", 1);
-myTorqueController.setPriorityLevel("in_desiredJointSpacePosition_port_1", 2);
+
+if (DOFsize == 11) then {
+    myTorqueController.setPriorityLevel("in_desiredTaskSpacePosition_5", 0);
+    myTorqueController.setPriorityLevel("in_desiredTaskSpaceVelocity_5", 1);
+    myTorqueController.setPriorityLevel("in_desiredTaskSpaceAcceleration_5", 1);
+    myTorqueController.setPriorityLevel("in_desiredTaskSpacePosition_11", 0);
+    myTorqueController.setPriorityLevel("in_desiredTaskSpaceVelocity_11", 1);
+    myTorqueController.setPriorityLevel("in_desiredTaskSpaceAcceleration_11", 1);
+    myTorqueController.setPriorityLevel("in_desiredJointSpacePosition_port_1", 2);
+}
+else
+{
+    myTorqueController.setPriorityLevel("in_desiredTaskSpacePosition_7", 0);
+    myTorqueController.setPriorityLevel("in_desiredTaskSpaceVelocity_7", 1);
+    myTorqueController.setPriorityLevel("in_desiredTaskSpaceAcceleration_7", 1);
+    myTorqueController.setPriorityLevel("in_desiredJointSpacePosition_port_1", 2);
+}
 
 
 myTorqueController.start()
