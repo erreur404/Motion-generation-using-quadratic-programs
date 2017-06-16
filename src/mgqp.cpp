@@ -564,7 +564,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
         last_res = res;
         Eigen::MatrixXf a1, a2, a3, a4, a5, a6, a;
-        /*
+        //*
         a1 = p->conditions;
         a = a1;
         PRINT("p->conditions : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
@@ -586,17 +586,19 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         a6 = acumul;
         a = a6;
         PRINT("acumul : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-
-        a = p->constraints;
-        PRINT("p->constraints : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        a = Bcumul * Z;
-        PRINT("Bcumul * Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        a = bcumul - p->constraints * res;
-        PRINT("bcumul - p->constraints * res : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        if (p->constraints.rows() > 0)
+        {
+            a = p->constraints;
+            PRINT("p->constraints : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+            a = Bcumul * Z;
+            PRINT("Bcumul * Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+            a = bcumul - p->constraints * res;
+            PRINT("bcumul - p->constraints * res : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        }
 
         a = Z;
         PRINT("Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        a = res;
+        a = res.transpose();
         PRINT("res : ");PRINTNL(a); // */
 
 
@@ -924,33 +926,29 @@ void MotionGenerationQuadraticProgram::updateHook() {
     this->stack_of_tasks.getQP(0)->constraints = limitsMatrix;
     this->stack_of_tasks.getQP(0)->limits = limits;
 
-    try
-    {
+    //try
+    //{
         tracking = this->solveNextHierarchy();
         // sum of all problems as command
         Eigen::VectorXf acceleration = (tracking).block(0, 0, this->DOFsize, 1);
         Eigen::VectorXf torques = (tracking).block(this->DOFsize, 0, this->DOFsize, 1);
         out_torques_var.torques = torques+in_inertia_var*acceleration+in_h_var;
 
-
+        PRINT("torques : ");PRINTNL(out_torques_var.torques.transpose());
         // write it to port
-        //out_torques_port.write(out_torques_var);
+        out_torques_port.write(out_torques_var);
+        /*
     }
     catch (...)
     {
         tracking = Eigen::VectorXf::Zero(this->DOFsize);
 
-        tracking[0] = 100;
+        //tracking[0] = 100;
         out_torques_var.torques = tracking;
-        //out_torques_port.write(out_torques_var);
-    }
+        out_torques_port.write(out_torques_var);
+    }// */
 
-    tracking = Eigen::VectorXf::Zero(this->DOFsize);
-    for (int i = 0; i<this->DOFsize; i++)
-    {char *pEnd;tracking[i] = std::strtof("NAN", &pEnd);}
 
-    out_torques_var.torques = tracking;
-    out_torques_port.write(out_torques_var);
 
     /*
     try {

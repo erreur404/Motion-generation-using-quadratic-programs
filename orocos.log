@@ -1,49 +1,49 @@
 0.000 [ Info   ][Logger] No ORO_LOGLEVEL environment variable set.
 0.000 [ Info   ][Logger]  OROCOS version '2.8.3' compiled with GCC 5.4.0. Running in GNU/Linux.
 0.000 [ Info   ][Logger] Orocos Logging Activated at level : [ Warning] ( 4 ) 
-0.000 [ Info   ][Logger] Reference System Time is : 1497626239189325736 ticks ( 1.49763e+09 seconds ).
+0.000 [ Info   ][Logger] Reference System Time is : 1497627055987697449 ticks ( 1.49763e+09 seconds ).
 0.000 [ Info   ][Logger] Logging is relative to this time.
 0.000 [ Info   ][Logger] RTT_COMPONENT_PATH was set to: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos . Searching in: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos
 0.000 [ Info   ][Logger] plugin 'rtt' not loaded before.
 0.000 [ Info   ][Logger] Loading plugin libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/./plugins ...
-0.000 [ Info   ][Logger] Loaded RTT Service 'marshalling' from 'rtt-marshalling'
-0.000 [ Info   ][Logger] Loaded RTT Service 'scripting' from 'rtt-scripting'
+0.001 [ Info   ][Logger] Loaded RTT Service 'marshalling' from 'rtt-marshalling'
+0.001 [ Info   ][Logger] Loaded RTT Service 'scripting' from 'rtt-scripting'
 0.001 [ Info   ][Logger] typekit 'rtt' not loaded before.
 0.001 [ Info   ][Logger] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/./types ...
-0.011 [ Info   ][TypekitRepository::Import] Loading Typekit rtt-types.
-0.011 [ Info   ][Logger] Loaded RTT TypeKit/Transport 'rtt-types' from 'rtt-typekit'
-0.013 [ Info   ][TypekitRepository::Import] Loading Transport mqueue://rtt-types.
-0.013 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for array
-0.013 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for bool
-0.013 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for char
-0.013 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for double
-0.013 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for float
-0.013 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for int
-0.013 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for uint
-0.013 [ Info   ][Logger] Loaded RTT TypeKit/Transport 'rtt-mqueue-transport' from 'rtt-transport-mqueue'
-0.024 [ Info   ][TypekitRepository::Import] Loading Transport CORBA://rtt-types.
-0.024 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for ConnPolicy
-0.024 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for TaskContext
-0.024 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for array
-0.024 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for bool
-0.024 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for char
-0.024 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for double
-0.024 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for float
-0.024 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for int
-0.024 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for rt_string
-0.024 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for string
-0.024 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for uint
-0.024 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for void
-0.024 [ Info   ][Logger] Loaded RTT TypeKit/Transport 'rtt-corba-types' from 'rtt-transport-corba'
-0.024 [ Info   ][Logger] RTT_COMPONENT_PATH was set to: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos . Searching in: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos
-0.024 [ Info   ][Logger] OCL factory set for real-time logging
-0.024 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='Deployer'
-0.024 [ Info   ][Deployer] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29665 ).
+0.010 [ Info   ][TypekitRepository::Import] Loading Typekit rtt-types.
+0.010 [ Info   ][Logger] Loaded RTT TypeKit/Transport 'rtt-types' from 'rtt-typekit'
+0.011 [ Info   ][TypekitRepository::Import] Loading Transport mqueue://rtt-types.
+0.011 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for array
+0.011 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for bool
+0.011 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for char
+0.011 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for double
+0.011 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for float
+0.011 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for int
+0.011 [ Info   ][TypekitRepository::Import] Registered new 'mqueue' transport for uint
+0.011 [ Info   ][Logger] Loaded RTT TypeKit/Transport 'rtt-mqueue-transport' from 'rtt-transport-mqueue'
+0.023 [ Info   ][TypekitRepository::Import] Loading Transport CORBA://rtt-types.
+0.023 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for ConnPolicy
+0.023 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for TaskContext
+0.023 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for array
+0.023 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for bool
+0.023 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for char
+0.023 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for double
+0.023 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for float
+0.023 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for int
+0.023 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for rt_string
+0.023 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for string
+0.023 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for uint
+0.023 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for void
+0.023 [ Info   ][Logger] Loaded RTT TypeKit/Transport 'rtt-corba-types' from 'rtt-transport-corba'
+0.023 [ Info   ][Logger] RTT_COMPONENT_PATH was set to: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos . Searching in: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos
+0.023 [ Info   ][Logger] OCL factory set for real-time logging
+0.023 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='Deployer'
+0.024 [ Info   ][Deployer] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31389 ).
 0.024 [ Info   ][Logger] No site file was found. Importing 'ocl' by default.
 0.024 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl ...
 0.025 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/liborocos-ocl-logging-gnulinux.so'
-0.037 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/liborocos-ocl-reporting-netcdf-gnulinux.so'
-0.037 [ Info   ][ComponentLoader::import(path_list)] Loaded component type 'OCL::NetcdfReporting'
+0.036 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/liborocos-ocl-reporting-netcdf-gnulinux.so'
+0.036 [ Info   ][ComponentLoader::import(path_list)] Loaded component type 'OCL::NetcdfReporting'
 0.038 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/liborocos-ocl-timer-gnulinux.so'
 0.038 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/liborocos-ocl-reporting-gnulinux.so'
 0.039 [ Info   ][ComponentLoader::import(path_list)] Loaded component type 'OCL::HelloWorld'
@@ -53,32 +53,32 @@
 0.042 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'OCLTypekit' from 'ocl'
 0.042 [ Info   ][ComponentLoader::import(path_list)] Loading plugin libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/ocl/plugins ...
 0.043 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT Service 'os' from 'os'
-0.044 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT Service 'print' from 'print'
-0.044 [ Info   ][Logger] Loading Service or Plugin scripting in TaskContext Deployer
+0.043 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT Service 'print' from 'print'
+0.043 [ Info   ][Logger] Loading Service or Plugin scripting in TaskContext Deployer
 0.044 [ Info   ][Logger] Found complete interface of requested service 'scripting'
 0.044 [ Info   ][Logger] Running Script /home/erreur404/git-repos/Motion-generation-using-quadratic-programs/ops/mgqp.ops ...
 0.044 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='GlobalEngine'
-0.044 [ Info   ][GlobalEngine] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29666 ).
-0.046 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/eigen_typekit ...
-0.046 [ Info   ][ComponentLoader::import(path_list)] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/eigen_typekit/types ...
-0.048 [ Info   ][TypekitRepository::Import] Loading Typekit Eigen.
-0.048 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'Eigen' from 'eigen_typekit'
+0.044 [ Info   ][GlobalEngine] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31390 ).
+0.045 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/eigen_typekit ...
+0.045 [ Info   ][ComponentLoader::import(path_list)] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/eigen_typekit/types ...
+0.047 [ Info   ][TypekitRepository::Import] Loading Typekit Eigen.
+0.047 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'Eigen' from 'eigen_typekit'
 0.048 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/kdl_typekit ...
 0.048 [ Info   ][ComponentLoader::import(path_list)] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/kdl_typekit/types ...
 0.049 [ Info   ][TypekitRepository::Import] Loading Transport CORBA://KDL.
 0.049 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'kdl-corba-types' from 'kdl-transport-corba'
-0.069 [ Info   ][TypekitRepository::Import] Loading Typekit KDL.
-0.069 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Frame
-0.069 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Rotation
-0.069 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Twist
-0.069 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Vector
-0.069 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Wrench
-0.069 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'KDL' from 'kdl_typekit'
-0.070 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rst-rt_typekit ...
-0.070 [ Info   ][ComponentLoader::import(path_list)] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rst-rt_typekit/types ...
-0.104 [ Info   ][TypekitRepository::Import] Loading Typekit rst-rt.
-0.104 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'rst-rt' from 'rst-rt_typekit'
-0.105 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt_gazebo_embedded ...
+0.068 [ Info   ][TypekitRepository::Import] Loading Typekit KDL.
+0.068 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Frame
+0.068 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Rotation
+0.068 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Twist
+0.068 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Vector
+0.068 [ Info   ][TypekitRepository::Import] Registered new 'CORBA' transport for KDL.Wrench
+0.068 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'KDL' from 'kdl_typekit'
+0.069 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rst-rt_typekit ...
+0.069 [ Info   ][ComponentLoader::import(path_list)] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rst-rt_typekit/types ...
+0.103 [ Info   ][TypekitRepository::Import] Loading Typekit rst-rt.
+0.103 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT TypeKit/Transport 'rst-rt' from 'rst-rt_typekit'
+0.104 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt_gazebo_embedded ...
 0.186 [ Info   ][ComponentLoader::import(path_list)] Loaded component type 'ModelPluginExample'
 0.190 [ Info   ][ComponentLoader::import(path_list)] Loaded component type 'RTTGazeboEmbedded'
 0.191 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt-gazebo-robot-sim ...
@@ -86,324 +86,414 @@
 0.201 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt-core-extensions ...
 0.205 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt-core-extensions/librtt-core-extensions-components-gnulinux.so'
 0.206 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/gnulinux/ProjectedDynamics ...
-0.254 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/gnulinux/ProjectedDynamics/libProjectedDynamics-gnulinux.so'
-0.255 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/git-repos/cosima-utilities/build/orocos/gnulinux/CosimaUtilities ...
-0.262 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/git-repos/cosima-utilities/build/orocos/gnulinux/CosimaUtilities/libCosimaUtilities-gnulinux.so'
-0.267 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='gazebo'
-0.267 [ Info   ][gazebo] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29672 ).
-0.267 [ Info   ][loadComponent] Creating gazebo with gazebo embedded !
-0.267 [ Info   ][loadComponent] Adding gazebo as new peer:  OK.
-0.268 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='gazebo'
-0.268 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
-0.268 [ Info   ][gazebo] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29673 ).
-0.272 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='robot_gazebo'
-0.272 [ Info   ][robot_gazebo] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29674 ).
-0.272 [ Info   ][loadComponent] Adding robot_gazebo as new peer:  OK.
-0.273 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=11, CPU affinity=4294967295, with name='robot_gazebo'
-0.273 [ Warning][Thread] Forcing priority (11) of thread with SCHED_OTHER policy to 0.
-0.273 [ Info   ][robot_gazebo] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29675 ).
-0.274 [ Info   ][ScriptingService] Creating world at worlds/empty.world
-0.275 [ Info   ][ScriptingService] RTT_COMPONENT_PATH was set to: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos . Searching in: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos
-0.275 [ Info   ][ScriptingService] plugin 'rtt' not loaded before.
-0.275 [ Info   ][ScriptingService] Loading plugin libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/./plugins ...
-0.275 [ Info   ][ScriptingService] typekit 'rtt' not loaded before.
-0.275 [ Info   ][ScriptingService] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/./types ...
-0.275 [ Info   ][ScriptingService] RTT_COMPONENT_PATH was set to: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos . Searching in: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos
-0.285 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='rtt_clock_SimClockThread'
-0.285 [ Info   ][rtt_clock_SimClockThread] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29679 ).
-0.285 [ Info   ][ScriptingService] Orocos Logging Deactivated.
+0.256 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/gnulinux/ProjectedDynamics/libProjectedDynamics-gnulinux.so'
+0.257 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/git-repos/cosima-utilities/build/orocos/gnulinux/CosimaUtilities ...
+0.264 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/git-repos/cosima-utilities/build/orocos/gnulinux/CosimaUtilities/libCosimaUtilities-gnulinux.so'
+0.269 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='gazebo'
+0.269 [ Info   ][gazebo] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31395 ).
+0.269 [ Info   ][loadComponent] Creating gazebo with gazebo embedded !
+0.269 [ Info   ][loadComponent] Adding gazebo as new peer:  OK.
+0.270 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='gazebo'
+0.270 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
+0.270 [ Info   ][gazebo] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31396 ).
+0.274 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='robot_gazebo'
+0.274 [ Info   ][robot_gazebo] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31397 ).
+0.274 [ Info   ][loadComponent] Adding robot_gazebo as new peer:  OK.
+0.275 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=11, CPU affinity=4294967295, with name='robot_gazebo'
+0.275 [ Warning][Thread] Forcing priority (11) of thread with SCHED_OTHER policy to 0.
+0.276 [ Info   ][robot_gazebo] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31398 ).
+0.276 [ Info   ][ScriptingService] Creating world at worlds/empty.world
+0.277 [ Info   ][ScriptingService] RTT_COMPONENT_PATH was set to: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos . Searching in: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos
+0.277 [ Info   ][ScriptingService] plugin 'rtt' not loaded before.
+0.277 [ Info   ][ScriptingService] Loading plugin libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/./plugins ...
+0.277 [ Info   ][ScriptingService] typekit 'rtt' not loaded before.
+0.277 [ Info   ][ScriptingService] Loading typekit libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/./types ...
+0.278 [ Info   ][ScriptingService] RTT_COMPONENT_PATH was set to: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos . Searching in: /home/erreur404/git-repos/cosima-utilities/build/orocos/:/home/erreur404/git-repos/cosima-projected-dynamics/build/orocos/:/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/:/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/:/home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos
+0.287 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='rtt_clock_SimClockThread'
+0.288 [ Info   ][rtt_clock_SimClockThread] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31402 ).
+0.288 [ Info   ][ScriptingService] Orocos Logging Deactivated.
 0.000 [ Info   ][ScriptingService] No ORO_LOGLEVEL environment variable set.
 0.000 [ Info   ][ScriptingService]  OROCOS version '2.8.3' compiled with GCC 5.4.0. Running in GNU/Linux.
 0.000 [ Info   ][ScriptingService] Orocos Logging Activated at level : [ Info   ] ( 5 ) 
 0.000 [ Info   ][ScriptingService] Reference System Time is : 0 ticks ( 0 seconds ).
 0.000 [ Info   ][ScriptingService] Logging is relative to this time.
-0.192 [ Info   ][ScriptingService] Model [robotmodel] successfully loaded !
-0.192 [ Info   ][ScriptingService] URDF path: /home/erreur404/citk/systems/cogimon-minimal-nightly/share/gazebo/models/cogimon/kuka-lwr-4plus/model.urdf
-0.192 [ Info   ][ScriptingService] SRDF path: /home/erreur404/citk/systems/cogimon-minimal-nightly/share/gazebo/models/cogimon/kuka-lwr-4plus/model.srdf
-0.192 [ Info   ][ScriptingService] chain #0 full_arm
-0.192 [ Info   ][ScriptingService]   lwr_arm_0_joint
-0.192 [ Info   ][ScriptingService]   lwr_arm_1_joint
-0.192 [ Info   ][ScriptingService]   lwr_arm_2_joint
-0.192 [ Info   ][ScriptingService]   lwr_arm_3_joint
-0.192 [ Info   ][ScriptingService]   lwr_arm_4_joint
-0.192 [ Info   ][ScriptingService]   lwr_arm_5_joint
-0.192 [ Info   ][ScriptingService]   lwr_arm_6_joint
-0.192 [ Info   ][ScriptingService] Model name robotmodel
-0.192 [ Info   ][ScriptingService] Model has 8 joints
-0.192 [ Info   ][ScriptingService] Model has 8 links
-0.192 [ Info   ][ScriptingService] Creating Kinematic Chain full_arm
-0.192 [ Info   ][ScriptingService] Joints: 
-0.192 [ Info   ][ScriptingService]     lwr_arm_0_joint
-0.192 [ Info   ][ScriptingService]     lwr_arm_1_joint
-0.192 [ Info   ][ScriptingService]     lwr_arm_2_joint
-0.192 [ Info   ][ScriptingService]     lwr_arm_3_joint
-0.192 [ Info   ][ScriptingService]     lwr_arm_4_joint
-0.192 [ Info   ][ScriptingService]     lwr_arm_5_joint
-0.192 [ Info   ][ScriptingService]     lwr_arm_6_joint
-0.192 [ Info   ][ScriptingService] Kinematic Chains map created!
-0.192 [ Info   ][ScriptingService] Available controllers for full_arm are:
-0.192 [ Info   ][ScriptingService]   JointPositionCtrl
-0.192 [ Info   ][ScriptingService]   JointImpedanceCtrl
-0.192 [ Info   ][ScriptingService]   JointTorqueCtrl
-0.192 [ Info   ][ScriptingService] Joint lwr_arm_0_joint in chain full_arm has scoped name robotmodel::lwr_arm_0_joint
-0.192 [ Info   ][ScriptingService] Joint lwr_arm_1_joint in chain full_arm has scoped name robotmodel::lwr_arm_1_joint
-0.192 [ Info   ][ScriptingService] Joint lwr_arm_2_joint in chain full_arm has scoped name robotmodel::lwr_arm_2_joint
-0.192 [ Info   ][ScriptingService] Joint lwr_arm_3_joint in chain full_arm has scoped name robotmodel::lwr_arm_3_joint
-0.192 [ Info   ][ScriptingService] Joint lwr_arm_4_joint in chain full_arm has scoped name robotmodel::lwr_arm_4_joint
-0.192 [ Info   ][ScriptingService] Joint lwr_arm_5_joint in chain full_arm has scoped name robotmodel::lwr_arm_5_joint
-0.192 [ Info   ][ScriptingService] Joint lwr_arm_6_joint in chain full_arm has scoped name robotmodel::lwr_arm_6_joint
-0.192 [ Info   ][ScriptingService] JointPositionCtrl activated!
-0.192 [ Info   ][ScriptingService] JointImpedanceCtrl activated!
-0.192 [ Info   ][ScriptingService] JointTorqueCtrl activated!
-0.192 [ Info   ][ScriptingService] Full feedback activated!
-0.192 [ Info   ][ScriptingService] full_arm PIDs:
-0.192 [ Info   ][ScriptingService]   lwr_arm_0_joint P: 1000 I: 0 D: 0.1
-0.192 [ Info   ][ScriptingService]   lwr_arm_1_joint P: 1000 I: 0 D: 0.1
-0.192 [ Info   ][ScriptingService]   lwr_arm_2_joint P: 600 I: 0 D: 0.1
-0.192 [ Info   ][ScriptingService]   lwr_arm_3_joint P: 1000 I: 0 D: 0.1
-0.192 [ Info   ][ScriptingService]   lwr_arm_4_joint P: 100 I: 0 D: 0.1
-0.192 [ Info   ][ScriptingService]   lwr_arm_5_joint P: 100 I: 0 D: 0.1
-0.192 [ Info   ][ScriptingService]   lwr_arm_6_joint P: 10 I: 0 D: 0.01
-0.192 [ Info   ][ScriptingService] Gazebo Joint Controlled inited!
-0.192 [ Info   ][ScriptingService] Initial Position set!
-0.192 [ Info   ][ScriptingService] full_arm impedance:
-0.192 [ Info   ][ScriptingService]   lwr_arm_0_joint stiffness: 300 damping: 30
-0.192 [ Info   ][ScriptingService]   lwr_arm_1_joint stiffness: 300 damping: 30
-0.192 [ Info   ][ScriptingService]   lwr_arm_2_joint stiffness: 300 damping: 30
-0.192 [ Info   ][ScriptingService]   lwr_arm_3_joint stiffness: 300 damping: 30
-0.192 [ Info   ][ScriptingService]   lwr_arm_4_joint stiffness: 300 damping: 30
-0.192 [ Info   ][ScriptingService]   lwr_arm_5_joint stiffness: 300 damping: 30
-0.192 [ Info   ][ScriptingService]   lwr_arm_6_joint stiffness: 300 damping: 30
-0.192 [ Info   ][ScriptingService] Initial Impedance set!
-0.192 [ Info   ][ScriptingService] Kinematic Chains Initialized!
-0.192 [ Info   ][ScriptingService] Checking Sensors
-0.192 [ Warning][ScriptingService] Done configuring component
-0.204 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin1'
-0.205 [ Info   ][fkin1] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29716 ).
-0.206 [ Info   ][loadComponent] Adding fkin1 as new peer:  OK.
-0.206 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin1'
-0.207 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
-0.207 [ Info   ][fkin1] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 29717 ).
+0.186 [ Info   ][ScriptingService] Model [robotmodel] successfully loaded !
+0.186 [ Info   ][ScriptingService] URDF path: /home/erreur404/citk/systems/cogimon-minimal-nightly/share/gazebo/models/cogimon/kuka-lwr-4plus/model.urdf
+0.186 [ Info   ][ScriptingService] SRDF path: /home/erreur404/citk/systems/cogimon-minimal-nightly/share/gazebo/models/cogimon/kuka-lwr-4plus/model.srdf
+0.190 [ Info   ][ScriptingService] chain #0 full_arm
+0.190 [ Info   ][ScriptingService]   lwr_arm_0_joint
+0.190 [ Info   ][ScriptingService]   lwr_arm_1_joint
+0.190 [ Info   ][ScriptingService]   lwr_arm_2_joint
+0.190 [ Info   ][ScriptingService]   lwr_arm_3_joint
+0.190 [ Info   ][ScriptingService]   lwr_arm_4_joint
+0.190 [ Info   ][ScriptingService]   lwr_arm_5_joint
+0.190 [ Info   ][ScriptingService]   lwr_arm_6_joint
+0.190 [ Info   ][ScriptingService] Model name robotmodel
+0.190 [ Info   ][ScriptingService] Model has 8 joints
+0.190 [ Info   ][ScriptingService] Model has 8 links
+0.190 [ Info   ][ScriptingService] Creating Kinematic Chain full_arm
+0.190 [ Info   ][ScriptingService] Joints: 
+0.190 [ Info   ][ScriptingService]     lwr_arm_0_joint
+0.190 [ Info   ][ScriptingService]     lwr_arm_1_joint
+0.190 [ Info   ][ScriptingService]     lwr_arm_2_joint
+0.190 [ Info   ][ScriptingService]     lwr_arm_3_joint
+0.190 [ Info   ][ScriptingService]     lwr_arm_4_joint
+0.190 [ Info   ][ScriptingService]     lwr_arm_5_joint
+0.190 [ Info   ][ScriptingService]     lwr_arm_6_joint
+0.190 [ Info   ][ScriptingService] Kinematic Chains map created!
+0.190 [ Info   ][ScriptingService] Available controllers for full_arm are:
+0.190 [ Info   ][ScriptingService]   JointPositionCtrl
+0.190 [ Info   ][ScriptingService]   JointImpedanceCtrl
+0.190 [ Info   ][ScriptingService]   JointTorqueCtrl
+0.190 [ Info   ][ScriptingService] Joint lwr_arm_0_joint in chain full_arm has scoped name robotmodel::lwr_arm_0_joint
+0.190 [ Info   ][ScriptingService] Joint lwr_arm_1_joint in chain full_arm has scoped name robotmodel::lwr_arm_1_joint
+0.190 [ Info   ][ScriptingService] Joint lwr_arm_2_joint in chain full_arm has scoped name robotmodel::lwr_arm_2_joint
+0.190 [ Info   ][ScriptingService] Joint lwr_arm_3_joint in chain full_arm has scoped name robotmodel::lwr_arm_3_joint
+0.190 [ Info   ][ScriptingService] Joint lwr_arm_4_joint in chain full_arm has scoped name robotmodel::lwr_arm_4_joint
+0.190 [ Info   ][ScriptingService] Joint lwr_arm_5_joint in chain full_arm has scoped name robotmodel::lwr_arm_5_joint
+0.190 [ Info   ][ScriptingService] Joint lwr_arm_6_joint in chain full_arm has scoped name robotmodel::lwr_arm_6_joint
+0.190 [ Info   ][ScriptingService] JointPositionCtrl activated!
+0.190 [ Info   ][ScriptingService] JointImpedanceCtrl activated!
+0.190 [ Info   ][ScriptingService] JointTorqueCtrl activated!
+0.190 [ Info   ][ScriptingService] Full feedback activated!
+0.190 [ Info   ][ScriptingService] full_arm PIDs:
+0.190 [ Info   ][ScriptingService]   lwr_arm_0_joint P: 1000 I: 0 D: 0.1
+0.190 [ Info   ][ScriptingService]   lwr_arm_1_joint P: 1000 I: 0 D: 0.1
+0.190 [ Info   ][ScriptingService]   lwr_arm_2_joint P: 600 I: 0 D: 0.1
+0.190 [ Info   ][ScriptingService]   lwr_arm_3_joint P: 1000 I: 0 D: 0.1
+0.190 [ Info   ][ScriptingService]   lwr_arm_4_joint P: 100 I: 0 D: 0.1
+0.190 [ Info   ][ScriptingService]   lwr_arm_5_joint P: 100 I: 0 D: 0.1
+0.190 [ Info   ][ScriptingService]   lwr_arm_6_joint P: 10 I: 0 D: 0.01
+0.190 [ Info   ][ScriptingService] Gazebo Joint Controlled inited!
+0.190 [ Info   ][ScriptingService] Initial Position set!
+0.190 [ Info   ][ScriptingService] full_arm impedance:
+0.190 [ Info   ][ScriptingService]   lwr_arm_0_joint stiffness: 300 damping: 30
+0.190 [ Info   ][ScriptingService]   lwr_arm_1_joint stiffness: 300 damping: 30
+0.190 [ Info   ][ScriptingService]   lwr_arm_2_joint stiffness: 300 damping: 30
+0.190 [ Info   ][ScriptingService]   lwr_arm_3_joint stiffness: 300 damping: 30
+0.190 [ Info   ][ScriptingService]   lwr_arm_4_joint stiffness: 300 damping: 30
+0.190 [ Info   ][ScriptingService]   lwr_arm_5_joint stiffness: 300 damping: 30
+0.190 [ Info   ][ScriptingService]   lwr_arm_6_joint stiffness: 300 damping: 30
+0.190 [ Info   ][ScriptingService] Initial Impedance set!
+0.190 [ Info   ][ScriptingService] Kinematic Chains Initialized!
+0.190 [ Info   ][ScriptingService] Checking Sensors
+0.190 [ Warning][ScriptingService] Done configuring component
+0.209 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin1'
+0.209 [ Info   ][fkin1] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31432 ).
+0.209 [ Info   ][loadComponent] Adding fkin1 as new peer:  OK.
+0.209 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin1'
+0.209 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
+0.209 [ Info   ][fkin1] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 31433 ).
 0.212 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin2'
-0.213 [ Info   ][fkin2] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29718 ).
-0.214 [ Info   ][loadComponent] Adding fkin2 as new peer:  OK.
-0.214 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin2'
-0.214 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
-0.216 [ Info   ][fkin2] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 29719 ).
-0.218 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin3'
-0.219 [ Info   ][fkin3] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29720 ).
-0.219 [ Info   ][loadComponent] Adding fkin3 as new peer:  OK.
-0.219 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin3'
-0.219 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
-0.219 [ Info   ][fkin3] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 29721 ).
-0.219 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin4'
-0.220 [ Info   ][fkin4] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29722 ).
-0.220 [ Info   ][loadComponent] Adding fkin4 as new peer:  OK.
-0.220 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin4'
-0.220 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
-0.220 [ Info   ][fkin4] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 29723 ).
-0.223 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin5'
-0.224 [ Info   ][fkin5] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29724 ).
-0.224 [ Info   ][loadComponent] Adding fkin5 as new peer:  OK.
-0.224 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin5'
-0.224 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
-0.224 [ Info   ][fkin5] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 29725 ).
-0.227 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin6'
-0.228 [ Info   ][fkin6] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29726 ).
-0.228 [ Info   ][loadComponent] Adding fkin6 as new peer:  OK.
-0.228 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin6'
-0.228 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
-0.229 [ Info   ][fkin6] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 29727 ).
-0.237 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin7'
-0.238 [ Info   ][fkin7] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29728 ).
-0.239 [ Info   ][loadComponent] Adding fkin7 as new peer:  OK.
-0.239 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin7'
-0.239 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
-0.239 [ Info   ][fkin7] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 29729 ).
-0.247 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/gnulinux/RttExamples1 ...
-0.272 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/gnulinux/RttExamples1/libRttExamples1-gnulinux.so'
-0.273 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='singen'
-0.274 [ Info   ][singen] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29731 ).
-0.274 [ Info   ][loadComponent] Adding singen as new peer:  OK.
-0.275 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=50, CPU affinity=4294967295, with name='singen'
-0.276 [ Warning][Thread] Forcing priority (50) of thread with SCHED_OTHER policy to 0.
-0.276 [ Info   ][singen] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.05 (PID= 29732 ).
-0.279 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='trajectorygenerator'
-0.279 [ Info   ][trajectorygenerator] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29733 ).
-0.280 [ Info   ][loadComponent] Adding trajectorygenerator as new peer:  OK.
-0.282 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='trajectorygenerator'
-0.282 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
-0.283 [ Info   ][trajectorygenerator] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 29734 ).
-0.286 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='trajectorygenerator2'
-0.287 [ Info   ][trajectorygenerator2] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29735 ).
-0.287 [ Info   ][loadComponent] Adding trajectorygenerator2 as new peer:  OK.
-0.288 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='trajectorygenerator2'
-0.288 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
-0.289 [ Info   ][trajectorygenerator2] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 29736 ).
-0.301 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/gnulinux/MotionGenerationQuadraticProgram ...
-0.392 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/gnulinux/MotionGenerationQuadraticProgram/libMotionGenerationQuadraticProgram-gnulinux.so'
-0.392 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='myTorqueController'
-0.393 [ Info   ][myTorqueController] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29737 ).
-0.393 [ Info   ][loadComponent] Adding myTorqueController as new peer:  OK.
-0.393 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=50, CPU affinity=4294967295, with name='myTorqueController'
-0.393 [ Warning][Thread] Forcing priority (50) of thread with SCHED_OTHER policy to 0.
-0.393 [ Info   ][myTorqueController] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.05 (PID= 29738 ).
-0.394 [ Info   ][ScriptingService] Adding the number ports
-0.394 [ Info   ][ScriptingService] mgqp ================================================ Joint 1
-0.394 [ Info   ][ScriptingService] Jacobian ... OK
-0.394 [ Info   ][ScriptingService] JacobianDot ... OK
-0.394 [ Info   ][ScriptingService] CurPos ... OK
-0.394 [ Info   ][ScriptingService] CurVel ... OK
-0.394 [ Info   ][ScriptingService] DesPos ... OK
-0.394 [ Info   ][ScriptingService] DesVel ... OK
-0.394 [ Info   ][ScriptingService] DesAcc ... OK
-0.394 [ Info   ][ScriptingService] DesJointPos ... OK
-0.394 [ Info   ][ScriptingService] DesJointVel ... OK
-0.394 [ Info   ][ScriptingService] DesJointAcc ... OK
-0.394 [ Info   ][ScriptingService] mgqp ================================================ Joint 2
-0.394 [ Info   ][ScriptingService] Jacobian ... OK
-0.394 [ Info   ][ScriptingService] JacobianDot ... OK
-0.394 [ Info   ][ScriptingService] CurPos ... OK
-0.394 [ Info   ][ScriptingService] CurVel ... OK
-0.394 [ Info   ][ScriptingService] DesPos ... OK
-0.394 [ Info   ][ScriptingService] DesVel ... OK
-0.394 [ Info   ][ScriptingService] DesAcc ... OK
-0.394 [ Info   ][ScriptingService] DesJointPos ... OK
-0.394 [ Info   ][ScriptingService] DesJointVel ... OK
-0.394 [ Info   ][ScriptingService] DesJointAcc ... OK
-0.394 [ Info   ][ScriptingService] mgqp ================================================ Joint 3
-0.394 [ Info   ][ScriptingService] Jacobian ... OK
-0.394 [ Info   ][ScriptingService] JacobianDot ... OK
-0.394 [ Info   ][ScriptingService] CurPos ... OK
-0.394 [ Info   ][ScriptingService] CurVel ... OK
-0.394 [ Info   ][ScriptingService] DesPos ... OK
-0.394 [ Info   ][ScriptingService] DesVel ... OK
-0.394 [ Info   ][ScriptingService] DesAcc ... OK
-0.394 [ Info   ][ScriptingService] DesJointPos ... OK
-0.394 [ Info   ][ScriptingService] DesJointVel ... OK
-0.394 [ Info   ][ScriptingService] DesJointAcc ... OK
-0.394 [ Info   ][ScriptingService] mgqp ================================================ Joint 4
-0.394 [ Info   ][ScriptingService] Jacobian ... OK
-0.394 [ Info   ][ScriptingService] JacobianDot ... OK
-0.394 [ Info   ][ScriptingService] CurPos ... OK
-0.394 [ Info   ][ScriptingService] CurVel ... OK
-0.394 [ Info   ][ScriptingService] DesPos ... OK
-0.394 [ Info   ][ScriptingService] DesVel ... OK
-0.394 [ Info   ][ScriptingService] DesAcc ... OK
-0.394 [ Info   ][ScriptingService] DesJointPos ... OK
-0.394 [ Info   ][ScriptingService] DesJointVel ... OK
-0.394 [ Info   ][ScriptingService] DesJointAcc ... OK
-0.394 [ Info   ][ScriptingService] mgqp ================================================ Joint 5
-0.394 [ Info   ][ScriptingService] Jacobian ... OK
-0.394 [ Info   ][ScriptingService] JacobianDot ... OK
-0.394 [ Info   ][ScriptingService] CurPos ... OK
-0.394 [ Info   ][ScriptingService] CurVel ... OK
-0.394 [ Info   ][ScriptingService] DesPos ... OK
-0.394 [ Info   ][ScriptingService] DesVel ... OK
-0.394 [ Info   ][ScriptingService] DesAcc ... OK
-0.394 [ Info   ][ScriptingService] DesJointPos ... OK
-0.394 [ Info   ][ScriptingService] DesJointVel ... OK
-0.394 [ Info   ][ScriptingService] DesJointAcc ... OK
-0.394 [ Info   ][ScriptingService] mgqp ================================================ Joint 6
-0.394 [ Info   ][ScriptingService] Jacobian ... OK
-0.394 [ Info   ][ScriptingService] JacobianDot ... OK
-0.394 [ Info   ][ScriptingService] CurPos ... OK
-0.394 [ Info   ][ScriptingService] CurVel ... OK
-0.394 [ Info   ][ScriptingService] DesPos ... OK
-0.394 [ Info   ][ScriptingService] DesVel ... OK
-0.394 [ Info   ][ScriptingService] DesAcc ... OK
-0.394 [ Info   ][ScriptingService] DesJointPos ... OK
-0.394 [ Info   ][ScriptingService] DesJointVel ... OK
-0.394 [ Info   ][ScriptingService] DesJointAcc ... OK
-0.394 [ Info   ][ScriptingService] mgqp ================================================ Joint 7
-0.394 [ Info   ][ScriptingService] Jacobian ... OK
-0.394 [ Info   ][ScriptingService] JacobianDot ... OK
-0.394 [ Info   ][ScriptingService] CurPos ... OK
-0.394 [ Info   ][ScriptingService] CurVel ... OK
-0.394 [ Info   ][ScriptingService] DesPos ... OK
-0.394 [ Info   ][ScriptingService] DesVel ... OK
-0.394 [ Info   ][ScriptingService] DesAcc ... OK
-0.394 [ Info   ][ScriptingService] DesJointPos ... OK
-0.394 [ Info   ][ScriptingService] DesJointVel ... OK
-0.394 [ Info   ][ScriptingService] DesJointAcc ... OK
-0.398 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  myTorqueController.in_robotstatus_port.
-0.398 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin1.in_robotstatus_port.
-0.398 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin2.in_robotstatus_port.
-0.398 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin3.in_robotstatus_port.
-0.398 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin4.in_robotstatus_port.
-0.398 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin5.in_robotstatus_port.
-0.398 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin6.in_robotstatus_port.
-0.398 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin7.in_robotstatus_port.
-0.401 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin7.in_robotstatus_port.
-0.401 [ Info   ][connect] Connected Port fkin7.out_robotstatus_port to  myTorqueController.in_robotstatus_port.
-0.402 [ Info   ][connect] Connected Port fkin7.out_coriolisAndGravity_port to  myTorqueController.in_h_port.
-0.402 [ Info   ][connect] Connected Port fkin7.out_inertia_port to  myTorqueController.in_inertia_port.
-0.404 [ Info   ][connect] Connected Port fkin7.out_jacobianTranslation_port to  myTorqueController.in_jacobian_port_7.
-0.405 [ Info   ][connect] Connected Port fkin7.out_jacobianDotTranslation_port to  myTorqueController.in_jacobianDot_port_7.
-0.406 [ Info   ][connect] Connected Port fkin7.out_cartPosTranslation_port to  myTorqueController.in_currentTaskSpacePosition_port_7.
-0.406 [ Info   ][connect] Connected Port fkin7.out_cartVelTranslation_port to  myTorqueController.in_currentTaskSpaceVelocity_port_7.
-0.407 [ Info   ][connect] Connected Port trajectorygenerator2.out_desiredTaskSpacePosition_port to  myTorqueController.in_desiredTaskSpacePosition_port_7.
-0.408 [ Info   ][connect] Connected Port trajectorygenerator2.out_desiredTaskSpaceVelocity_port to  myTorqueController.in_desiredTaskSpaceVelocity_port_7.
-0.408 [ Info   ][connect] Connected Port trajectorygenerator2.out_desiredTaskSpaceAcceleration_port to  myTorqueController.in_desiredTaskSpaceAcceleration_port_7.
-0.413 [ Info   ][connect] Connected Port singen.out_sin_port to  myTorqueController.in_desiredJointSpacePosition_port_1.
-0.414 [ Info   ][connect] Connected Port myTorqueController.out_torques_port to  robot_gazebo.full_arm_JointTorqueCtrl.
-0.421 [ Info   ][ScriptingService] Controller configured SUCCESS !
-0.426 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt_dot_service ...
-0.426 [ Info   ][ComponentLoader::import(path_list)] Loading plugin libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt_dot_service/plugins ...
-0.426 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT Service 'dot' from 'rtt_dot_service'
-0.426 [ Info   ][ScriptingService] Loading Service or Plugin dot in TaskContext Deployer
-0.431 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='TaskBrowser'
-0.444 [ Info   ][TaskBrowser] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 29740 ).
-0.444 [ Info   ][Logger] Entering Task Deployer
-23.859 [ Info   ][Logger] Ignoring deployment shutdown function due to missing peer.
-23.868 [ Info   ][stopComponentsGroup] Stopping group 0
-23.912 [ Info   ][stopComponentsGroup] Stopped myTorqueController
-23.917 [ Info   ][stopComponentsGroup] Stopped trajectorygenerator2
-23.925 [ Info   ][stopComponentsGroup] Stopped trajectorygenerator
-23.945 [ Info   ][stopComponentsGroup] Stopped singen
-23.954 [ Info   ][stopComponentsGroup] Stopped fkin7
-23.963 [ Info   ][stopComponentsGroup] Stopped fkin6
-23.968 [ Info   ][stopComponentsGroup] Stopped fkin5
-23.974 [ Info   ][stopComponentsGroup] Stopped fkin4
-23.979 [ Info   ][stopComponentsGroup] Stopped fkin3
-23.984 [ Info   ][stopComponentsGroup] Stopped fkin2
-23.986 [ Info   ][stopComponentsGroup] Stopped fkin1
-23.987 [ Info   ][stopComponentsGroup] Stopped robot_gazebo
-23.989 [ Info   ][stopComponentsGroup] Stopped gazebo
-23.989 [ Info   ][cleanupComponentsGroup] Cleaning up group 0
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up myTorqueController
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up trajectorygenerator2
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up trajectorygenerator
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up singen
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up fkin7
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up fkin6
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up fkin5
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up fkin4
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up fkin3
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up fkin2
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up fkin1
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up robot_gazebo
-23.989 [ Info   ][cleanupComponentsGroup] Cleaned up gazebo
-23.989 [ Info   ][Logger] Unloading group 0
-23.989 [ Info   ][Logger] Disconnected and destroyed myTorqueController
-23.989 [ Info   ][Logger] Disconnected and destroyed trajectorygenerator2
-23.989 [ Info   ][Logger] Disconnected and destroyed trajectorygenerator
-23.989 [ Info   ][Logger] Disconnected and destroyed singen
-23.989 [ Info   ][Logger] Disconnected and destroyed fkin7
-23.989 [ Info   ][Logger] Disconnected and destroyed fkin6
-23.989 [ Info   ][Logger] Disconnected and destroyed fkin5
-23.989 [ Info   ][Logger] Disconnected and destroyed fkin4
-23.989 [ Info   ][Logger] Disconnected and destroyed fkin3
-23.989 [ Info   ][Logger] Disconnected and destroyed fkin2
-23.989 [ Info   ][Logger] Disconnected and destroyed fkin1
-23.989 [ Info   ][Logger] Disconnected and destroyed robot_gazebo
-23.989 [ Info   ][Logger] Disconnected and destroyed gazebo
-23.989 [ Info   ][Logger] Kick-out of group 0 successful.
-23.989 [ Info   ][Logger] Disabling simulated time...
-23.989 [ Info   ][Logger] Orocos Logging Deactivated.
+0.212 [ Info   ][fkin2] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31434 ).
+0.212 [ Info   ][loadComponent] Adding fkin2 as new peer:  OK.
+0.212 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin2'
+0.212 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
+0.212 [ Info   ][fkin2] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 31435 ).
+0.216 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin3'
+0.216 [ Info   ][fkin3] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31436 ).
+0.217 [ Info   ][loadComponent] Adding fkin3 as new peer:  OK.
+0.217 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin3'
+0.217 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
+0.217 [ Info   ][fkin3] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 31437 ).
+0.221 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin4'
+0.222 [ Info   ][fkin4] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31438 ).
+0.222 [ Info   ][loadComponent] Adding fkin4 as new peer:  OK.
+0.222 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin4'
+0.222 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
+0.222 [ Info   ][fkin4] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 31439 ).
+0.225 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin5'
+0.226 [ Info   ][fkin5] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31440 ).
+0.226 [ Info   ][loadComponent] Adding fkin5 as new peer:  OK.
+0.226 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin5'
+0.226 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
+0.226 [ Info   ][fkin5] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 31441 ).
+0.229 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin6'
+0.229 [ Info   ][fkin6] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31442 ).
+0.229 [ Info   ][loadComponent] Adding fkin6 as new peer:  OK.
+0.231 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin6'
+0.231 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
+0.232 [ Info   ][fkin6] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 31443 ).
+0.235 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='fkin7'
+0.236 [ Info   ][fkin7] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31444 ).
+0.237 [ Info   ][loadComponent] Adding fkin7 as new peer:  OK.
+0.237 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='fkin7'
+0.237 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
+0.238 [ Info   ][fkin7] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 31445 ).
+0.250 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/gnulinux/RttExamples1 ...
+0.279 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/git-repos/IIT-workshop-examples/example-1/build/orocos/gnulinux/RttExamples1/libRttExamples1-gnulinux.so'
+0.279 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='singen'
+0.279 [ Info   ][singen] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31446 ).
+0.279 [ Info   ][loadComponent] Adding singen as new peer:  OK.
+0.279 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=50, CPU affinity=4294967295, with name='singen'
+0.279 [ Warning][Thread] Forcing priority (50) of thread with SCHED_OTHER policy to 0.
+0.289 [ Info   ][singen] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.05 (PID= 31447 ).
+0.289 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='trajectorygenerator'
+0.292 [ Info   ][trajectorygenerator] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31448 ).
+0.293 [ Info   ][loadComponent] Adding trajectorygenerator as new peer:  OK.
+0.293 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='trajectorygenerator'
+0.293 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
+0.293 [ Info   ][trajectorygenerator] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 31449 ).
+0.296 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='trajectorygenerator2'
+0.296 [ Info   ][trajectorygenerator2] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31450 ).
+0.296 [ Info   ][loadComponent] Adding trajectorygenerator2 as new peer:  OK.
+0.296 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=10, CPU affinity=4294967295, with name='trajectorygenerator2'
+0.296 [ Warning][Thread] Forcing priority (10) of thread with SCHED_OTHER policy to 0.
+0.296 [ Info   ][trajectorygenerator2] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.01 (PID= 31451 ).
+0.309 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/gnulinux/MotionGenerationQuadraticProgram ...
+0.398 [ Info   ][ComponentLoader::import(path_list)] Loaded multi component library '/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/build/orocos/gnulinux/MotionGenerationQuadraticProgram/libMotionGenerationQuadraticProgram-gnulinux.so'
+0.400 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='myTorqueController'
+0.401 [ Info   ][myTorqueController] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31452 ).
+0.402 [ Info   ][loadComponent] Adding myTorqueController as new peer:  OK.
+0.403 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=50, CPU affinity=4294967295, with name='myTorqueController'
+0.403 [ Warning][Thread] Forcing priority (50) of thread with SCHED_OTHER policy to 0.
+0.403 [ Info   ][myTorqueController] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0.05 (PID= 31453 ).
+0.405 [ Info   ][ScriptingService] Adding the number ports
+0.406 [ Info   ][ScriptingService] mgqp ================================================ Joint 1
+0.407 [ Info   ][ScriptingService] Jacobian ... OK
+0.408 [ Info   ][ScriptingService] JacobianDot ... OK
+0.408 [ Info   ][ScriptingService] CurPos ... OK
+0.408 [ Info   ][ScriptingService] CurVel ... OK
+0.408 [ Info   ][ScriptingService] DesPos ... OK
+0.408 [ Info   ][ScriptingService] DesVel ... OK
+0.408 [ Info   ][ScriptingService] DesAcc ... OK
+0.408 [ Info   ][ScriptingService] DesJointPos ... OK
+0.408 [ Info   ][ScriptingService] DesJointVel ... OK
+0.408 [ Info   ][ScriptingService] DesJointAcc ... OK
+0.408 [ Info   ][ScriptingService] mgqp ================================================ Joint 2
+0.409 [ Info   ][ScriptingService] Jacobian ... OK
+0.410 [ Info   ][ScriptingService] JacobianDot ... OK
+0.411 [ Info   ][ScriptingService] CurPos ... OK
+0.411 [ Info   ][ScriptingService] CurVel ... OK
+0.411 [ Info   ][ScriptingService] DesPos ... OK
+0.411 [ Info   ][ScriptingService] DesVel ... OK
+0.411 [ Info   ][ScriptingService] DesAcc ... OK
+0.411 [ Info   ][ScriptingService] DesJointPos ... OK
+0.411 [ Info   ][ScriptingService] DesJointVel ... OK
+0.411 [ Info   ][ScriptingService] DesJointAcc ... OK
+0.411 [ Info   ][ScriptingService] mgqp ================================================ Joint 3
+0.411 [ Info   ][ScriptingService] Jacobian ... OK
+0.411 [ Info   ][ScriptingService] JacobianDot ... OK
+0.411 [ Info   ][ScriptingService] CurPos ... OK
+0.411 [ Info   ][ScriptingService] CurVel ... OK
+0.411 [ Info   ][ScriptingService] DesPos ... OK
+0.411 [ Info   ][ScriptingService] DesVel ... OK
+0.411 [ Info   ][ScriptingService] DesAcc ... OK
+0.411 [ Info   ][ScriptingService] DesJointPos ... OK
+0.411 [ Info   ][ScriptingService] DesJointVel ... OK
+0.411 [ Info   ][ScriptingService] DesJointAcc ... OK
+0.411 [ Info   ][ScriptingService] mgqp ================================================ Joint 4
+0.411 [ Info   ][ScriptingService] Jacobian ... OK
+0.411 [ Info   ][ScriptingService] JacobianDot ... OK
+0.411 [ Info   ][ScriptingService] CurPos ... OK
+0.411 [ Info   ][ScriptingService] CurVel ... OK
+0.411 [ Info   ][ScriptingService] DesPos ... OK
+0.411 [ Info   ][ScriptingService] DesVel ... OK
+0.411 [ Info   ][ScriptingService] DesAcc ... OK
+0.411 [ Info   ][ScriptingService] DesJointPos ... OK
+0.411 [ Info   ][ScriptingService] DesJointVel ... OK
+0.411 [ Info   ][ScriptingService] DesJointAcc ... OK
+0.411 [ Info   ][ScriptingService] mgqp ================================================ Joint 5
+0.411 [ Info   ][ScriptingService] Jacobian ... OK
+0.411 [ Info   ][ScriptingService] JacobianDot ... OK
+0.411 [ Info   ][ScriptingService] CurPos ... OK
+0.412 [ Info   ][ScriptingService] CurVel ... OK
+0.412 [ Info   ][ScriptingService] DesPos ... OK
+0.412 [ Info   ][ScriptingService] DesVel ... OK
+0.412 [ Info   ][ScriptingService] DesAcc ... OK
+0.412 [ Info   ][ScriptingService] DesJointPos ... OK
+0.412 [ Info   ][ScriptingService] DesJointVel ... OK
+0.412 [ Info   ][ScriptingService] DesJointAcc ... OK
+0.412 [ Info   ][ScriptingService] mgqp ================================================ Joint 6
+0.412 [ Info   ][ScriptingService] Jacobian ... OK
+0.412 [ Info   ][ScriptingService] JacobianDot ... OK
+0.413 [ Info   ][ScriptingService] CurPos ... OK
+0.413 [ Info   ][ScriptingService] CurVel ... OK
+0.413 [ Info   ][ScriptingService] DesPos ... OK
+0.413 [ Info   ][ScriptingService] DesVel ... OK
+0.413 [ Info   ][ScriptingService] DesAcc ... OK
+0.413 [ Info   ][ScriptingService] DesJointPos ... OK
+0.413 [ Info   ][ScriptingService] DesJointVel ... OK
+0.413 [ Info   ][ScriptingService] DesJointAcc ... OK
+0.413 [ Info   ][ScriptingService] mgqp ================================================ Joint 7
+0.413 [ Info   ][ScriptingService] Jacobian ... OK
+0.413 [ Info   ][ScriptingService] JacobianDot ... OK
+0.413 [ Info   ][ScriptingService] CurPos ... OK
+0.413 [ Info   ][ScriptingService] CurVel ... OK
+0.413 [ Info   ][ScriptingService] DesPos ... OK
+0.413 [ Info   ][ScriptingService] DesVel ... OK
+0.413 [ Info   ][ScriptingService] DesAcc ... OK
+0.413 [ Info   ][ScriptingService] DesJointPos ... OK
+0.413 [ Info   ][ScriptingService] DesJointVel ... OK
+0.413 [ Info   ][ScriptingService] DesJointAcc ... OK
+0.419 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  myTorqueController.in_robotstatus_port.
+0.421 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin1.in_robotstatus_port.
+0.421 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin2.in_robotstatus_port.
+0.423 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin3.in_robotstatus_port.
+0.423 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin4.in_robotstatus_port.
+0.424 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin5.in_robotstatus_port.
+0.424 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin6.in_robotstatus_port.
+0.424 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin7.in_robotstatus_port.
+0.424 [ Info   ][connect] Connected Port robot_gazebo.full_arm_JointFeedback to  fkin7.in_robotstatus_port.
+0.427 [ Info   ][connect] Connected Port fkin7.out_robotstatus_port to  myTorqueController.in_robotstatus_port.
+0.429 [ Info   ][connect] Connected Port fkin7.out_coriolisAndGravity_port to  myTorqueController.in_h_port.
+0.430 [ Info   ][connect] Connected Port fkin7.out_inertia_port to  myTorqueController.in_inertia_port.
+0.433 [ Info   ][connect] Connected Port fkin7.out_jacobianTranslation_port to  myTorqueController.in_jacobian_port_7.
+0.436 [ Info   ][connect] Connected Port fkin7.out_jacobianDotTranslation_port to  myTorqueController.in_jacobianDot_port_7.
+0.438 [ Info   ][connect] Connected Port fkin7.out_cartPosTranslation_port to  myTorqueController.in_currentTaskSpacePosition_port_7.
+0.440 [ Info   ][connect] Connected Port fkin7.out_cartVelTranslation_port to  myTorqueController.in_currentTaskSpaceVelocity_port_7.
+0.440 [ Info   ][connect] Connected Port trajectorygenerator2.out_desiredTaskSpacePosition_port to  myTorqueController.in_desiredTaskSpacePosition_port_7.
+0.440 [ Info   ][connect] Connected Port trajectorygenerator2.out_desiredTaskSpaceVelocity_port to  myTorqueController.in_desiredTaskSpaceVelocity_port_7.
+0.441 [ Info   ][connect] Connected Port trajectorygenerator2.out_desiredTaskSpaceAcceleration_port to  myTorqueController.in_desiredTaskSpaceAcceleration_port_7.
+0.449 [ Info   ][connect] Connected Port singen.out_sin_port to  myTorqueController.in_desiredJointSpacePosition_port_1.
+0.450 [ Info   ][connect] Connected Port myTorqueController.out_torques_port to  robot_gazebo.full_arm_JointTorqueCtrl.
+0.458 [ Info   ][ScriptingService] Controller configured SUCCESS !
+0.464 [ Info   ][ComponentLoader::import(path_list)] Importing directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt_dot_service ...
+0.464 [ Info   ][ComponentLoader::import(path_list)] Loading plugin libraries from directory /home/erreur404/citk/systems/cogimon-minimal-nightly/lib/orocos/gnulinux/rtt_dot_service/plugins ...
+0.465 [ Info   ][ComponentLoader::import(path_list)] Loaded RTT Service 'dot' from 'rtt_dot_service'
+0.465 [ Info   ][ScriptingService] Loading Service or Plugin dot in TaskContext Deployer
+0.470 [ Info   ][Thread] Creating Thread for scheduler=ORO_SCHED_OTHER, priority=1, CPU affinity=0, with name='TaskBrowser'
+0.479 [ Info   ][TaskBrowser] Thread created with scheduler type 'ORO_SCHED_OTHER', priority 0, cpu affinity 15 and period 0 (PID= 31454 ).
+0.480 [ Info   ][Logger] Entering Task Deployer
+0.503 [ Info   ][Logger] meinA : -1.90631e+06 -4.25807e+07  2.45632e+07     -5236.12     0.931273   -0.0082021           -0
+0.503 [ Info   ][Logger] meinT : -0 -0 -0 -0 -0 -0 -0
+0.504 [ Info   ][Logger]       209095 -1.07824e+08      -123419  4.02456e+07       129692      -690250      2718.83
+0.560 [ Info   ][Logger] meinA :        26027      6211.74      7529.93 -0.000844983   0.00136007  -0.00061446           -0
+0.560 [ Info   ][Logger] meinT :           -0            0 -1.64845e-14            0            0            0            0
+0.560 [ Info   ][Logger]  1883.07    14390  1217.23 -6223.33  271.981  34.1468  1.27631
+0.611 [ Info   ][Logger] meinA :    -137.458     968.064      205.39 7.23207e-05  0.00228044 1.39153e-05           0
+0.612 [ Info   ][Logger] meinT :           0           0          -0           0 1.26092e-09           0           0
+0.613 [ Info   ][Logger]   -29.2607    2522.79  0.0672078       -908    10.0386    4.76816 -0.0600145
+0.664 [ Info   ][Logger] meinA :      1735.45      65.8059      664.606 -9.64023e-05 -0.000121955   0.00789575 -4.66322e-05
+0.664 [ Info   ][Logger] meinT : -7.16032e-16           -0            0            0            0  0.000311142 -1.20094e-06
+0.664 [ Info   ][Logger]   97.5595   223.453   62.7698   -99.376   16.4213 -0.116848  0.164025
+0.706 [ Info   ][Logger] meinA :      9948.39      2468.98      3632.01  0.000518887  0.000525517 -0.000394712           -0
+0.706 [ Info   ][Logger] meinT : -0 -0 -0 -0 -0 -0 -0
+0.707 [ Info   ][Logger]   1067.6  6225.48   717.36 -2522.77  109.877  28.2465 0.745581
+0.736 [ Info   ][Logger] meinA :     -12.5265     -1352.46     -349.702 -6.19967e-05  7.85837e-05 -1.16045e-05           -0
+0.737 [ Info   ][Logger] meinT : -0  0  0  0  0  0  0
+0.737 [ Info   ][Logger]   40.2069  -3406.91   31.2524   1231.21  -15.1756   2.86314 0.0943253
+0.787 [ Info   ][Logger] meinA :    -387.042    -5.49101    -179.682 6.52844e-05 6.77428e-05 4.32893e-05           0
+0.788 [ Info   ][Logger] meinT : 0 0 0 0 0 0 0
+0.789 [ Info   ][Logger]    -151.77    7.45184    -47.522    61.5065   -3.81315   -2.20848 -0.0419293
+0.828 [ Info   ][Logger] meinA :     -349.578     -226.974     -276.266  8.37797e-05 -2.13193e-05 -3.95506e-07           -0
+0.828 [ Info   ][Logger] meinT : -0 -0 -0 -0 -0 -0 -0
+0.828 [ Info   ][Logger]   -77.8729   -597.641   -21.4987    241.916    -5.7978 -0.0538073 -0.0392713
+0.878 [ Info   ][Logger] meinA :      1821.65     -1378.16     -1303.17 -0.000319364   4.2474e-05  2.86578e-05           -0
+0.878 [ Info   ][Logger] meinT :           -0           -0           -0 -1.20011e-16            0            0            0
+0.878 [ Info   ][Logger]  148.032 -3520.29 -44.0332  1156.61 -7.85124  8.24517 0.147588
+0.929 [ Info   ][Logger] meinA :      1129.85      818.321      650.463 -0.000385463 -0.000292139  2.16669e-05           -0
+0.929 [ Info   ][Logger] meinT :           -0 -2.75832e-14           -0           -0           -0           -0           -0
+0.929 [ Info   ][Logger]  106.791  2124.95  108.895 -789.097   16.592 -1.83649 0.112255
+0.981 [ Info   ][Logger] meinA :      8527.67     -452.972      2857.48  0.000214272  0.000430302 -0.000533237   2.7233e-14
+0.981 [ Info   ][Logger] meinT :  -1.7121e-12 -7.17738e-14           -0           -0           -0           -0           -0
+0.982 [ Info   ][Logger]  898.531  -613.86  489.851  411.122  65.3026 -24.4885  1.11597
+1.039 [ Info   ][Logger] meinA :      911.123     -392.804      -80.581 -9.11875e-06  1.39987e-05  2.55315e-05           -0
+1.039 [ Info   ][Logger] meinT : -0 -0 -0 -0 -0 -0 -0
+1.042 [ Info   ][Logger]   53.5309  -802.183   11.7575   313.604   2.08595  0.466602 0.0995682
+1.072 [ Info   ][Logger] meinA :       649.18     -251.532     -201.195 -4.52964e-05 -1.54858e-07 -2.68944e-07           -0
+1.073 [ Info   ][Logger] meinT : -0 -0 -0 -0 -0 -0 -0
+1.073 [ Info   ][Logger]   95.4384  -489.893   9.87547   235.441  0.155728  0.772243 0.0579903
+1.120 [ Info   ][Logger] meinA :      457.626     -99.0892      319.408 -0.000131758 -4.38018e-05  1.21475e-05            0
+1.120 [ Info   ][Logger] meinT : 0 0 0 0 0 0 0
+1.120 [ Info   ][Logger]   310.172   39.9009   116.532   139.619   1.71509  -2.32308 0.0757194
+1.168 [ Info   ][Logger] meinA :      501.226     -78.3479      284.192   -6.271e-05 -3.13813e-05 -2.50921e-06           -0
+1.168 [ Info   ][Logger] meinT : -0 -0 -0 -0 -0 -0 -0
+1.169 [ Info   ][Logger]   592.644   205.826   196.979   206.808  -0.23772  -2.66103 0.0769066
+1.213 [ Info   ][Logger] meinA :      458.879      195.372      285.707 -4.88049e-05 -2.15994e-06 -8.76675e-06           -0
+1.213 [ Info   ][Logger] meinT : -0 -0 -0 -0 -0 -0 -0
+1.213 [ Info   ][Logger]    735.21   828.283   387.906   98.0031  -2.46272  -5.04408 0.0544892
+1.261 [ Info   ][Logger] meinA :      326.992      145.979      443.202 -2.25969e-05 -3.95244e-05 -8.93473e-06            0
+1.261 [ Info   ][Logger] meinT : 0 0 0 0 0 0 0
+1.261 [ Info   ][Logger]   548.527   681.827   401.033   80.4031  -2.52148  -4.69307 0.0479957
+1.307 [ Info   ][Logger] meinA :      418.489      139.324      448.725  -7.4626e-05 -3.25361e-05 -6.35466e-06            0
+1.307 [ Info   ][Logger] meinT :  0.00814502 7.10804e-05 1.19141e-16           0           0           0           0
+1.307 [ Info   ][Logger]   548.937   660.024   458.241   90.4105  -3.26224  -4.40728 0.0447199
+1.355 [ Info   ][Logger] meinA :       373.34      52.8797      384.057  -6.2402e-05 -2.19024e-05 -1.40874e-06  -0.00220532
+1.357 [ Info   ][Logger] meinT :  0  0  0  0 -0 -0  0
+1.358 [ Info   ][Logger]   377.679   437.238   355.866   63.3347  -2.24753  -3.45919 0.0301982
+1.399 [ Info   ][Logger] meinA :     -205.323      80.4008      370.096 -4.39313e-06  8.23155e-07  3.37276e-06            0
+1.399 [ Info   ][Logger] meinT :          -0          -0          -0     -229.76 3.82241e-05 3.64139e-06 8.50789e-06
+1.399 [ Info   ][Logger]     65.0078     152.611     119.561    -237.554   -0.862199    -1.84442 -0.00473333
+1.447 [ Info   ][Logger] meinA : -6.65438e+07 -2.93452e+08  3.86495e+09     -108.766      68.7928      8.05343           -0
+1.447 [ Info   ][Logger] meinT : -0 -0 -0 -0 -0  0 -0
+1.447 [ Info   ][Logger]  1.46289e+09  1.33335e+09  1.57005e+09 -4.82595e+07       612063 -1.53773e+07     -4439.44
+1.491 [ Info   ][Logger] meinA :     -480.606      136.378       172.17  3.67448e-05 -2.19215e-05   2.3336e-06           -0
+1.491 [ Info   ][Logger] meinT : -0 -0  0  0  0  0 -0
+1.492 [ Info   ][Logger]  -97.0498    60.409  -86.2018   56.4459  -0.73518  0.820329 0.0223823
+1.538 [ Info   ][Logger] meinA :    -1721.08     10087.5     -5227.1 0.000855836 0.000258324 0.000170648          -0
+1.538 [ Info   ][Logger] meinT : -0 -0 -0 -0 -0 -0 -0
+1.538 [ Info   ][Logger] -653.144  12313.9   392.71  3784.42 -85.3179   65.477 0.728473
+1.582 [ Info   ][Logger] meinA :  2.00445e+09 -2.05804e+09  4.41868e+09      123.102      163.005     -7.87407           -0
+1.582 [ Info   ][Logger] meinT : -0 -0 -0 -0 -0 -0 -0
+1.582 [ Info   ][Logger]  3.68678e+09 -1.30886e+09  2.54158e+09 -8.71547e+08  2.73696e+06 -3.00609e+07      16928.5
+1.632 [ Info   ][Logger] meinA :      865.987     -548.862     -390.772   -2.472e-05 -7.19943e-07  1.98571e-05           -0
+1.632 [ Info   ][Logger] meinT :      1259.53     -1093.73 -0.000287521  5.44104e-05   6.2366e-05            0            0
+1.632 [ Info   ][Logger]        1741    -1945.42     231.461    -282.234    0.217201    -4.23788 -0.00807626
+1.680 [ Info   ][Logger] meinA :     -3379.44     -1683.57     -1691.01  0.000310652 -6.11799e-05 -6.52211e-05           -0
+1.680 [ Info   ][Logger] meinT : -0 -0 -0 -0 -0 -0 -0
+1.680 [ Info   ][Logger]  -3751.34  -3253.37   -2759.6  -806.497   31.6648  -8.04287 -0.538966
+1.730 [ Info   ][Logger] meinA :     2655.11    -1377.83     459.077 0.000206435 8.29708e-05  1.7831e-05 8.14286e-14
+1.732 [ Info   ][Logger] meinT : -7.81593e-13 -1.96449e-13           -0           -0           -0           -0           -0
+1.732 [ Info   ][Logger]  1483.85  -2065.4  1096.69 -891.045  1.61517 -8.94655 0.123092
+1.780 [ Info   ][Logger] meinA :     17881.4    -433.111    -7120.69 -0.00130837 -0.00100135 0.000513705           0
+1.780 [ Info   ][Logger] meinT :  0  0  0  0 -0 -0 -0
+1.780 [ Info   ][Logger]  3031.73  2014.27  2976.55 -54.8173  6.39981 -3.48415 0.494891
+1.828 [ Info   ][Logger] meinA :    -861844     231935    -128046 -0.0576977 -0.0199616  0.0138768          0
+1.828 [ Info   ][Logger] meinT : -0 -0 -0 -0 -0 -0 -0
+1.828 [ Info   ][Logger]   -123729    468287   -136876    185776  -3867.89   554.037 -0.757728
+1.876 [ Info   ][Logger] meinA : -nan -nan -nan -nan -nan -nan -nan
+1.876 [ Info   ][Logger] meinT : -nan -nan -nan -nan -nan -nan -nan
+1.876 [ Info   ][Logger] -nan -nan -nan -nan -nan -nan -nan
+57.925 [ Info   ][Logger] Ignoring deployment shutdown function due to missing peer.
+57.926 [ Info   ][stopComponentsGroup] Stopping group 0
+57.933 [ Info   ][stopComponentsGroup] Stopped myTorqueController
+57.935 [ Info   ][stopComponentsGroup] Stopped trajectorygenerator2
+57.940 [ Info   ][stopComponentsGroup] Stopped trajectorygenerator
+57.952 [ Info   ][stopComponentsGroup] Stopped singen
+57.956 [ Info   ][stopComponentsGroup] Stopped fkin7
+57.963 [ Info   ][stopComponentsGroup] Stopped fkin6
+57.966 [ Info   ][stopComponentsGroup] Stopped fkin5
+57.970 [ Info   ][stopComponentsGroup] Stopped fkin4
+57.977 [ Info   ][stopComponentsGroup] Stopped fkin3
+57.982 [ Info   ][stopComponentsGroup] Stopped fkin2
+57.987 [ Info   ][stopComponentsGroup] Stopped fkin1
+57.987 [ Info   ][stopComponentsGroup] Stopped robot_gazebo
+57.987 [ Info   ][stopComponentsGroup] Stopped gazebo
+57.987 [ Info   ][cleanupComponentsGroup] Cleaning up group 0
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up myTorqueController
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up trajectorygenerator2
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up trajectorygenerator
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up singen
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up fkin7
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up fkin6
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up fkin5
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up fkin4
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up fkin3
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up fkin2
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up fkin1
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up robot_gazebo
+57.987 [ Info   ][cleanupComponentsGroup] Cleaned up gazebo
+57.987 [ Info   ][Logger] Unloading group 0
+57.987 [ Info   ][Logger] Disconnected and destroyed myTorqueController
+57.987 [ Info   ][Logger] Disconnected and destroyed trajectorygenerator2
+57.987 [ Info   ][Logger] Disconnected and destroyed trajectorygenerator
+57.987 [ Info   ][Logger] Disconnected and destroyed singen
+57.987 [ Info   ][Logger] Disconnected and destroyed fkin7
+57.987 [ Info   ][Logger] Disconnected and destroyed fkin6
+57.987 [ Info   ][Logger] Disconnected and destroyed fkin5
+57.987 [ Info   ][Logger] Disconnected and destroyed fkin4
+57.987 [ Info   ][Logger] Disconnected and destroyed fkin3
+57.987 [ Info   ][Logger] Disconnected and destroyed fkin2
+57.987 [ Info   ][Logger] Disconnected and destroyed fkin1
+57.987 [ Info   ][Logger] Disconnected and destroyed robot_gazebo
+57.987 [ Info   ][Logger] Disconnected and destroyed gazebo
+57.987 [ Info   ][Logger] Kick-out of group 0 successful.
+57.987 [ Info   ][Logger] Disabling simulated time...
+57.987 [ Info   ][Logger] Orocos Logging Deactivated.
 0.000 [ Info   ][Logger] No ORO_LOGLEVEL environment variable set.
 0.000 [ Info   ][Logger]  OROCOS version '2.8.3' compiled with GCC 5.4.0. Running in GNU/Linux.
 0.000 [ Info   ][Logger] Orocos Logging Activated at level : [ Info   ] ( 5 ) 
-0.000 [ Info   ][Logger] Reference System Time is : 23989000964 ticks ( 23.989 seconds ).
+0.000 [ Info   ][Logger] Reference System Time is : 57987000863 ticks ( 57.987 seconds ).
 0.000 [ Info   ][Logger] Logging is relative to this time.
 0.000 [ Info   ][Logger] Orocos Logging Deactivated.
