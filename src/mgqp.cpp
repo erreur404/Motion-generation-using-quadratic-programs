@@ -947,8 +947,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     tracking = Eigen::VectorXf::Zero(this->DOFsize);
     for (int i = 0; i<this->DOFsize; i++)
-    {tracking[i] = 100;}
-    
+    {char *pEnd;tracking[i] = std::strtof("NAN", &pEnd);}
+
     out_torques_var.torques = tracking;
     out_torques_port.write(out_torques_var);
 
