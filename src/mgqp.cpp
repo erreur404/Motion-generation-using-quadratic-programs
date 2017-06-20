@@ -34,6 +34,36 @@ std::string cat (std::string str, std::string i)
   return sstm.str();
 }
 
+void displayLimits (Eigen::MatrixXf limitMatrix, Eigen::VectorXf limits, int dof)
+{
+    // convention : limitMatrix * x >= limits
+    //              limitMatrix * x - limits >= 0
+    Eigen::VectorXf sup = Eigen::VectorXf::Constant(2*dof,-std::numeric_limits<float>::infinity());
+    Eigen::VectorXf inf = Eigen::VectorXf::Constant(2*dof,+std::numeric_limits<float>::infinity());
+    limits = -limits;
+    for (int i=0; i<limitMatrix.rows(); i++)
+    {
+        for (int j=0; j<limitMatrix.cols(); j++)
+        {
+            if(limitMatrix(i,j) != 0)
+            {
+                if (limits[i]/limitMatrix(i,j) < inf[j])
+                {
+                    inf[j] = limits[i]/limitMatrix(i,j);
+                }
+                if (limits[i]/limitMatrix(i,j) > sup[j])
+                {
+                    sup[j] = limits[i]/limitMatrix(i,j);
+                }
+            }
+        }
+    }
+    for (int k=0; k<sup.rows(); k++)
+    {
+        PRINT(inf[k]); PRINT(" < "); PRINT(cat("x", k+1)); PRINT(" < "); PRINTNL(sup[k]);
+    }
+}
+
 /* =======================================================
              MotionGenerationQuadraticProgram
 ========================================================== */
@@ -510,7 +540,7 @@ void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticPro
 #define COPYMAT(a, toB) for(int i=0; i<a.rows(); i++) {for (int j=0; j<a.cols(); j++) {toB[i][j] = a(i,j);}}
 #define COPYVEC(a, toB) for(int i=0; i<a.rows(); i++) {toB[i] = a(i);}
 
-Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, const Eigen::VectorXf a, const Eigen::MatrixXf B, const Eigen::VectorXf b)
+bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, const Eigen::VectorXf a, const Eigen::MatrixXf B, const Eigen::VectorXf b, Eigen::VectorXf * res)
 {
   // From Eigen MAtrix to Matrix for QuadProgpp :
   // Matrix(EigenMatrix.data(), m, n) // This is a COPY constructor !! :D
@@ -524,8 +554,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(const Eigen::Mat
   ArrayHH::Matrix<double> G, CE, CI;
   ArrayHH::Vector<double> g0, ce0, ci0, x;
 	int n, m, p;
-	double sum = 0.0;
-  Eigen::VectorXf res;
+	double sum;
   G = ArrayHH::Matrix<double>();G.resize((int)JG.rows(), (int)JG.cols());COPYMAT(JG, G);
   CE = ArrayHH::Matrix<double>();CE.resize((int)A.rows(), (int)A.cols());COPYMAT(A, CE);
   CI = ArrayHH::Matrix<double>(); CI.resize((int)B.rows(), (int)B.cols());COPYMAT(B, CI); // solving now just equalities
@@ -533,15 +562,27 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextStep(const Eigen::Mat
   ci0 = ArrayHH::Vector<double>(); ci0.resize((int)b.rows());COPYVEC(b, ci0);
   x = ArrayHH::Vector<double>();x.resize((int)JG.cols());
   g0 = ArrayHH::Vector<double>();g0.resize((int)JG.cols());//g0*=0;
-  res = Eigen::VectorXf(JG.cols());
+  *res = Eigen::VectorXf(JG.cols());
   CE = ArrayHH::t(CE);
   CI = ArrayHH::t(CI);
   sum = solve_quadprog(G, g0, CE,  ce0, CI, ci0, x);
   for (int i=0; i<JG.cols(); i++)
   {
-    res[i] = x[i];
+    (*res)[i] = x[i];
   }
-  return res;
+  //* Here the problem seems never feasible but still returns a good result ...
+  if (std::isnan(sum) || sum == std::numeric_limits<double>::infinity())
+  {
+    //PRINTNL("unsolvable");
+    *res =  Eigen::VectorXf::Zero(res->rows());
+    return false;
+  }
+  else
+  {
+      PRINTNL("solvable");
+      return true;
+  } // */
+  return true;
 }
 
 Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
@@ -549,7 +590,10 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
     QuadraticProblem * p;
 
     Eigen::VectorXf res, last_res, acumul, bcumul;
+    bool stepSuccess;
     Eigen::MatrixXf Acumul, Bcumul, Z;
+
+    last_res = Eigen::VectorXf::Zero(2*this->DOFsize);
 
     res = Eigen::VectorXf::Zero(this->DOFsize*2);
     Z = Eigen::MatrixXf::Identity(this->DOFsize*2, this->DOFsize*2);
@@ -564,7 +608,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
         last_res = res;
         Eigen::MatrixXf a1, a2, a3, a4, a5, a6, a;
-        //*
+        /*
         a1 = p->conditions;
         a = a1;
         PRINT("p->conditions : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
@@ -586,6 +630,9 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         a6 = acumul;
         a = a6;
         PRINT("acumul : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        a = Z;
+        PRINT("Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+
         if (p->constraints.rows() > 0)
         {
             a = p->constraints;
@@ -596,21 +643,30 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
             PRINT("bcumul - p->constraints * res : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         }
 
-        a = Z;
-        PRINT("Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a = res.transpose();
         PRINT("res : ");PRINTNL(a); // */
 
 
         // protection against empty problems
-        if (p->conditions.rows() > 0 && p->constraints.rows() > 0)
+        if (p->conditions.rows() > 0 && p->constraints.rows() > 0 && Bcumul.rows() > 0)
         {
             // u_1                     A_1*Z_0         a_1 + A_1*y_0
-            res = solveNextStep(p->conditions * Z, p->goal - p->conditions * res, Bcumul * Z, bcumul - p->constraints * res);
+            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul - p->constraints * last_res, &res);
         }
-        else if (p->conditions.rows() > 0 && p->constraints.rows() == 0)
+        else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() > 0)
         {
-            res = solveNextStep(p->conditions * Z, p->goal - p->conditions * res, Eigen::MatrixXf::Zero(1,2*this->DOFsize), Eigen::VectorXf::Zero(1));
+            //stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Eigen::MatrixXf::Zero(1,2*this->DOFsize), Eigen::VectorXf::Zero(1), &res);
+            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul, &res);
+        }
+        else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() == 0)
+        {
+            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res,  Eigen::MatrixXf::Zero(1,2*this->DOFsize), Eigen::VectorXf::Zero(1), &res);
+        }
+
+        if (!stepSuccess)
+        {
+            // if this problem is not solvable, return the solved first levels
+            return last_res;
         }
         /*
         else if (p->conditions.rows() == 0 && p->constraints.rows() > 0)
@@ -637,6 +693,8 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
             Z = svd.matrixV();
             a = Z;
         }
+
+
     }
     return res;
 }
@@ -915,10 +973,15 @@ void MotionGenerationQuadraticProgram::updateHook() {
         jointAccelAndAngleLimitP[i] = std::max ((double) jointAccelAndAngleLimitN[i], tanh(JointLimitsInf[i] - in_robotstatus_var.angles[i]));
     }
 
-    limits.block(0*nbInequality/4, 0, nbInequality/4, 1) = jointAccelAndAngleLimitP;
-    limits.block(1*nbInequality/4, 0, nbInequality/4, 1) = (this->JointTorquesLimitsP.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsP);
-    limits.block(2*nbInequality/4, 0, nbInequality/4, 1) = jointAccelAndAngleLimitN;
-    limits.block(3*nbInequality/4, 0, nbInequality/4, 1) = - (this->JointTorquesLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsN);
+    limits.block(0*nbInequality/4, 0, nbInequality/4, 1) = -Eigen::VectorXf::Constant(this->DOFsize, 1000000000); //jointAccelAndAngleLimitP;
+    limits.block(1*nbInequality/4, 0, nbInequality/4, 1) = -Eigen::VectorXf::Constant(this->DOFsize, 1000000000); //(this->JointTorquesLimitsP.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsP);
+    limits.block(2*nbInequality/4, 0, nbInequality/4, 1) = -Eigen::VectorXf::Constant(this->DOFsize, 1000000000); //-jointAccelAndAngleLimitN;
+    limits.block(3*nbInequality/4, 0, nbInequality/4, 1) = -Eigen::VectorXf::Constant(this->DOFsize, 1000000000); //-(this->JointTorquesLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsN);
+
+    displayLimits(limitsMatrix, limits, this->DOFsize);
+
+    //PRINT(JointLimitsSup.transpose());PRINTNL(" -- ");
+    //PRINT(" -- ");PRINTNL(JointLimitsInf.transpose());
 
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
@@ -934,7 +997,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
         Eigen::VectorXf torques = (tracking).block(this->DOFsize, 0, this->DOFsize, 1);
         out_torques_var.torques = torques+in_inertia_var*acceleration+in_h_var;
 
-        PRINT("torques : ");PRINTNL(out_torques_var.torques.transpose());
+        //PRINT("torques : ");PRINTNL(out_torques_var.torques.transpose());
         // write it to port
         out_torques_port.write(out_torques_var);
         /*

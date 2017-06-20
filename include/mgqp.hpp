@@ -206,7 +206,7 @@ private:
 
     // methods
     void setDOFsize(unsigned int DOFsize);
-    Eigen::VectorXf solveNextStep(const Eigen::MatrixXf A, const Eigen::VectorXf a, const Eigen::MatrixXf B, const Eigen::VectorXf b);
+    bool solveNextStep(const Eigen::MatrixXf A, const Eigen::VectorXf a, const Eigen::MatrixXf B, const Eigen::VectorXf b, Eigen::VectorXf * res);
     Eigen::VectorXf solveNextHierarchy();
     void printCurrentState();
 
