@@ -86,7 +86,7 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
 
     velocityLimit = 0.2;
 
-    gainTranslationP = 100;
+    gainTranslationP = 10;
     gainTranslationD = 5;
 
     quaternion_desired = Eigen::Vector4f::Zero();
@@ -579,7 +579,7 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   }
   else
   {
-      PRINTNL("solvable");
+      //PRINTNL("solvable");
       return true;
   } // */
   return true;
@@ -978,7 +978,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     limits.block(2*nbInequality/4, 0, nbInequality/4, 1) = -Eigen::VectorXf::Constant(this->DOFsize, 1000000000); //-jointAccelAndAngleLimitN;
     limits.block(3*nbInequality/4, 0, nbInequality/4, 1) = -Eigen::VectorXf::Constant(this->DOFsize, 1000000000); //-(this->JointTorquesLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsN);
 
-    displayLimits(limitsMatrix, limits, this->DOFsize);
+    //displayLimits(limitsMatrix, limits, this->DOFsize);
 
     //PRINT(JointLimitsSup.transpose());PRINTNL(" -- ");
     //PRINT(" -- ");PRINTNL(JointLimitsInf.transpose());
@@ -986,8 +986,15 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
-    this->stack_of_tasks.getQP(0)->constraints = limitsMatrix;
-    this->stack_of_tasks.getQP(0)->limits = limits;
+    //this->stack_of_tasks.getQP(0)->constraints = limitsMatrix;
+    //this->stack_of_tasks.getQP(0)->limits = limits;
+    // and adding the relation between acceleration and torques inside the QP, so that all constraints shall be respected
+    Eigen::MatrixXf A; Eigen::VectorXf a;
+    A = Eigen::MatrixXf(this->DOFsize, 2*this->DOFsize); // acceleration is identity. Matrix*Accel = torques <=> + accel -
+    A.block(0, 0, this->DOFsize, this->DOFsize) = in_inertia_var;
+    A.block(0, this->DOFsize, this->DOFsize, this->DOFsize) = -Eigen::MatrixXf::Identity(this->DOFsize, this->DOFsize);
+    a = Eigen::VectorXf::Zero(this->DOFsize);
+    addToProblem(A, a, *(this->stack_of_tasks.getQP(0)));
 
     //try
     //{
@@ -995,7 +1002,10 @@ void MotionGenerationQuadraticProgram::updateHook() {
         // sum of all problems as command
         Eigen::VectorXf acceleration = (tracking).block(0, 0, this->DOFsize, 1);
         Eigen::VectorXf torques = (tracking).block(this->DOFsize, 0, this->DOFsize, 1);
-        out_torques_var.torques = torques+in_inertia_var*acceleration+in_h_var;
+        tracking.setZero();
+    // setting these inequalities as part of the top priority->DOFsize, 1);
+        //out_torques_var.torques = torques+in_inertia_var*acceleration+in_h_var;
+        out_torques_var.torques = torques+in_h_var; // +in_inertia_var*acceleration+ now taken into account in QP
 
         //PRINT("torques : ");PRINTNL(out_torques_var.torques.transpose());
         // write it to port
