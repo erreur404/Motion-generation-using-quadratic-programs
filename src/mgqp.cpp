@@ -739,7 +739,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
         in_jacobian_flow[jointN] = in_jacobian_port[jointN]->read(in_jacobian_var);
         in_jacobianDot_flow[jointN] = in_jacobianDot_port[jointN]->read(in_jacobianDot_var);
 
-        // looping among the QP problem's priority levels to create each QP's equality atrix
+        // looping among the QP problem's priority levels to create each QP's equality Matrix
         for (int lvl=0; lvl < this->stack_of_tasks.stackSize; lvl ++)
         {
             prob = this->stack_of_tasks.getQP(lvl);
@@ -847,7 +847,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             if (in_desiredJointSpaceVelocity_flow[jointN] == RTT::NoData ||
                 this->stack_of_tasks.getLevel(cat("in_desiredJointSpaceVelocity_", jointN+1)) != lvl)
             {
-              desiredJointVelocity = in_robotstatus_var.angles[jointN];
+              desiredJointVelocity = in_robotstatus_var.velocities[jointN];
             }
             else
             {
@@ -858,7 +858,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             if (in_desiredJointSpaceAcceleration_flow[jointN] == RTT::NoData ||
                 this->stack_of_tasks.getLevel(cat("in_desiredJointSpaceAcceleration_", jointN+1)) != lvl)
             {
-              desiredJointAcceleration = in_robotstatus_var.angles[jointN];
+              desiredJointAcceleration = in_robotstatus_var.accelerations[jointN];
             }
             else
             {
