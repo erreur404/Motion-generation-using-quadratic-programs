@@ -969,14 +969,14 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     for (int i=0; i<jointAccelAndAngleLimitP.rows(); i++)
     {
-        jointAccelAndAngleLimitP[i] = std::min ((double) jointAccelAndAngleLimitP[i], tanh(JointLimitsSup[i] - in_robotstatus_var.angles[i]));
-        jointAccelAndAngleLimitP[i] = std::max ((double) jointAccelAndAngleLimitN[i], tanh(JointLimitsInf[i] - in_robotstatus_var.angles[i]));
+        jointAccelAndAngleLimitP[i] = std::min ((double) jointAccelAndAngleLimitP[i], log(JointLimitsSup[i] - in_robotstatus_var.angles[i]));
+        jointAccelAndAngleLimitN[i] = std::max ((double) jointAccelAndAngleLimitN[i], -log(in_robotstatus_var.angles[i] - JointLimitsInf[i]));
     }
 
-    limits.block(0*nbInequality/4, 0, nbInequality/4, 1) = -Eigen::VectorXf::Constant(this->DOFsize, 1000000000); //jointAccelAndAngleLimitP;
-    limits.block(1*nbInequality/4, 0, nbInequality/4, 1) = -Eigen::VectorXf::Constant(this->DOFsize, 1000000000); //(this->JointTorquesLimitsP.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsP);
-    limits.block(2*nbInequality/4, 0, nbInequality/4, 1) = -Eigen::VectorXf::Constant(this->DOFsize, 1000000000); //-jointAccelAndAngleLimitN;
-    limits.block(3*nbInequality/4, 0, nbInequality/4, 1) = -Eigen::VectorXf::Constant(this->DOFsize, 1000000000); //-(this->JointTorquesLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsN);
+    limits.block(0*nbInequality/4, 0, nbInequality/4, 1) = jointAccelAndAngleLimitP;
+    limits.block(1*nbInequality/4, 0, nbInequality/4, 1) = (this->JointTorquesLimitsP.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsP);
+    limits.block(2*nbInequality/4, 0, nbInequality/4, 1) = -jointAccelAndAngleLimitN;
+    limits.block(3*nbInequality/4, 0, nbInequality/4, 1) = -(this->JointTorquesLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsN);
 
     //displayLimits(limitsMatrix, limits, this->DOFsize);
 
@@ -986,8 +986,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
-    //this->stack_of_tasks.getQP(0)->constraints = limitsMatrix;
-    //this->stack_of_tasks.getQP(0)->limits = limits;
+    this->stack_of_tasks.getQP(0)->constraints = limitsMatrix;
+    this->stack_of_tasks.getQP(0)->limits = limits;
     // and adding the relation between acceleration and torques inside the QP, so that all constraints shall be respected
     Eigen::MatrixXf A; Eigen::VectorXf a;
     A = Eigen::MatrixXf(this->DOFsize, 2*this->DOFsize); // acceleration is identity. Matrix*Accel = torques <=> + accel -
