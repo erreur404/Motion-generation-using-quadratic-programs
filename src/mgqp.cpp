@@ -34,6 +34,17 @@ std::string cat (std::string str, std::string i)
   return sstm.str();
 }
 
+/**
+    see http://eigen.tuxfamily.org/bz/show_bug.cgi?id=257#c14
+**/
+/*
+Eigen::MatrixXf pseudoInverse(const Eigen::MatrixXf &a, double epsilon = std::numeric_limits<double>::epsilon())
+{
+	Eigen::JacobiSVD< Eigen::MatrixXf > svd(a ,Eigen::ComputeThinU | Eigen::ComputeThinV);
+	double tolerance = epsilon * std::max(a.cols(), a.rows()) *svd.singularValues().array().abs()(0);
+	return svd.matrixV() *  (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0).matrix().asDiagonal() * svd.matrixU().adjoint();
+}//*/
+
 void displayLimits (Eigen::MatrixXf limitMatrix, Eigen::VectorXf limits, int dof)
 {
     // convention : limitMatrix * x >= limits
@@ -549,8 +560,13 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   // by giving the address of the array. This is a huge gain of performance over
   // copying each data with a loop.
 
+  if (A.cols() != B.cols())
+  {
+      raise "A and B matrix don't have the same DOF";
+  }
 
-  Eigen::MatrixXf JG = Eigen::MatrixXf::Identity(this->DOFsize*2, this->DOFsize*2);
+  int pbDOF = A.cols();
+  Eigen::MatrixXf JG = Eigen::MatrixXf::Identity(pbDOF, pbDOF); // the size of the problem now depends on the level in the hierarchy
   ArrayHH::Matrix<double> G, CE, CI;
   ArrayHH::Vector<double> g0, ce0, ci0, x;
 	int n, m, p;
@@ -591,12 +607,13 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
     Eigen::VectorXf res, last_res, acumul, bcumul;
     bool stepSuccess;
-    Eigen::MatrixXf Acumul, Bcumul, Z;
+    Eigen::MatrixXf Acumul, Bcumul, Z, Ztemp;
 
     last_res = Eigen::VectorXf::Zero(2*this->DOFsize);
 
     res = Eigen::VectorXf::Zero(this->DOFsize*2);
     Z = Eigen::MatrixXf::Identity(this->DOFsize*2, this->DOFsize*2);
+    Eigen::MatrixXf Z_pseudo, Z_fullpivlu, Z_svd;
 
     for (int lvl = 0; lvl < this->stack_of_tasks.stackSize; lvl++)
     {
@@ -666,7 +683,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         if (!stepSuccess)
         {
             // if this problem is not solvable, return the solved first levels
-            return last_res;
+            //return last_res;
         }
         /*
         else if (p->conditions.rows() == 0 && p->constraints.rows() > 0)
@@ -686,12 +703,38 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         {
             matrixAppend(&Acumul, &p->conditions);
             matrixAppend(&acumul, &p->goal);
-
             //Eigen::FullPivLU <Eigen::MatrixXf> lu (Acumul);
             //Z = lu.kernel();
             Eigen::JacobiSVD<Eigen::MatrixXf> svd(Acumul, Eigen::ComputeFullV); // in Acumul = U S V* we need only V
-            Z = svd.matrixV();
-            a = Z;
+            Z = Eigen::MatrixXf::Zero(0, 2*this->DOFsize);
+            int k;
+            for (k=0; k<svd.singularValues().rows(); k++)
+            {
+                if (svd.singularValues()(k) < 0.0000000000000001)
+                {
+                    // if the eigen value is null, the column of V is vector of the nullspace
+                    // we use a transposed Z to use the simple append helper function
+                    Ztemp = svd.matrixV().block(0, k, 2*this->DOFsize, 1).transpose();
+                    matrixAppend(&Z, &Ztemp);
+                }
+            }
+            for (;k<2*this->DOFsize; k++)
+            {
+                // for the extra degrees of freedom which weren't subject to conditions, obviously they are null space
+                Ztemp = svd.matrixV().block(0, k, 2*this->DOFsize, 1).transpose();
+                matrixAppend(&Z, &Ztemp);
+            }
+
+            if (Z.rows() == 0)
+            {
+              PRINTNL("no null space");
+              Z = Eigen::MatrixXf::Zero(1, 2*this->DOFsize);
+              return last_res;
+            }
+            Ztemp = Z.transpose();
+            Z = Ztemp;
+            PRINTNL("fertig");
+            PRINTNL(Z);
         }
 
 

@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <Eigen/Dense>
+#include <Eigen/LU>
 #include "QuadProgpp/QuadProg++.hh"
 #include "QuadProgpp/Array.hh"
 
