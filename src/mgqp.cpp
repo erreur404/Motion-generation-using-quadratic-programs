@@ -49,8 +49,8 @@ void displayLimits (Eigen::MatrixXf limitMatrix, Eigen::VectorXf limits)
 {
     // convention : limitMatrix * x >= limits
     //              limitMatrix * x - limits >= 0
-    Eigen::VectorXf sup = Eigen::VectorXf::Constant(limits.rows(),+std::numeric_limits<float>::infinity());
-    Eigen::VectorXf inf = Eigen::VectorXf::Constant(limits.rows(),-std::numeric_limits<float>::infinity());
+    Eigen::VectorXf sup = Eigen::VectorXf::Constant(limitMatrix.cols(),+std::numeric_limits<float>::infinity());
+    Eigen::VectorXf inf = Eigen::VectorXf::Constant(limitMatrix.cols(),-std::numeric_limits<float>::infinity());
     limits = -limits;
     for (int i=0; i<limitMatrix.rows(); i++)
     {
@@ -573,37 +573,46 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   ArrayHH::Vector<double> g0, ce0, ci0, x;
 	int n, m, p;
 	double sum;
-  PRINT("@solveNextStep");PRINTNL("before copy");
+
   G = ArrayHH::Matrix<double>();G.resize((int)JG.rows(), (int)JG.cols());COPYMAT(JG, G);
   CE = ArrayHH::Matrix<double>();CE.resize((int)A.rows(), (int)A.cols());COPYMAT(A, CE);
   CI = ArrayHH::Matrix<double>(); CI.resize((int)B.rows(), (int)B.cols());COPYMAT(B, CI); // solving now just equalities
   ce0 = ArrayHH::Vector<double>();ce0.resize((int)a.rows());COPYVEC(a, ce0);
   ci0 = ArrayHH::Vector<double>(); ci0.resize((int)b.rows());COPYVEC(b, ci0);
   x = ArrayHH::Vector<double>();x.resize((int)JG.cols());
-  g0 = ArrayHH::Vector<double>();g0.resize((int)JG.cols());//g0*=0;
+  g0 = ArrayHH::Vector<double>();g0.resize((int)JG.cols());COPYVEC(Eigen::VectorXf::Zero(JG.cols()),g0)//g0*=0;
   *res = Eigen::VectorXf(JG.cols());
   CE = ArrayHH::t(CE);
   CI = ArrayHH::t(CI);
-  PRINT("@solveNextStep");PRINTNL("after copy");
+  PRINTNL("after copy");
+  PRINT("CE");PRINTNL(CE);
+  PRINTNL(ce0);
+  PRINT("CI");PRINTNL(CI);
+  PRINTNL(ci0);
+  PRINT("G");PRINTNL(G);
+  PRINT(g0);
+  PRINTNL("g0 prob ?");
+  PRINT(x);
+  PRINTNL("x prob ?");
   sum = solve_quadprog(G, g0, CE,  ce0, CI, ci0, x);
-  PRINT("@solveNextStep");PRINTNL("after solve");
-
-  displayLimits(B, b);
-
+  PRINTNL("displayLimits");
+  //displayLimits(B, b);
+  PRINTNL("COPYVEC result");
   for (int i=0; i<JG.cols(); i++)
   {
     (*res)[i] = x[i];
   }
+  PRINTNL("asses result quality");
   //* Here the problem seems never feasible but still returns a good result ...
   if (std::isnan(sum) || sum == std::numeric_limits<double>::infinity())
   {
-    PRINTNL("unsolvable");
-    *res =  Eigen::VectorXf::Zero(res->rows());
-    return false;
+      PRINTNL("unsolvable");
+      *res =  Eigen::VectorXf::Zero(res->rows());
+      return false;
   }
   else
   {
-      //PRINTNL("solvable");
+      PRINTNL("solvable");
       return true;
   } // */
   return true;
@@ -635,7 +644,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
         last_res = res;
         Eigen::MatrixXf a1, a2, a3, a4, a5, a6, a;
-        //*
+        /*
         a1 = p->conditions;
         a = a1;
         PRINT("p->conditions : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
@@ -675,8 +684,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
 
         // protection against empty problems
-        try{
-
+        //try{
         if (p->conditions.rows() > 0 && p->constraints.rows() > 0 && Bcumul.rows() > 0)
         {
             // u_1                     A_1*Z_0         a_1 + A_1*y_0
@@ -684,14 +692,22 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() > 0)
         {
-            //stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Eigen::MatrixXf::Zero(1,2*this->DOFsize), Eigen::VectorXf::Zero(1), &res);
+            PRINTNL("Pb2");
+            //PRINT("p->conditions");PRINTNL(p->conditions);
+            //PRINT("Z");PRINTNL(Z);
+            //PRINT("p->conditions * Z");PRINTNL(p->conditions * Z);
+            //PRINT("p->goal - p->conditions * last_res");PRINTNL(p->goal - p->conditions * last_res);
+            PRINT("Bcumul * Z  --  ");PRINTNL(Bcumul * Z);
+            PRINT("bcumul  --  ");PRINTNL(bcumul);
+            PRINTNL("====================================================");
             stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul, &u);
+            PRINTNL("Solved pb 2");
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() == 0)
         {
-            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res,  Eigen::MatrixXf::Zero(1,2*this->DOFsize), Eigen::VectorXf::Zero(1), &u);
+            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res,  Eigen::MatrixXf::Zero(1, Z.cols()), Eigen::VectorXf::Zero(1), &u);
         }
-
+        /*
         }
         catch (...)
         {
@@ -700,7 +716,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         PRINT("Bcumul * Z");PRINTNL(Bcumul * Z);
         PRINT(" bcumul - p->constraints * last_res");PRINTNL( bcumul - p->constraints * last_res);
         PRINT("u <-- ");PRINTNL(u);
-        }
+      } // */
 
         if (!stepSuccess)
         {
@@ -721,7 +737,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         */
 
         // y =  y*_p    +   Z_p . u_p+1
-        res = last_res + Z*u;
+
 
         // protection against empty A matrice
         if(p->conditions.rows() > 0)
@@ -749,7 +765,6 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
                 Ztemp = svd.matrixV().block(0, k, 2*this->DOFsize, 1).transpose();
                 matrixAppend(&Z, &Ztemp);
             }
-
             if (Z.rows() == 0)
             {
               PRINTNL("no null space");
@@ -764,6 +779,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
 
     }
+    PRINTNL("out from for");
     return res;
 }
 
