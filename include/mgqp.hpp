@@ -42,6 +42,8 @@ struct {
       pbDOF = DOFsize;
       conditions = Eigen::MatrixXf(0, DOFsize);
       goal = Eigen::VectorXf(0);
+      constraints = Eigen::MatrixXf(0, DOFsize);
+      limits = Eigen::VectorXf(0);
       return 0;
   };
   int dof() {return pbDOF;};

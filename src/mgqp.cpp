@@ -45,12 +45,12 @@ Eigen::MatrixXf pseudoInverse(const Eigen::MatrixXf &a, double epsilon = std::nu
 	return svd.matrixV() *  (svd.singularValues().array().abs() > tolerance).select(svd.singularValues().array().inverse(), 0).matrix().asDiagonal() * svd.matrixU().adjoint();
 }//*/
 
-void displayLimits (Eigen::MatrixXf limitMatrix, Eigen::VectorXf limits, int dof)
+void displayLimits (Eigen::MatrixXf limitMatrix, Eigen::VectorXf limits)
 {
     // convention : limitMatrix * x >= limits
     //              limitMatrix * x - limits >= 0
-    Eigen::VectorXf sup = Eigen::VectorXf::Constant(2*dof,-std::numeric_limits<float>::infinity());
-    Eigen::VectorXf inf = Eigen::VectorXf::Constant(2*dof,+std::numeric_limits<float>::infinity());
+    Eigen::VectorXf sup = Eigen::VectorXf::Constant(limits.rows(),+std::numeric_limits<float>::infinity());
+    Eigen::VectorXf inf = Eigen::VectorXf::Constant(limits.rows(),-std::numeric_limits<float>::infinity());
     limits = -limits;
     for (int i=0; i<limitMatrix.rows(); i++)
     {
@@ -58,13 +58,13 @@ void displayLimits (Eigen::MatrixXf limitMatrix, Eigen::VectorXf limits, int dof
         {
             if(limitMatrix(i,j) != 0)
             {
-                if (limits[i]/limitMatrix(i,j) < inf[j])
+                if (limitMatrix(i,j) > 0)
                 {
-                    inf[j] = limits[i]/limitMatrix(i,j);
+                    inf[j] = std::max(limits[i]/limitMatrix(i,j), inf[j]);
                 }
-                if (limits[i]/limitMatrix(i,j) > sup[j])
+                if (limitMatrix(i,j) < 0)
                 {
-                    sup[j] = limits[i]/limitMatrix(i,j);
+                    sup[j] = std::min(sup[j],limits[i]/limitMatrix(i,j));
                 }
             }
         }
@@ -562,7 +562,9 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
 
   if (A.cols() != B.cols())
   {
-      raise "A and B matrix don't have the same DOF";
+      PRINTNL("A and B matrix don't have the same DOF");
+      PRINT("A.cols()=");PRINT(A.cols());PRINT(" ; B.cols()=");PRINTNL(B.cols());
+      assert(A.cols() == B.cols());
   }
 
   int pbDOF = A.cols();
@@ -571,6 +573,7 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   ArrayHH::Vector<double> g0, ce0, ci0, x;
 	int n, m, p;
 	double sum;
+  PRINT("@solveNextStep");PRINTNL("before copy");
   G = ArrayHH::Matrix<double>();G.resize((int)JG.rows(), (int)JG.cols());COPYMAT(JG, G);
   CE = ArrayHH::Matrix<double>();CE.resize((int)A.rows(), (int)A.cols());COPYMAT(A, CE);
   CI = ArrayHH::Matrix<double>(); CI.resize((int)B.rows(), (int)B.cols());COPYMAT(B, CI); // solving now just equalities
@@ -581,7 +584,12 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   *res = Eigen::VectorXf(JG.cols());
   CE = ArrayHH::t(CE);
   CI = ArrayHH::t(CI);
+  PRINT("@solveNextStep");PRINTNL("after copy");
   sum = solve_quadprog(G, g0, CE,  ce0, CI, ci0, x);
+  PRINT("@solveNextStep");PRINTNL("after solve");
+
+  displayLimits(B, b);
+
   for (int i=0; i<JG.cols(); i++)
   {
     (*res)[i] = x[i];
@@ -589,7 +597,7 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   //* Here the problem seems never feasible but still returns a good result ...
   if (std::isnan(sum) || sum == std::numeric_limits<double>::infinity())
   {
-    //PRINTNL("unsolvable");
+    PRINTNL("unsolvable");
     *res =  Eigen::VectorXf::Zero(res->rows());
     return false;
   }
@@ -605,13 +613,15 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 {
     QuadraticProblem * p;
 
-    Eigen::VectorXf res, last_res, acumul, bcumul;
+    Eigen::VectorXf res, last_res, u, acumul, bcumul;
     bool stepSuccess;
     Eigen::MatrixXf Acumul, Bcumul, Z, Ztemp;
 
-    last_res = Eigen::VectorXf::Zero(2*this->DOFsize);
+    Acumul = Bcumul = Eigen::MatrixXf::Zero(0, 2*this->DOFsize);
 
+    last_res = Eigen::VectorXf::Zero(2*this->DOFsize);
     res = Eigen::VectorXf::Zero(this->DOFsize*2);
+    u = Eigen::VectorXf::Zero(this->DOFsize*2);
     Z = Eigen::MatrixXf::Identity(this->DOFsize*2, this->DOFsize*2);
     Eigen::MatrixXf Z_pseudo, Z_fullpivlu, Z_svd;
 
@@ -625,7 +635,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
         last_res = res;
         Eigen::MatrixXf a1, a2, a3, a4, a5, a6, a;
-        /*
+        //*
         a1 = p->conditions;
         a = a1;
         PRINT("p->conditions : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
@@ -665,19 +675,31 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
 
         // protection against empty problems
+        try{
+
         if (p->conditions.rows() > 0 && p->constraints.rows() > 0 && Bcumul.rows() > 0)
         {
             // u_1                     A_1*Z_0         a_1 + A_1*y_0
-            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul - p->constraints * last_res, &res);
+            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul - p->constraints * last_res, &u);
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() > 0)
         {
             //stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Eigen::MatrixXf::Zero(1,2*this->DOFsize), Eigen::VectorXf::Zero(1), &res);
-            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul, &res);
+            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul, &u);
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() == 0)
         {
-            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res,  Eigen::MatrixXf::Zero(1,2*this->DOFsize), Eigen::VectorXf::Zero(1), &res);
+            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res,  Eigen::MatrixXf::Zero(1,2*this->DOFsize), Eigen::VectorXf::Zero(1), &u);
+        }
+
+        }
+        catch (...)
+        {
+        PRINT("p->conditions * Z");PRINTNL(p->conditions * Z);
+        PRINT("p->goal - p->conditions * last_res");PRINTNL(p->goal - p->conditions * last_res);
+        PRINT("Bcumul * Z");PRINTNL(Bcumul * Z);
+        PRINT(" bcumul - p->constraints * last_res");PRINTNL( bcumul - p->constraints * last_res);
+        PRINT("u <-- ");PRINTNL(u);
         }
 
         if (!stepSuccess)
@@ -697,6 +719,9 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
       }
       }
         */
+
+        // y =  y*_p    +   Z_p . u_p+1
+        res = last_res + Z*u;
 
         // protection against empty A matrice
         if(p->conditions.rows() > 0)
@@ -1029,8 +1054,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
-    this->stack_of_tasks.getQP(0)->constraints = limitsMatrix;
-    this->stack_of_tasks.getQP(0)->limits = limits;
+    this->stack_of_tasks.getQP(0)->constraints = limitsMatrix.block(0,0,1,2*this->DOFsize);
+    this->stack_of_tasks.getQP(0)->limits = limits.block(0, 0, 1, 1);
     // and adding the relation between acceleration and torques inside the QP, so that all constraints shall be respected
     Eigen::MatrixXf A; Eigen::VectorXf a;
     A = Eigen::MatrixXf(this->DOFsize, 2*this->DOFsize); // acceleration is identity. Matrix*Accel = torques <=> + accel -
