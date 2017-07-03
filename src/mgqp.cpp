@@ -550,6 +550,8 @@ void addToProblem(Eigen::MatrixXf conditions, Eigen::VectorXf goal, QuadraticPro
 
 #define COPYMAT(a, toB) for(int i=0; i<a.rows(); i++) {for (int j=0; j<a.cols(); j++) {toB[i][j] = a(i,j);}}
 #define COPYVEC(a, toB) for(int i=0; i<a.rows(); i++) {toB[i] = a(i);}
+#define COPYMATE(a, toB) for(int i=0; i<a.rows(); i++) {for (int j=0; j<a.cols(); j++) {toB(i,j) = a(i,j);}}
+#define COPYVECE(a, toB) for(int i=0; i<a.rows(); i++) {toB[i] = a(i);}
 
 bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, const Eigen::VectorXf a, const Eigen::MatrixXf B, const Eigen::VectorXf b, Eigen::VectorXf * res)
 {
@@ -569,21 +571,23 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
 
   int pbDOF = A.cols();
   Eigen::MatrixXf JG = Eigen::MatrixXf::Identity(pbDOF, pbDOF); // the size of the problem now depends on the level in the hierarchy
-  ArrayHH::Matrix<double> G, CE, CI;
-  ArrayHH::Vector<double> g0, ce0, ci0, x;
+  Eigen::VectorXf jg = Eigen::VectorXf::Zero(pbDOF);
+  QPPP_MATRIX(double) G, CE, CI;
+  QPPP_VECTOR(double) g0, ce0, ci0, x;
 	int n, m, p;
 	double sum;
 
-  G = ArrayHH::Matrix<double>();G.resize((int)JG.rows(), (int)JG.cols());COPYMAT(JG, G);
-  CE = ArrayHH::Matrix<double>();CE.resize((int)A.rows(), (int)A.cols());COPYMAT(A, CE);
-  CI = ArrayHH::Matrix<double>(); CI.resize((int)B.rows(), (int)B.cols());COPYMAT(B, CI); // solving now just equalities
-  ce0 = ArrayHH::Vector<double>();ce0.resize((int)a.rows());COPYVEC(a, ce0);
-  ci0 = ArrayHH::Vector<double>(); ci0.resize((int)b.rows());COPYVEC(b, ci0);
-  x = ArrayHH::Vector<double>();x.resize((int)JG.cols());
-  g0 = ArrayHH::Vector<double>();g0.resize((int)JG.cols());COPYVEC(Eigen::VectorXf::Zero(JG.cols()),g0)//g0*=0;
+  G.resize((int)JG.rows(), (int)JG.cols());COPYMATE(JG, G);// = QuadProgpp::Matrix<double>();G.resize((int)JG.rows(), (int)JG.cols());COPYMAT(JG, G);
+  CE.resize((int)A.rows(), (int)A.cols());COPYMATE(A, CE);// = ;QuadProgpp::Matrix<double>();CE.resize((int)A.rows(), (int)A.cols());COPYMAT(A, CE);
+  CI.resize((int)B.rows(), (int)B.cols());COPYMATE(B, CI);// = QuadProgpp::Matrix<double>(); CI.resize((int)B.rows(), (int)B.cols());COPYMAT(B, CI); // solving now just equalities
+  ce0.resize((int)a.rows());COPYVECE(a, ce0);// = QuadProgpp::Vector<double>();ce0.resize((int)a.rows());COPYVEC(a, ce0);
+  ci0.resize((int)b.rows());COPYVECE(b, ci0);// = QuadProgpp::Vector<double>(); ci0.resize((int)b.rows());COPYVEC(b, ci0);
+  x = Eigen::VectorXd::Zero(JG.rows()); //x.resize((int)JG.cols());
+  g0 = Eigen::VectorXd::Zero(JG.rows());// = QuadProgpp::Vector<double>();g0.resize((int)JG.cols());COPYVEC(Eigen::VectorXf::Zero(JG.cols()),g0)//g0*=0;
   *res = Eigen::VectorXf(JG.cols());
-  CE = ArrayHH::t(CE);
-  CI = ArrayHH::t(CI);
+  
+  //CE = CE.transpose();
+  //CI = CI.transpose();//QuadProgpp::t(CI);
   PRINTNL("after copy");
   PRINT("CE");PRINTNL(CE);
   PRINTNL(ce0);
@@ -594,7 +598,8 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   PRINTNL("g0 prob ?");
   PRINT(x);
   PRINTNL("x prob ?");
-  sum = solve_quadprog(G, g0, CE,  ce0, CI, ci0, x);
+  QuadProgpp::Solver quadprog;
+  sum = quadprog.solve(G, g0, CE.transpose(),  ce0, CI.transpose(), ci0, x);
   PRINTNL("displayLimits");
   //displayLimits(B, b);
   PRINTNL("COPYVEC result");
@@ -633,9 +638,10 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
     u = Eigen::VectorXf::Zero(this->DOFsize*2);
     Z = Eigen::MatrixXf::Identity(this->DOFsize*2, this->DOFsize*2);
     Eigen::MatrixXf Z_pseudo, Z_fullpivlu, Z_svd;
-
+    PRINTNL("Solving hierarchy ===========================================");
     for (int lvl = 0; lvl < this->stack_of_tasks.stackSize; lvl++)
     {
+        PRINT("lvl ");PRINTNL(lvl);
         p = this->stack_of_tasks.getQP(lvl);
 
         matrixAppend(&Bcumul, &p->constraints);
@@ -688,7 +694,10 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         if (p->conditions.rows() > 0 && p->constraints.rows() > 0 && Bcumul.rows() > 0)
         {
             // u_1                     A_1*Z_0         a_1 + A_1*y_0
+            PRINTNL("Pb1");
             stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul - p->constraints * last_res, &u);
+
+            PRINTNL("solved Pb1");
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() > 0)
         {
@@ -796,6 +805,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
         PRINTNL("FAILED, NO DATA, RETURN");
         return;
     }
+
 
     for (int i=0; i<stack_of_tasks.stackSize; i++)
     {
@@ -950,7 +960,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
               jointSpaceOperation |= true;
             }
 
-
             Eigen::VectorXf rDot, rDotDot, q, qDot, qDotDot, a, b;
             Eigen::MatrixXf A;
 
@@ -958,6 +967,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             qDot = in_robotstatus_var.velocities;
             q = q.block(0, 0, in_jacobian_var.cols(), 1);
             qDot = qDot.block(0, 0, in_jacobian_var.cols(), 1);
+
 
             if (taskSpaceOperation)
             {
@@ -1005,7 +1015,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
     addToProblem(A, a, pb1);
     //*/
-
 
     int nbEquality = prob->rows();
     int nbInequality = 4*this->DOFsize;
