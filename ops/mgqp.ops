@@ -277,9 +277,9 @@ if (DOFsize == 11) then {
 else
 {
     myTorqueController.setPriorityLevel("in_desiredTaskSpacePosition_7", 0);
-    myTorqueController.setPriorityLevel("in_desiredTaskSpaceVelocity_7", 1);
-    myTorqueController.setPriorityLevel("in_desiredTaskSpaceAcceleration_7", 1);
-    //myTorqueController.setPriorityLevel("in_desiredJointSpacePosition_port_1", 2);
+    myTorqueController.setPriorityLevel("in_desiredTaskSpaceVelocity_7", 0);
+    myTorqueController.setPriorityLevel("in_desiredTaskSpaceAcceleration_7", 0);
+    //myTorqueController.setPriorityLevel("in_desiredJointSpacePosition_port_1", 1);
 }
 
 

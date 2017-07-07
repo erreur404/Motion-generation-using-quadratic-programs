@@ -585,29 +585,15 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   x = Eigen::VectorXd::Zero(JG.rows()); //x.resize((int)JG.cols());
   g0 = Eigen::VectorXd::Zero(JG.rows());// = QuadProgpp::Vector<double>();g0.resize((int)JG.cols());COPYVEC(Eigen::VectorXf::Zero(JG.cols()),g0)//g0*=0;
   *res = Eigen::VectorXf(JG.cols());
-  
-  //CE = CE.transpose();
-  //CI = CI.transpose();//QuadProgpp::t(CI);
-  PRINTNL("after copy");
-  PRINT("CE");PRINTNL(CE);
-  PRINTNL(ce0);
-  PRINT("CI");PRINTNL(CI);
-  PRINTNL(ci0);
-  PRINT("G");PRINTNL(G);
-  PRINT(g0);
-  PRINTNL("g0 prob ?");
-  PRINT(x);
+
   PRINTNL("x prob ?");
   QuadProgpp::Solver quadprog;
   sum = quadprog.solve(G, g0, CE.transpose(),  ce0, CI.transpose(), ci0, x);
-  PRINTNL("displayLimits");
-  //displayLimits(B, b);
-  PRINTNL("COPYVEC result");
+
   for (int i=0; i<JG.cols(); i++)
   {
     (*res)[i] = x[i];
   }
-  PRINTNL("asses result quality");
   //* Here the problem seems never feasible but still returns a good result ...
   if (std::isnan(sum) || sum == std::numeric_limits<double>::infinity())
   {
@@ -638,7 +624,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
     u = Eigen::VectorXf::Zero(this->DOFsize*2);
     Z = Eigen::MatrixXf::Identity(this->DOFsize*2, this->DOFsize*2);
     Eigen::MatrixXf Z_pseudo, Z_fullpivlu, Z_svd;
-    PRINTNL("Solving hierarchy ===========================================");
+    //PRINTNL("Solving hierarchy ===========================================");
     for (int lvl = 0; lvl < this->stack_of_tasks.stackSize; lvl++)
     {
         PRINT("lvl ");PRINTNL(lvl);
@@ -651,9 +637,13 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         last_res = res;
         Eigen::MatrixXf a1, a2, a3, a4, a5, a6, a;
         /*
+        a1 = p->constraints;
+        a = a1;
+        PRINT("p->constraints : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
         a1 = p->conditions;
         a = a1;
         PRINT("p->conditions : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+        PRINTNL(p->conditions);
         a1 = p->conditions * Z;
         a = a1;
         PRINT("p->conditions * Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
@@ -691,13 +681,15 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
         // protection against empty problems
         //try{
-        if (p->conditions.rows() > 0 && p->constraints.rows() > 0 && Bcumul.rows() > 0)
+        if (p->conditions.rows() == 0 && p->constraints.rows() == 0)
         {
-            // u_1                     A_1*Z_0         a_1 + A_1*y_0
+            continue;
+        }
+        else if (p->conditions.rows() > 0 && p->constraints.rows() > 0 && Bcumul.rows() > 0)
+        {
             PRINTNL("Pb1");
+            // u_1                     A_1*Z_0         a_1 + A_1*y_0
             stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul - p->constraints * last_res, &u);
-
-            PRINTNL("solved Pb1");
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() > 0)
         {
@@ -706,11 +698,10 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
             //PRINT("Z");PRINTNL(Z);
             //PRINT("p->conditions * Z");PRINTNL(p->conditions * Z);
             //PRINT("p->goal - p->conditions * last_res");PRINTNL(p->goal - p->conditions * last_res);
-            PRINT("Bcumul * Z  --  ");PRINTNL(Bcumul * Z);
-            PRINT("bcumul  --  ");PRINTNL(bcumul);
-            PRINTNL("====================================================");
+            //PRINT("Bcumul * Z  --  ");PRINTNL(Bcumul * Z);
+            //PRINT("bcumul  --  ");PRINTNL(bcumul);
             stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul, &u);
-            PRINTNL("Solved pb 2");
+            //PRINTNL("Solved pb 2");
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() == 0)
         {
@@ -730,7 +721,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         if (!stepSuccess)
         {
             // if this problem is not solvable, return the solved first levels
-            //return last_res;
+            return last_res;
         }
         /*
         else if (p->conditions.rows() == 0 && p->constraints.rows() > 0)
@@ -746,6 +737,9 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         */
 
         // y =  y*_p    +   Z_p . u_p+1
+        res = last_res + Z*u;
+
+        //PRINTNL(res);
 
 
         // protection against empty A matrice
@@ -757,6 +751,15 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
             //Z = lu.kernel();
             Eigen::JacobiSVD<Eigen::MatrixXf> svd(Acumul, Eigen::ComputeFullV); // in Acumul = U S V* we need only V
             Z = Eigen::MatrixXf::Zero(0, 2*this->DOFsize);
+            /*
+                null space classic formula for robotic is
+
+                y = y_i + (I - J'(J'⁺))u_null
+
+                J times its pseudo inverse will be 1 on the diagonal in the null space and the substraction will yield zero.
+                In the SVD decomposition, a vector of V is from the nullspace if the singular value is zero.
+                Here we replicate the behavior of the first equation with the help of the SVD decomposition.
+            */
             int k;
             for (k=0; k<svd.singularValues().rows(); k++)
             {
@@ -765,6 +768,12 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
                     // if the eigen value is null, the column of V is vector of the nullspace
                     // we use a transposed Z to use the simple append helper function
                     Ztemp = svd.matrixV().block(0, k, 2*this->DOFsize, 1).transpose();
+                    matrixAppend(&Z, &Ztemp);
+                }
+                else
+                {
+                    //Ztemp = Eigen::MatrixXf::Zero(2*this->DOFsize, 1).transpose();
+                    Ztemp = Eigen::MatrixXf::Zero(1, 2*this->DOFsize);
                     matrixAppend(&Z, &Ztemp);
                 }
             }
@@ -782,13 +791,11 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
             }
             Ztemp = Z.transpose();
             Z = Ztemp;
-            PRINTNL("fertig");
-            PRINTNL(Z);
+            //PRINTNL(Z);
         }
 
 
     }
-    PRINTNL("out from for");
     return res;
 }
 
@@ -816,8 +823,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
     for (int j=0; j<this->DOFsize; j++)
     {
         int jointN = j;//this->constrainedJoints[j];
-        bool taskSpaceOperation = false;
-        bool jointSpaceOperation = false;
 
         in_desiredTaskSpacePosition_flow[jointN] = in_desiredTaskSpacePosition_port[jointN]->read(in_desiredTaskSpacePosition_var);
         in_desiredTaskSpaceVelocity_flow[jointN] = in_desiredTaskSpaceVelocity_port[jointN]->read(in_desiredTaskSpaceVelocity_var);
@@ -838,6 +843,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
         {
             prob = this->stack_of_tasks.getQP(lvl);
 
+            bool taskSpaceOperation = false;
+            bool jointSpaceOperation = false;
             /**
             *** The shape of a task ***
             if (the flows required have no data, or the task is not in this prio level)
