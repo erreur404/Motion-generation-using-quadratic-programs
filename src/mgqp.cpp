@@ -795,7 +795,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
 
             // new nullspace according to On  Continuous  Null  Space  Projections  for Torque-Based,  Hierarchical,  Multi-Objective  Manipulation Alexander Dietrich, Alin Albu-Schaffer, and Gerd Hirzinger
             // Z = I - V S^T S⁻¹^T V^T
-            Eigen::MatrixXf A = Eigen::MatrixXf::Zero(svd.singularValues().cols(), svd.singularValues().cols());
+            Eigen::MatrixXf A = Eigen::MatrixXf::Zero(svd.singularValues().rows(), svd.singularValues().rows()); // diag matrix is stored as vector so dim is row number
             for (int k=0; k<A.cols(); k++)
             {
                 if (svd.singularValues()(k) < 0.0000000000000001)
@@ -807,7 +807,19 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
                   A(k,k) = 1;
                 }
             }
-            //Z = svd.matrixV() * A * svd.matrixV().transpose();
+            /*
+            PRINTNL("Legend, wait for it ...");
+            PRINTNL(A);
+            PRINTNL(svd.matrixV());
+            a = svd.singularValues();
+            PRINT("S : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+            a = A;
+            PRINT("A : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+            a = svd.matrixV();
+            PRINT("V : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
+            Z = Eigen::MatrixXf::Identity(svd.singularValues().cols(), svd.singularValues().cols()) - svd.matrixV() * A * svd.matrixV().transpose();
+            PRINTNL("Dary ! Legendary !");
+            */
             //PRINTNL(Z);
         }
 
