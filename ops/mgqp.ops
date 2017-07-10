@@ -290,5 +290,5 @@ import("rtt_dot_service")
 loadService("this", "dot")
 dot.generate
 
-#loadService("this","scripting")
-#scripting.runScript("logData.ops")
+loadService("this","scripting")
+scripting.runScript("logData.ops")
