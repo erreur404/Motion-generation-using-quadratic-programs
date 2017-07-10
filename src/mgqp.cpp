@@ -586,7 +586,6 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   g0 = Eigen::VectorXd::Zero(JG.rows());// = QuadProgpp::Vector<double>();g0.resize((int)JG.cols());COPYVEC(Eigen::VectorXf::Zero(JG.cols()),g0)//g0*=0;
   *res = Eigen::VectorXf(JG.cols());
 
-  PRINTNL("x prob ?");
   QuadProgpp::Solver quadprog;
   sum = quadprog.solve(G, g0, CE.transpose(),  ce0, CI.transpose(), ci0, x);
 
@@ -597,13 +596,13 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   //* Here the problem seems never feasible but still returns a good result ...
   if (std::isnan(sum) || sum == std::numeric_limits<double>::infinity())
   {
-      PRINTNL("unsolvable");
+      //PRINTNL("unsolvable");
       *res =  Eigen::VectorXf::Zero(res->rows());
       return false;
   }
   else
   {
-      PRINTNL("solvable");
+      //PRINTNL("solvable");
       return true;
   } // */
   return true;
@@ -627,7 +626,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
     //PRINTNL("Solving hierarchy ===========================================");
     for (int lvl = 0; lvl < this->stack_of_tasks.stackSize; lvl++)
     {
-        PRINT("lvl ");PRINTNL(lvl);
+        //PRINT("lvl ");PRINTNL(lvl);
         p = this->stack_of_tasks.getQP(lvl);
 
         matrixAppend(&Bcumul, &p->constraints);
@@ -687,13 +686,13 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() > 0 && Bcumul.rows() > 0)
         {
-            PRINTNL("Pb1");
+            //PRINTNL("Pb1");
             // u_1                     A_1*Z_0         a_1 + A_1*y_0
             stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul - p->constraints * last_res, &u);
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() > 0)
         {
-            PRINTNL("Pb2");
+            //PRINTNL("Pb2");
             //PRINT("p->conditions");PRINTNL(p->conditions);
             //PRINT("Z");PRINTNL(Z);
             //PRINT("p->conditions * Z");PRINTNL(p->conditions * Z);
@@ -733,6 +732,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
           // well, no input ? do nothing
         }
       }
+        PRINTNL(res);th
       }
         */
 
@@ -760,6 +760,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
                 In the SVD decomposition, a vector of V is from the nullspace if the singular value is zero.
                 Here we replicate the behavior of the first equation with the help of the SVD decomposition.
             */
+            /*
             int k;
             for (k=0; k<svd.singularValues().rows(); k++)
             {
@@ -790,7 +791,23 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
               return last_res;
             }
             Ztemp = Z.transpose();
-            Z = Ztemp;
+            Z = Ztemp; // */
+
+            // new nullspace according to On  Continuous  Null  Space  Projections  for Torque-Based,  Hierarchical,  Multi-Objective  Manipulation Alexander Dietrich, Alin Albu-Schaffer, and Gerd Hirzinger
+            // Z = I - V S^T S⁻¹^T V^T
+            Eigen::MatrixXf A = Eigen::MatrixXf::Zero(svd.singularValues().cols(), svd.singularValues().cols());
+            for (int k=0; k<A.cols(); k++)
+            {
+                if (svd.singularValues()(k) < 0.0000000000000001)
+                {
+                  A(k,k) = 0;
+                }
+                else
+                {
+                  A(k,k) = 1;
+                }
+            }
+            //Z = svd.matrixV() * A * svd.matrixV().transpose();
             //PRINTNL(Z);
         }
 
@@ -838,7 +855,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
         in_jacobian_flow[jointN] = in_jacobian_port[jointN]->read(in_jacobian_var);
         in_jacobianDot_flow[jointN] = in_jacobianDot_port[jointN]->read(in_jacobianDot_var);
 
-        // looping among the QP problem's priority levels to create each QP's equality Matrix
+        // looping among the QP problem's priority levels to create each QP's equality atrix
         for (int lvl=0; lvl < this->stack_of_tasks.stackSize; lvl ++)
         {
             prob = this->stack_of_tasks.getQP(lvl);
@@ -948,7 +965,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             if (in_desiredJointSpaceVelocity_flow[jointN] == RTT::NoData ||
                 this->stack_of_tasks.getLevel(cat("in_desiredJointSpaceVelocity_", jointN+1)) != lvl)
             {
-              desiredJointVelocity = in_robotstatus_var.velocities[jointN];
+              desiredJointVelocity = in_robotstatus_var.angles[jointN];
             }
             else
             {
@@ -959,7 +976,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             if (in_desiredJointSpaceAcceleration_flow[jointN] == RTT::NoData ||
                 this->stack_of_tasks.getLevel(cat("in_desiredJointSpaceAcceleration_", jointN+1)) != lvl)
             {
-              desiredJointAcceleration = in_robotstatus_var.accelerations[jointN];
+              desiredJointAcceleration = in_robotstatus_var.angles[jointN];
             }
             else
             {
