@@ -10,8 +10,26 @@
 // needed for the macro at the end of this file:
 #include <rtt/Component.hpp>
 
+// needed for logging the experience data
+#include <iostream>
+#include <fstream>
+
 #define PRINT(txt) RTT::log(RTT::Info) << txt
 #define PRINTNL(txt) RTT::log(RTT::Info) << txt << RTT::endlog()
+
+
+std::ostringstream datalog;
+/*
+LOG(time,
+    desiredXpos, desiredYpos, desiredZpos,
+    desiredXvel, desiredYvel, desiredZvel,
+    desiredXacc, desiredYacc, desiredZacc,
+    actualXpos,  actualYpos,  actualZpos,
+    actualXvel,  actualYvel,  actualZvel,
+    actualXacc,  actualYacc,  actualZacc,
+    desiredJ1pos, actualJ1pos)
+*/
+#define LOG(time, desiredXpos, desiredYpos, desiredZpos, desiredXvel, desiredYvel, desiredZvel, desiredXacc, desiredYacc, desiredZacc, actualXpos,  actualYpos,  actualZpos,  actualXvel,  actualYvel,  actualZvel,  actualXacc,  actualYacc,  actualZacc, desiredJ1pos, actualJ1pos) datalog << time << " " << desiredXpos << " " << desiredYpos << " " << desiredZpos << " " << desiredXvel << " " << desiredYvel << " " << desiredZvel << " " << desiredXacc << " " << desiredYacc << " " << desiredZacc << " " << actualXpos << " " <<  actualYpos << " " <<  actualZpos << " " <<  actualXvel << " " <<  actualYvel << " " <<  actualZvel << " " <<  actualXacc << " " <<  actualYacc << " " <<  actualZacc << " " << desiredJ1pos << " " << actualJ1pos << '\n';
 
 std::string cat (std::string str, int i)
 {
@@ -895,21 +913,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
             **/
 
             /*
-            std::vector<std::string> v1;
-            v1.push_back("in_desiredTaskSpacePosition");
-            v1.push_back("in_desiredTaskSpaceVelocity");
-            v1.push_back("in_desiredTaskSpaceAcceleration");
-            v1.push_back("in_desiredJointSpacePosition");
-            v1.push_back("in_desiredJointSpaceVelocity");
-            v1.push_back("in_desiredJointSpaceAcceleration");
-
-            for (int lmfao=0; lmfao<v1.size(); lmfao ++)
-            {
-                if (this->stack_of_tasks.getLevel(cat(cat(v1[lmfao], "_"), jointN)) == lvl)
-                {
-                  PRINT(cat(cat(v1[lmfao], "_"), jointN)); PRINT(" in level ");PRINT(lvl);PRINT(" but in level ");PRINTNL(this->stack_of_tasks.getLevel(cat(cat(v1[lmfao], "_"), jointN)));
-                }
-            }
             //  the priorities may not appear from the very beginning in the program
             */
 
@@ -977,7 +980,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             if (in_desiredJointSpaceVelocity_flow[jointN] == RTT::NoData ||
                 this->stack_of_tasks.getLevel(cat("in_desiredJointSpaceVelocity_", jointN+1)) != lvl)
             {
-              desiredJointVelocity = in_robotstatus_var.angles[jointN];
+              desiredJointVelocity = in_robotstatus_var.velocities[jointN];
             }
             else
             {
@@ -988,7 +991,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             if (in_desiredJointSpaceAcceleration_flow[jointN] == RTT::NoData ||
                 this->stack_of_tasks.getLevel(cat("in_desiredJointSpaceAcceleration_", jointN+1)) != lvl)
             {
-              desiredJointAcceleration = in_robotstatus_var.angles[jointN];
+              desiredJointAcceleration = 0;//in_robotstatus_var.accelerations[jointN];
             }
             else
             {
@@ -1041,6 +1044,93 @@ void MotionGenerationQuadraticProgram::updateHook() {
             }
         }
     }
+
+    {
+      int jointN = this->DOFsize-1; // reading desired and actual data for end effector
+      in_desiredTaskSpacePosition_flow[jointN] = in_desiredTaskSpacePosition_port[jointN]->read(in_desiredTaskSpacePosition_var);
+      in_desiredTaskSpaceVelocity_flow[jointN] = in_desiredTaskSpaceVelocity_port[jointN]->read(in_desiredTaskSpaceVelocity_var);
+      in_desiredTaskSpaceAcceleration_flow[jointN] = in_desiredTaskSpaceAcceleration_port[jointN]->read(in_desiredTaskSpaceAcceleration_var);
+
+      in_desiredJointSpacePosition_flow[jointN] = in_desiredJointSpacePosition_port[jointN]->read(in_desiredJointSpacePosition_var);
+      in_desiredJointSpaceVelocity_flow[jointN] = in_desiredJointSpaceVelocity_port[jointN]->read(in_desiredJointSpaceVelocity_var);
+      in_desiredJointSpaceAcceleration_flow[jointN] = in_desiredJointSpaceAcceleration_port[jointN]->read(in_desiredJointSpaceAcceleration_var);
+
+      in_currentTaskSpacePosition_flow[jointN] = in_currentTaskSpacePosition_port[jointN]->read(in_currentTaskSpacePosition_var);
+      in_currentTaskSpaceVelocity_flow[jointN] = in_currentTaskSpaceVelocity_port[jointN]->read(in_currentTaskSpaceVelocity_var);
+
+      if (in_desiredTaskSpacePosition_flow[jointN] == RTT::NoData ||
+          in_currentTaskSpacePosition_flow[jointN] == RTT::NoData)
+      {
+        desiredPosition = Eigen::VectorXf::Zero(3);
+        currentPosition = Eigen::VectorXf::Zero(3);
+      }
+      else
+      {
+        // ending up here only if it is the right level and data is there. Otherwise, default values
+        desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);
+        currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);
+      }
+
+      if (in_desiredTaskSpaceVelocity_flow[jointN] == RTT::NoData ||
+          in_currentTaskSpaceVelocity_flow[jointN] == RTT::NoData)
+      {
+        desiredVelocity = Eigen::VectorXf::Zero(3);
+        currentVelocity = Eigen::VectorXf::Zero(3);
+      }
+      else
+      {
+        desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
+        currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
+      }
+
+      if (in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData)
+      {
+        desiredAcceleration = Eigen::VectorXf::Zero(3);
+      }
+      else
+      {
+        desiredAcceleration = in_desiredTaskSpaceAcceleration_var;
+      }
+
+      if (in_desiredJointSpacePosition_flow[jointN] == RTT::NoData)
+      {
+        //desiredJointPosition = Eigen::VectorXf::Zero(jointN); // targets the 0
+        desiredJointPosition = in_robotstatus_var.angles[jointN];
+      }
+      else
+      {
+        desiredJointPosition = in_desiredJointSpacePosition_var;
+      }
+
+      if (in_desiredJointSpaceVelocity_flow[jointN] == RTT::NoData)
+      {
+        desiredJointVelocity = in_robotstatus_var.velocities[jointN];
+      }
+      else
+      {
+        desiredJointVelocity = in_desiredJointSpaceVelocity_var;
+      }
+
+      if (in_desiredJointSpaceAcceleration_flow[jointN] == RTT::NoData)
+      {
+        desiredJointAcceleration = 0;//in_robotstatus_var.accelerations[jointN];
+      }
+      else
+      {
+        desiredJointAcceleration = in_desiredJointSpaceAcceleration_var;
+      }
+    }
+
+    // all variables are set for the end effector (because it remains from the last 'for' iteration)
+    LOG(MotionGenerationQuadraticProgram::getSimulationTime(),
+        desiredPosition[0],desiredPosition[1],desiredPosition[2],
+        desiredVelocity[0],desiredVelocity[1],desiredVelocity[2],
+        desiredAcceleration[0],desiredAcceleration[1],desiredAcceleration[2],
+        currentPosition[0],currentPosition[1],currentPosition[2],
+        currentVelocity[0],currentVelocity[1],currentVelocity[2],
+        currentAcceleration[0],currentAcceleration[1],currentAcceleration[2],
+        desiredJointPosition, in_robotstatus_var.angles[this->DOFsize-1]);
+
     //addToProblem(A, a, pb1);
     //*/
     // Energy economy, minimize torque
@@ -1174,6 +1264,10 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
 void MotionGenerationQuadraticProgram::stopHook() {
     // stops the component (update hook wont be  called anymore)
+    std::ofstream myfile;
+    myfile.open ("datalog.txt");
+    myfile << datalog.str();
+    myfile.close();
 }
 
 void MotionGenerationQuadraticProgram::cleanupHook() {
