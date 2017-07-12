@@ -115,8 +115,8 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
 
     velocityLimit = 0.2;
 
-    gainTranslationP = 10;
-    gainTranslationD = 5;
+    gainTranslationP = 100;
+    gainTranslationD = 50;
 
     quaternion_desired = Eigen::Vector4f::Zero();
     quaternion_current = Eigen::Vector4f::Zero();

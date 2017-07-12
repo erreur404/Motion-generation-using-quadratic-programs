@@ -1,6 +1,6 @@
 
 display_x = 3;
-display_y = 1;
+display_y = 3;
 display_index = 1;
 
 col = 1;
@@ -28,12 +28,135 @@ desPosJ7 = datalog(:,col);col += 1;
 curPosJ7 = datalog(:,col);col += 1;
 
 figure();
+
+% plotting position
 subplot(display_y, display_x, display_index);display_index += 1;
-plot(t, desPosx, "-b");
+des = desPosx; cur = curPosx;
+plot(t, des, "-b");
 hold on;
-plot(t, curPosx, "-r");
+plot(t, cur, "-r");
 hold off;
-legend("desired", "actual");
+if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+legend({"desired", "actual"}, 'Location', 'northeast');
+else
+legend({"desired", "actual"}, 'Location', 'southeast');
+endif
 xlabel("Time [sec]");
 ylabel("position [m]");
-title("X position tracking");
+title("x position tracking");
+
+subplot(display_y, display_x, display_index);display_index += 1;
+des = desPosy; cur = curPosy;
+plot(t, des, "-b");
+hold on;
+plot(t, cur, "-r");
+hold off;
+if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+legend({"desired", "actual"}, 'Location', 'northeast');
+else
+legend({"desired", "actual"}, 'Location', 'southeast');
+endif
+xlabel("Time [sec]");
+ylabel("position [m]");
+title("y position tracking");
+
+subplot(display_y, display_x, display_index);display_index += 1;
+des = desPosz; cur = curPosz;
+plot(t, des, "-b");
+hold on;
+plot(t, cur, "-r");
+hold off;
+if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+legend({"desired", "actual"}, 'Location', 'northeast');
+else
+legend({"desired", "actual"}, 'Location', 'southeast');
+endif
+xlabel("Time [sec]");
+ylabel("position [m]");
+title("z position tracking");
+
+% plotting velocity
+subplot(display_y, display_x, display_index);display_index += 1;
+des = desVelx; cur = curVelx;
+plot(t, des, "-b");
+hold on;
+plot(t, cur, "-r");
+hold off;
+if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+legend({"desired", "actual"}, 'Location', 'northeast');
+else
+legend({"desired", "actual"}, 'Location', 'southeast');
+endif
+title("x velocity tracking");
+
+subplot(display_y, display_x, display_index);display_index += 1;
+des = desVely; cur = curVely;
+plot(t, des, "-b");
+hold on;
+plot(t, cur, "-r");
+hold off;
+if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+legend({"desired", "actual"}, 'Location', 'northeast');
+else
+legend({"desired", "actual"}, 'Location', 'southeast');
+endif
+title("y velocity tracking");
+
+subplot(display_y, display_x, display_index);display_index += 1;
+des = desVelz; cur = curVelz;
+plot(t, des, "-b");
+hold on;
+plot(t, cur, "-r");
+hold off;
+if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+legend({"desired", "actual"}, 'Location', 'northeast');
+else
+legend({"desired", "actual"}, 'Location', 'southeast');
+endif
+title("z velocity tracking");
+
+% plotting acceleration
+subplot(display_y, display_x, display_index);display_index += 1;
+des = desAccx; cur = curAccx;
+plot(t, des, "-b");
+hold on;
+plot(t, cur, "-r");
+hold off;
+if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+legend({"desired", "actual"}, 'Location', 'northeast');
+else
+legend({"desired", "actual"}, 'Location', 'southeast');
+endif
+xlabel("Time [sec]");
+ylabel("position [m]");
+title("x acceleration tracking");
+
+subplot(display_y, display_x, display_index);display_index += 1;
+des = desAccy; cur = curAccy;
+plot(t, des, "-b");
+hold on;
+plot(t, cur, "-r");
+hold off;
+if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+legend({"desired", "actual"}, 'Location', 'northeast');
+else
+legend({"desired", "actual"}, 'Location', 'southeast');
+endif
+xlabel("Time [sec]");
+ylabel("position [m]");
+title("y acceleration tracking");
+
+subplot(display_y, display_x, display_index);display_index += 1;
+des = desAccz; cur = curAccz;
+plot(t, des, "-b");
+hold on;
+plot(t, cur, "-r");
+hold off;
+if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+legend({"desired", "actual"}, 'Location', 'northeast');
+else
+legend({"desired", "actual"}, 'Location', 'southeast');
+endif
+xlabel("Time [sec]");
+ylabel("position [m]");
+title("z acceleration tracking");
