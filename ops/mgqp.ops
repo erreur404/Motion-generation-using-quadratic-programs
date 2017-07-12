@@ -157,9 +157,9 @@ trajectorygenerator.configure();
 
 loadComponent("trajectorygenerator2", "TrajectoryGenerator");
 setActivity("trajectorygenerator2",0.01,10,ORO_SCHED_OTHER);
-trajectorygenerator2.setCenter(1.6,0.0,1.7)
-trajectorygenerator2.radius = 0.2
-trajectorygenerator2.timescale = 2.0;
+trajectorygenerator2.setCenter(0.6,0.0,0.7)
+trajectorygenerator2.radius = 0.1
+trajectorygenerator2.timescale = 1.0;
 trajectorygenerator2.setWaitTime(10)
 trajectorygenerator2.preparePorts()
 trajectorygenerator2.configure()
@@ -225,6 +225,7 @@ connect("fkin"+fkname+".out_jacobianTranslation_port", "myTorqueController.in_ja
 connect("fkin"+fkname+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+dofname, cp);
 connect("fkin"+fkname+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+dofname, cp);
 connect("fkin"+fkname+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+dofname, cp);
+connect("fkin"+fkname+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceAcceleration_port_"+dofname, cp);
 connect("trajectorygenerator2.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+dofname, cp);
 connect("trajectorygenerator2.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+dofname, cp);
 connect("trajectorygenerator2.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+dofname, cp);
@@ -286,9 +287,9 @@ else
 myTorqueController.start()
 
 #generate graph file
-import("rtt_dot_service")
-loadService("this", "dot")
-dot.generate
+#import("rtt_dot_service")
+#loadService("this", "dot")
+#dot.generate
 
 loadService("this","scripting")
 scripting.runScript("logData.ops")

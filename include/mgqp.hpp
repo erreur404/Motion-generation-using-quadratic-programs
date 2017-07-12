@@ -107,6 +107,7 @@ private:
 
     std::vector<RTT::InputPort<Eigen::VectorXf>* > in_currentTaskSpacePosition_port;
     std::vector<RTT::InputPort<Eigen::VectorXf>* > in_currentTaskSpaceVelocity_port;
+    std::vector<RTT::InputPort<Eigen::VectorXf>* > in_currentTaskSpaceAcceleration_port;
 
     std::vector<RTT::InputPort<Eigen::MatrixXf>* > in_jacobian_port;
     std::vector<RTT::InputPort<Eigen::MatrixXf>* > in_jacobianDot_port;
@@ -134,6 +135,7 @@ private:
 
     std::vector<RTT::FlowStatus> in_currentTaskSpacePosition_flow;
     std::vector<RTT::FlowStatus> in_currentTaskSpaceVelocity_flow;
+    std::vector<RTT::FlowStatus> in_currentTaskSpaceAcceleration_flow;
 
     std::vector<RTT::FlowStatus> in_jacobian_flow;
     std::vector<RTT::FlowStatus> in_jacobianDot_flow;
@@ -158,6 +160,7 @@ private:
     // feedback from the real world
     Eigen::VectorXf in_currentTaskSpacePosition_var;
     Eigen::VectorXf in_currentTaskSpaceVelocity_var;
+    Eigen::VectorXf in_currentTaskSpaceAcceleration_var;
     rstrt::robot::JointState in_robotstatus_var;
 
 

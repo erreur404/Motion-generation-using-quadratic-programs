@@ -131,6 +131,8 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     currentPosition = Eigen::Vector3f::Zero();
     desiredVelocity = Eigen::Vector3f::Zero();
     currentVelocity = Eigen::Vector3f::Zero();
+    desiredAcceleration = Eigen::Vector3f::Zero();
+    currentAcceleration = Eigen::Vector3f::Zero();
 
     errorTranslationPosition = Eigen::Vector3f::Zero();
     errorTranslationVelocity = Eigen::Vector3f::Zero();
@@ -200,6 +202,8 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
             free(in_currentTaskSpacePosition_port[i]);
             ports()->removePort(cat("in_currentTaskSpaceVelocity_port_", i));
             free(in_currentTaskSpaceVelocity_port[i]);
+            ports()->removePort(cat("in_currentTaskSpaceAcceleration_port_", i));
+            free(in_currentTaskSpaceAcceleration_port[i]);
             ports()->removePort(cat("in_desiredTaskSpacePosition_port_", i));
             free(in_desiredTaskSpacePosition_port[i]);
             ports()->removePort(cat("in_desiredTaskSpaceVelocity_port_", i));
@@ -224,6 +228,7 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
         in_desiredJointSpaceAcceleration_port.clear();
         in_currentTaskSpacePosition_port.clear();
         in_currentTaskSpaceVelocity_port.clear();
+        in_currentTaskSpaceAcceleration_port.clear();
         in_jacobian_port.clear();
         in_jacobianDot_port.clear();
 
@@ -235,6 +240,7 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
         in_desiredJointSpaceAcceleration_flow.clear();
         in_currentTaskSpacePosition_flow.clear();
         in_currentTaskSpaceVelocity_flow.clear();
+        in_currentTaskSpaceAcceleration_flow.clear();
         in_jacobian_flow.clear();
         in_jacobianDot_flow.clear();
         PRINTNL("port & flow vector freed");
@@ -258,6 +264,7 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
 
       in_currentTaskSpacePosition_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_currentTaskSpacePosition_port_",i), RTT::ConnPolicy()));
       in_currentTaskSpaceVelocity_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_currentTaskSpaceVelocity_port_",i), RTT::ConnPolicy()));
+      in_currentTaskSpaceAcceleration_port.push_back(new RTT::InputPort<Eigen::VectorXf>(cat("in_currentTaskSpaceAcceleration_port_",i), RTT::ConnPolicy()));
 
       in_jacobian_port.push_back(new RTT::InputPort<Eigen::MatrixXf>(cat("in_jacobian_port_",i), RTT::ConnPolicy()));
       in_jacobianDot_port.push_back(new RTT::InputPort<Eigen::MatrixXf>(cat("in_jacobianDot_port_",i), RTT::ConnPolicy()));
@@ -270,6 +277,7 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
       in_desiredJointSpaceAcceleration_flow.push_back(RTT::FlowStatus());
       in_currentTaskSpacePosition_flow.push_back(RTT::FlowStatus());
       in_currentTaskSpaceVelocity_flow.push_back(RTT::FlowStatus());
+      in_currentTaskSpaceAcceleration_flow.push_back(RTT::FlowStatus());
       in_jacobian_flow.push_back(RTT::FlowStatus());
       in_jacobianDot_flow.push_back(RTT::FlowStatus());
     }
@@ -316,6 +324,15 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
       in_currentTaskSpaceVelocity_port[i-1]->doc("Input port for receiving the current task space velocity of the robot");
       ports()->addPort(*in_currentTaskSpaceVelocity_port[i-1]);
       in_currentTaskSpaceVelocity_flow[i-1] = RTT::NoData;
+      PRINTNL(" OK");
+
+
+      PRINT("CurAcc ...");
+      in_currentTaskSpaceAcceleration_var = Eigen::VectorXf();
+      in_currentTaskSpaceAcceleration_port[i-1]->setName(cat("in_currentTaskSpaceAcceleration_port_", i));
+      in_currentTaskSpaceAcceleration_port[i-1]->doc("Input port for receiving the current task space Acceleration of the robot");
+      ports()->addPort(*in_currentTaskSpaceAcceleration_port[i-1]);
+      in_currentTaskSpaceAcceleration_flow[i-1] = RTT::NoData;
       PRINTNL(" OK");
 
       PRINT("DesPos ...");
@@ -767,7 +784,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
             matrixAppend(&acumul, &p->goal);
             //Eigen::FullPivLU <Eigen::MatrixXf> lu (Acumul);
             //Z = lu.kernel();
-            Eigen::JacobiSVD<Eigen::MatrixXf> svd(Acumul, Eigen::ComputeFullV); // in Acumul = U S V* we need only V
+            Eigen::JacobiSVD<Eigen::MatrixXf> svd(Acumul, Eigen::ComputeThinV); //Eigen::ComputeFullV); // in Acumul = U S V* we need only V
             Z = Eigen::MatrixXf::Zero(0, 2*this->DOFsize);
             /*
                 null space classic formula for robotic is
@@ -835,9 +852,9 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
             PRINT("A : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
             a = svd.matrixV();
             PRINT("V : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-            Z = Eigen::MatrixXf::Identity(svd.singularValues().cols(), svd.singularValues().cols()) - svd.matrixV() * A * svd.matrixV().transpose();
+            Z = Eigen::MatrixXf::Identity(svd.singularValues().cols(), svd.singularValues().cols()) - svd.matrixV() * A ;//* svd.matrixV().transpose();
             PRINTNL("Dary ! Legendary !");
-            */
+            // */
             //PRINTNL(Z);
         }
 
@@ -881,6 +898,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
 
         in_currentTaskSpacePosition_flow[jointN] = in_currentTaskSpacePosition_port[jointN]->read(in_currentTaskSpacePosition_var);
         in_currentTaskSpaceVelocity_flow[jointN] = in_currentTaskSpaceVelocity_port[jointN]->read(in_currentTaskSpaceVelocity_var);
+        in_currentTaskSpaceAcceleration_flow[jointN] = in_currentTaskSpaceAcceleration_port[jointN]->read(in_currentTaskSpaceAcceleration_var);
 
         in_jacobian_flow[jointN] = in_jacobian_port[jointN]->read(in_jacobian_var);
         in_jacobianDot_flow[jointN] = in_jacobianDot_port[jointN]->read(in_jacobianDot_var);
@@ -948,13 +966,16 @@ void MotionGenerationQuadraticProgram::updateHook() {
             }
 
             if (in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData ||
-              this->stack_of_tasks.getLevel(cat("in_desiredTaskSpaceAcceleration_", jointN+1)) != lvl)
+                in_currentTaskSpaceAcceleration_flow[jointN] == RTT::NoData ||
+                this->stack_of_tasks.getLevel(cat("in_desiredTaskSpaceAcceleration_", jointN+1)) != lvl)
             {
               desiredAcceleration = Eigen::VectorXf::Zero(3);
+              currentAcceleration = Eigen::VectorXf::Zero(3);
             }
             else
             {
-              desiredAcceleration = in_desiredTaskSpaceAcceleration_var;
+              desiredAcceleration = in_desiredTaskSpaceAcceleration_var.head(WorkspaceDimension);
+              currentAcceleration = in_currentTaskSpaceAcceleration_var.head(WorkspaceDimension);
               taskSpaceOperation |= true;
             }
 
@@ -1022,7 +1043,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
                 A.block(0, A_cols/2, A_rows, A_cols/2) = Eigen::MatrixXf::Zero(A_rows, A_cols/2); // A = [J, 0]
                 a = -(this->gainTranslationP*(desiredPosition - currentPosition) +
                     this->gainTranslationD*(desiredVelocity - currentVelocity)  -
-                    in_jacobianDot_var*qDot);
+                    in_jacobianDot_var*qDot + desiredAcceleration - currentAcceleration);
                 /*
                     NOTE : the goal matches the dimension of the result vector. When we work on an inferior degree of freedom,
                     the jacobian is null on these joints, and so are the associated goals
@@ -1083,13 +1104,16 @@ void MotionGenerationQuadraticProgram::updateHook() {
         currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
       }
 
-      if (in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData)
+      if (in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData ||
+          in_currentTaskSpaceAcceleration_flow[jointN] == RTT::NoData)
       {
         desiredAcceleration = Eigen::VectorXf::Zero(3);
+        currentAcceleration = Eigen::VectorXf::Zero(3);
       }
       else
       {
-        desiredAcceleration = in_desiredTaskSpaceAcceleration_var;
+        desiredAcceleration = in_desiredTaskSpaceAcceleration_var.head(WorkspaceDimension);
+        currentAcceleration = in_currentTaskSpaceAcceleration_var.head(WorkspaceDimension);
       }
 
       if (in_desiredJointSpacePosition_flow[jointN] == RTT::NoData)
@@ -1265,7 +1289,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
 void MotionGenerationQuadraticProgram::stopHook() {
     // stops the component (update hook wont be  called anymore)
     std::ofstream myfile;
-    myfile.open ("datalog.txt");
+    myfile.open ("../datalog.txt");
     myfile << datalog.str();
     myfile.close();
 }
