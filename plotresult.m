@@ -1,3 +1,7 @@
+close all;
+clear all;
+
+datalog = importdata("datalog.txt");
 
 display_x = 3;
 display_y = 3;

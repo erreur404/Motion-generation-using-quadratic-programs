@@ -116,7 +116,7 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     velocityLimit = 0.2;
 
     gainTranslationP = 100;
-    gainTranslationD = 50;
+    gainTranslationD = 100;
 
     quaternion_desired = Eigen::Vector4f::Zero();
     quaternion_current = Eigen::Vector4f::Zero();
@@ -631,7 +631,7 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   //* Here the problem seems never feasible but still returns a good result ...
   if (std::isnan(sum) || sum == std::numeric_limits<double>::infinity())
   {
-      //PRINTNL("unsolvable");
+      PRINTNL("unsolvable");
       *res =  Eigen::VectorXf::Zero(res->rows());
       return false;
   }
@@ -1229,8 +1229,9 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
-    this->stack_of_tasks.getQP(0)->constraints = limitsMatrix.block(0,0,1,2*this->DOFsize);
-    this->stack_of_tasks.getQP(0)->limits = limits.block(0, 0, 1, 1);
+    int effective_limit = 2;
+    this->stack_of_tasks.getQP(0)->constraints = limitsMatrix.block(0,0,effective_limit,2*this->DOFsize);
+    this->stack_of_tasks.getQP(0)->limits = limits.block(0, 0, effective_limit, 1);
     // and adding the relation between acceleration and torques inside the QP, so that all constraints shall be respected
     Eigen::MatrixXf A; Eigen::VectorXf a;
     A = Eigen::MatrixXf(this->DOFsize, 2*this->DOFsize); // acceleration is identity. Matrix*Accel = torques <=> + accel -
