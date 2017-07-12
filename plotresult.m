@@ -3,6 +3,11 @@ clear all;
 
 datalog = importdata("datalog.txt");
 
+reports = importdata('build/reports.dat');
+reports = reports(2:size(reports)(1), :);
+
+datalog = reports
+
 display_x = 3;
 display_y = 3;
 display_index = 1;

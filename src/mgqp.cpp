@@ -116,7 +116,7 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     velocityLimit = 0.2;
 
     gainTranslationP = 100;
-    gainTranslationD = 100;
+    gainTranslationD = 50;
 
     quaternion_desired = Eigen::Vector4f::Zero();
     quaternion_current = Eigen::Vector4f::Zero();
@@ -1066,6 +1066,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
         }
     }
 
+    /*
     {
       int jointN = this->DOFsize-1; // reading desired and actual data for end effector
       in_desiredTaskSpacePosition_flow[jointN] = in_desiredTaskSpacePosition_port[jointN]->read(in_desiredTaskSpacePosition_var);
@@ -1154,17 +1155,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
         currentVelocity[0],currentVelocity[1],currentVelocity[2],
         currentAcceleration[0],currentAcceleration[1],currentAcceleration[2],
         desiredJointPosition, in_robotstatus_var.angles[this->DOFsize-1]);
+    // */
 
-    //addToProblem(A, a, pb1);
-    //*/
-    // Energy economy, minimize torque
-    /*
-    A = Eigen::MatrixXf(resultVectorSize/2, resultVectorSize); A.setZero();
-    A.block(0, resultVectorSize/2, resultVectorSize/2, resultVectorSize/2) = (1/100)*Eigen::MatrixXf::Identity(resultVectorSize/2, resultVectorSize/2);
-    a = Eigen::VectorXf(resultVectorSize/2);a.setZero();
-
-    addToProblem(A, a, pb1);
-    //*/
 
     int nbEquality = prob->rows();
     int nbInequality = 4*this->DOFsize;
@@ -1229,7 +1221,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
-    int effective_limit = 2;
+    int effective_limit = 1;
     this->stack_of_tasks.getQP(0)->constraints = limitsMatrix.block(0,0,effective_limit,2*this->DOFsize);
     this->stack_of_tasks.getQP(0)->limits = limits.block(0, 0, effective_limit, 1);
     // and adding the relation between acceleration and torques inside the QP, so that all constraints shall be respected

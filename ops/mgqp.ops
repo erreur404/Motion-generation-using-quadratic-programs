@@ -225,7 +225,7 @@ connect("fkin"+fkname+".out_jacobianTranslation_port", "myTorqueController.in_ja
 connect("fkin"+fkname+".out_jacobianDotTranslation_port", "myTorqueController.in_jacobianDot_port_"+dofname, cp);
 connect("fkin"+fkname+".out_cartPosTranslation_port", "myTorqueController.in_currentTaskSpacePosition_port_"+dofname, cp);
 connect("fkin"+fkname+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceVelocity_port_"+dofname, cp);
-connect("fkin"+fkname+".out_cartVelTranslation_port", "myTorqueController.in_currentTaskSpaceAcceleration_port_"+dofname, cp);
+connect("fkin"+fkname+".out_cartAccTranslation_port", "myTorqueController.in_currentTaskSpaceAcceleration_port_"+dofname, cp);
 connect("trajectorygenerator2.out_desiredTaskSpacePosition_port", "myTorqueController.in_desiredTaskSpacePosition_port_"+dofname, cp);
 connect("trajectorygenerator2.out_desiredTaskSpaceVelocity_port", "myTorqueController.in_desiredTaskSpaceVelocity_port_"+dofname, cp);
 connect("trajectorygenerator2.out_desiredTaskSpaceAcceleration_port", "myTorqueController.in_desiredTaskSpaceAcceleration_port_"+dofname, cp);
@@ -292,4 +292,4 @@ myTorqueController.start()
 #dot.generate
 
 loadService("this","scripting")
-scripting.runScript("logData.ops")
+scripting.runScript("/home/erreur404/git-repos/Motion-generation-using-quadratic-programs/ops/logData.ops")
