@@ -1,6 +1,8 @@
 close all;
 clear all;
 
+JOINT_OP = true;
+
 %datalog = importdata("datalog.txt");
 
 filenameOLD = "build/reports.dat";
@@ -57,6 +59,7 @@ curVelz = datalog(:,col);col += 1;
 curAccx = datalog(:,col);col += 1;
 curAccy = datalog(:,col);col += 1;
 curAccz = datalog(:,col);col += 1;
+if JOINT_OP
 desPosJ1= datalog(:,col);col += 1; % ===== des pos joints
 curPosJ1= datalog(:,col);col += 1; % ===== cur pos vel tor joints
 curPosJ2= datalog(:,col);col += 1;
@@ -86,7 +89,19 @@ desTorJ4= datalog(:,col);col += 1;
 desTorJ5= datalog(:,col);col += 1;
 desTorJ6= datalog(:,col);col += 1;
 desTorJ7= datalog(:,col);col += 1;
+end
 
+% plotting computation time
+figure();
+
+deltaT = t(2:size(t)(1), 1)-t(1:size(t)(1)-1, 1);
+plot(t(2:size(t)(1), 1), deltaT);
+title("Computing times");
+xlabel("Time [sec]");
+ylabel("Cycle length [sec]");
+
+
+% plotting task space tracking
 figure();
 
 % plotting position
@@ -222,6 +237,7 @@ ylabel("position [m]");
 title("z acceleration tracking");
 
 % ========================= plotting joint values
+if JOINT_OP
 figure()
 display_x = 4;
 display_y = 2;
@@ -347,3 +363,4 @@ endif
 xlabel("Time [sec]");
 ylabel("torque [N/m]");
 title("Base joint position tracking");
+end

@@ -842,18 +842,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
                   A(k,k) = 1;
                 }
             }
-            /*
-            PRINTNL("Legend, wait for it ...");
-            PRINTNL(A);
-            PRINTNL(svd.matrixV());
-            a = svd.singularValues();
-            PRINT("S : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-            a = A;
-            PRINT("A : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-            a = svd.matrixV();
-            PRINT("V : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-            Z = Eigen::MatrixXf::Identity(svd.singularValues().cols(), svd.singularValues().cols()) - svd.matrixV() * A ;//* svd.matrixV().transpose();
-            PRINTNL("Dary ! Legendary !");
+            Z = Eigen::MatrixXf::Identity(this->DOFsize*2, this->DOFsize*2) - svd.matrixV() * A * svd.matrixV().transpose();
             // */
             //PRINTNL(Z);
         }
@@ -1276,15 +1265,20 @@ void MotionGenerationQuadraticProgram::updateHook() {
     PRINTNL("Succeed indeed !");
     */
 
+    if (this->getSimulationTime() > 60)
+    {
+        this->stopHook();
+    }
 
 }
 
 void MotionGenerationQuadraticProgram::stopHook() {
     // stops the component (update hook wont be  called anymore)
-    std::ofstream myfile;
-    myfile.open ("../datalog.txt");
-    myfile << datalog.str();
-    myfile.close();
+    PRINTNL("######################################");
+    PRINTNL("##                                  ##");
+    PRINTNL("##    ALL BASES ARE BELONG TO US    ##");
+    PRINTNL("##                                  ##");
+    PRINTNL("######################################");
 }
 
 void MotionGenerationQuadraticProgram::cleanupHook() {
