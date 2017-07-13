@@ -17,20 +17,6 @@
 #define PRINT(txt) RTT::log(RTT::Info) << txt
 #define PRINTNL(txt) RTT::log(RTT::Info) << txt << RTT::endlog()
 
-
-std::ostringstream datalog;
-/*
-LOG(time,
-    desiredXpos, desiredYpos, desiredZpos,
-    desiredXvel, desiredYvel, desiredZvel,
-    desiredXacc, desiredYacc, desiredZacc,
-    actualXpos,  actualYpos,  actualZpos,
-    actualXvel,  actualYvel,  actualZvel,
-    actualXacc,  actualYacc,  actualZacc,
-    desiredJ1pos, actualJ1pos)
-*/
-#define LOG(time, desiredXpos, desiredYpos, desiredZpos, desiredXvel, desiredYvel, desiredZvel, desiredXacc, desiredYacc, desiredZacc, actualXpos,  actualYpos,  actualZpos,  actualXvel,  actualYvel,  actualZvel,  actualXacc,  actualYacc,  actualZacc, desiredJ1pos, actualJ1pos) datalog << time << " " << desiredXpos << " " << desiredYpos << " " << desiredZpos << " " << desiredXvel << " " << desiredYvel << " " << desiredZvel << " " << desiredXacc << " " << desiredYacc << " " << desiredZacc << " " << actualXpos << " " <<  actualYpos << " " <<  actualZpos << " " <<  actualXvel << " " <<  actualYvel << " " <<  actualZvel << " " <<  actualXacc << " " <<  actualYacc << " " <<  actualZacc << " " << desiredJ1pos << " " << actualJ1pos << '\n';
-
 std::string cat (std::string str, int i)
 {
   std::stringstream sstm;
@@ -116,7 +102,7 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     velocityLimit = 0.2;
 
     gainTranslationP = 100;
-    gainTranslationD = 50;
+    gainTranslationD = 25;
 
     quaternion_desired = Eigen::Vector4f::Zero();
     quaternion_current = Eigen::Vector4f::Zero();
@@ -713,49 +699,29 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         PRINT("res : ");PRINTNL(a); // */
 
 
-        // protection against empty problems
-        //try{
+        // NOTE : protection against partial problems
+        /*
+            1: empty problem -- often happens at launch or if this level is defined empty
+            2: equalities and inequalities and previous inequalities -- mostly happens on the first levels
+            3: equalities and previous inequalities but no new inequality -- mostly happens on lower levels
+            4: new equalities and no inequalities present or past -- happens mostly when no constraint are defined
+            default: no equalities ? no solving for this step.
+        */
         if (p->conditions.rows() == 0 && p->constraints.rows() == 0)
         {
             continue;
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() > 0 && Bcumul.rows() > 0)
         {
-            //PRINTNL("Pb1");
-            // u_1                     A_1*Z_0         a_1 + A_1*y_0
             stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul - p->constraints * last_res, &u);
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() > 0)
         {
-            //PRINTNL("Pb2");
-            //PRINT("p->conditions");PRINTNL(p->conditions);
-            //PRINT("Z");PRINTNL(Z);
-            //PRINT("p->conditions * Z");PRINTNL(p->conditions * Z);
-            //PRINT("p->goal - p->conditions * last_res");PRINTNL(p->goal - p->conditions * last_res);
-            //PRINT("Bcumul * Z  --  ");PRINTNL(Bcumul * Z);
-            //PRINT("bcumul  --  ");PRINTNL(bcumul);
             stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul, &u);
-            //PRINTNL("Solved pb 2");
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() == 0)
         {
             stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res,  Eigen::MatrixXf::Zero(1, Z.cols()), Eigen::VectorXf::Zero(1), &u);
-        }
-        /*
-        }
-        catch (...)
-        {
-        PRINT("p->conditions * Z");PRINTNL(p->conditions * Z);
-        PRINT("p->goal - p->conditions * last_res");PRINTNL(p->goal - p->conditions * last_res);
-        PRINT("Bcumul * Z");PRINTNL(Bcumul * Z);
-        PRINT(" bcumul - p->constraints * last_res");PRINTNL( bcumul - p->constraints * last_res);
-        PRINT("u <-- ");PRINTNL(u);
-      } // */
-
-        if (!stepSuccess)
-        {
-            // if this problem is not solvable, return the solved first levels
-            return last_res;
         }
         /*
         else if (p->conditions.rows() == 0 && p->constraints.rows() > 0)
@@ -766,15 +732,17 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         {
           // well, no input ? do nothing
         }
-      }
-        PRINTNL(res);th
-      }
         */
+
+        if (!stepSuccess)
+        {
+            // if this problem is not solvable, return the solved first levels
+            return last_res;
+        }
+
 
         // y =  y*_p    +   Z_p . u_p+1
         res = last_res + Z*u;
-
-        //PRINTNL(res);
 
 
         // protection against empty A matrice
@@ -782,10 +750,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         {
             matrixAppend(&Acumul, &p->conditions);
             matrixAppend(&acumul, &p->goal);
-            //Eigen::FullPivLU <Eigen::MatrixXf> lu (Acumul);
-            //Z = lu.kernel();
             Eigen::JacobiSVD<Eigen::MatrixXf> svd(Acumul, Eigen::ComputeThinV); //Eigen::ComputeFullV); // in Acumul = U S V* we need only V
-            Z = Eigen::MatrixXf::Zero(0, 2*this->DOFsize);
             /*
                 null space classic formula for robotic is
 
@@ -795,38 +760,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
                 In the SVD decomposition, a vector of V is from the nullspace if the singular value is zero.
                 Here we replicate the behavior of the first equation with the help of the SVD decomposition.
             */
-            /*
-            int k;
-            for (k=0; k<svd.singularValues().rows(); k++)
-            {
-                if (svd.singularValues()(k) < 0.0000000000000001)
-                {
-                    // if the eigen value is null, the column of V is vector of the nullspace
-                    // we use a transposed Z to use the simple append helper function
-                    Ztemp = svd.matrixV().block(0, k, 2*this->DOFsize, 1).transpose();
-                    matrixAppend(&Z, &Ztemp);
-                }
-                else
-                {
-                    //Ztemp = Eigen::MatrixXf::Zero(2*this->DOFsize, 1).transpose();
-                    Ztemp = Eigen::MatrixXf::Zero(1, 2*this->DOFsize);
-                    matrixAppend(&Z, &Ztemp);
-                }
-            }
-            for (;k<2*this->DOFsize; k++)
-            {
-                // for the extra degrees of freedom which weren't subject to conditions, obviously they are null space
-                Ztemp = svd.matrixV().block(0, k, 2*this->DOFsize, 1).transpose();
-                matrixAppend(&Z, &Ztemp);
-            }
-            if (Z.rows() == 0)
-            {
-              PRINTNL("no null space");
-              Z = Eigen::MatrixXf::Zero(1, 2*this->DOFsize);
-              return last_res;
-            }
-            Ztemp = Z.transpose();
-            Z = Ztemp; // */
+
 
             // new nullspace according to On  Continuous  Null  Space  Projections  for Torque-Based,  Hierarchical,  Multi-Objective  Manipulation Alexander Dietrich, Alin Albu-Schaffer, and Gerd Hirzinger
             // Z = I - V S^T S⁻¹^T V^T
@@ -843,8 +777,6 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
                 }
             }
             Z = Eigen::MatrixXf::Identity(this->DOFsize*2, this->DOFsize*2) - svd.matrixV() * A * svd.matrixV().transpose();
-            // */
-            //PRINTNL(Z);
         }
 
 
@@ -900,7 +832,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
             bool taskSpaceOperation = false;
             bool jointSpaceOperation = false;
             /**
-            *** The shape of a task ***
+            *** NOTE : The shape of a task ***
             if (the flows required have no data, or the task is not in this prio level)
             {
                 set the values to default
@@ -910,7 +842,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
                 use the received values
             }
 
-            *** The name of a task
+            *** NOTE : The name of a task
             naming convention :
             joint : 5
             port : in_desiredTaskName_port_[5] || in_desiredTaskName_port_5 (in deployer)
@@ -1055,97 +987,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
         }
     }
 
-    /*
-    {
-      int jointN = this->DOFsize-1; // reading desired and actual data for end effector
-      in_desiredTaskSpacePosition_flow[jointN] = in_desiredTaskSpacePosition_port[jointN]->read(in_desiredTaskSpacePosition_var);
-      in_desiredTaskSpaceVelocity_flow[jointN] = in_desiredTaskSpaceVelocity_port[jointN]->read(in_desiredTaskSpaceVelocity_var);
-      in_desiredTaskSpaceAcceleration_flow[jointN] = in_desiredTaskSpaceAcceleration_port[jointN]->read(in_desiredTaskSpaceAcceleration_var);
-
-      in_desiredJointSpacePosition_flow[jointN] = in_desiredJointSpacePosition_port[jointN]->read(in_desiredJointSpacePosition_var);
-      in_desiredJointSpaceVelocity_flow[jointN] = in_desiredJointSpaceVelocity_port[jointN]->read(in_desiredJointSpaceVelocity_var);
-      in_desiredJointSpaceAcceleration_flow[jointN] = in_desiredJointSpaceAcceleration_port[jointN]->read(in_desiredJointSpaceAcceleration_var);
-
-      in_currentTaskSpacePosition_flow[jointN] = in_currentTaskSpacePosition_port[jointN]->read(in_currentTaskSpacePosition_var);
-      in_currentTaskSpaceVelocity_flow[jointN] = in_currentTaskSpaceVelocity_port[jointN]->read(in_currentTaskSpaceVelocity_var);
-
-      if (in_desiredTaskSpacePosition_flow[jointN] == RTT::NoData ||
-          in_currentTaskSpacePosition_flow[jointN] == RTT::NoData)
-      {
-        desiredPosition = Eigen::VectorXf::Zero(3);
-        currentPosition = Eigen::VectorXf::Zero(3);
-      }
-      else
-      {
-        // ending up here only if it is the right level and data is there. Otherwise, default values
-        desiredPosition = in_desiredTaskSpacePosition_var.head(WorkspaceDimension);
-        currentPosition = in_currentTaskSpacePosition_var.head(WorkspaceDimension);
-      }
-
-      if (in_desiredTaskSpaceVelocity_flow[jointN] == RTT::NoData ||
-          in_currentTaskSpaceVelocity_flow[jointN] == RTT::NoData)
-      {
-        desiredVelocity = Eigen::VectorXf::Zero(3);
-        currentVelocity = Eigen::VectorXf::Zero(3);
-      }
-      else
-      {
-        desiredVelocity = in_desiredTaskSpaceVelocity_var.head(WorkspaceDimension);
-        currentVelocity = in_currentTaskSpaceVelocity_var.head(WorkspaceDimension);
-      }
-
-      if (in_desiredTaskSpaceAcceleration_flow[jointN] == RTT::NoData ||
-          in_currentTaskSpaceAcceleration_flow[jointN] == RTT::NoData)
-      {
-        desiredAcceleration = Eigen::VectorXf::Zero(3);
-        currentAcceleration = Eigen::VectorXf::Zero(3);
-      }
-      else
-      {
-        desiredAcceleration = in_desiredTaskSpaceAcceleration_var.head(WorkspaceDimension);
-        currentAcceleration = in_currentTaskSpaceAcceleration_var.head(WorkspaceDimension);
-      }
-
-      if (in_desiredJointSpacePosition_flow[jointN] == RTT::NoData)
-      {
-        //desiredJointPosition = Eigen::VectorXf::Zero(jointN); // targets the 0
-        desiredJointPosition = in_robotstatus_var.angles[jointN];
-      }
-      else
-      {
-        desiredJointPosition = in_desiredJointSpacePosition_var;
-      }
-
-      if (in_desiredJointSpaceVelocity_flow[jointN] == RTT::NoData)
-      {
-        desiredJointVelocity = in_robotstatus_var.velocities[jointN];
-      }
-      else
-      {
-        desiredJointVelocity = in_desiredJointSpaceVelocity_var;
-      }
-
-      if (in_desiredJointSpaceAcceleration_flow[jointN] == RTT::NoData)
-      {
-        desiredJointAcceleration = 0;//in_robotstatus_var.accelerations[jointN];
-      }
-      else
-      {
-        desiredJointAcceleration = in_desiredJointSpaceAcceleration_var;
-      }
-    }
-
-    // all variables are set for the end effector (because it remains from the last 'for' iteration)
-    LOG(MotionGenerationQuadraticProgram::getSimulationTime(),
-        desiredPosition[0],desiredPosition[1],desiredPosition[2],
-        desiredVelocity[0],desiredVelocity[1],desiredVelocity[2],
-        desiredAcceleration[0],desiredAcceleration[1],desiredAcceleration[2],
-        currentPosition[0],currentPosition[1],currentPosition[2],
-        currentVelocity[0],currentVelocity[1],currentVelocity[2],
-        currentAcceleration[0],currentAcceleration[1],currentAcceleration[2],
-        desiredJointPosition, in_robotstatus_var.angles[this->DOFsize-1]);
-    // */
-
 
     int nbEquality = prob->rows();
     int nbInequality = 4*this->DOFsize;
@@ -1202,10 +1043,6 @@ void MotionGenerationQuadraticProgram::updateHook() {
     limits.block(2*nbInequality/4, 0, nbInequality/4, 1) = -jointAccelAndAngleLimitN;
     limits.block(3*nbInequality/4, 0, nbInequality/4, 1) = -(this->JointTorquesLimitsN.rows() != this->DOFsize ? Eigen::VectorXf::Zero(nbInequality/4) : this->JointTorquesLimitsN);
 
-    //displayLimits(limitsMatrix, limits, this->DOFsize);
-
-    //PRINT(JointLimitsSup.transpose());PRINTNL(" -- ");
-    //PRINT(" -- ");PRINTNL(JointLimitsInf.transpose());
 
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
@@ -1221,49 +1058,17 @@ void MotionGenerationQuadraticProgram::updateHook() {
     a = Eigen::VectorXf::Zero(this->DOFsize);
     addToProblem(A, a, *(this->stack_of_tasks.getQP(0)));
 
-    //try
-    //{
-        tracking = this->solveNextHierarchy();
-        // sum of all problems as command
-        Eigen::VectorXf acceleration = (tracking).block(0, 0, this->DOFsize, 1);
-        Eigen::VectorXf torques = (tracking).block(this->DOFsize, 0, this->DOFsize, 1);
-        tracking.setZero();
-    // setting these inequalities as part of the top priority->DOFsize, 1);
-        //out_torques_var.torques = torques+in_inertia_var*acceleration+in_h_var;
-        out_torques_var.torques = torques+in_h_var; // +in_inertia_var*acceleration+ now taken into account in QP
+    tracking = this->solveNextHierarchy();
+    // sum of all problems as command
+    Eigen::VectorXf acceleration = (tracking).block(0, 0, this->DOFsize, 1);
+    Eigen::VectorXf torques = (tracking).block(this->DOFsize, 0, this->DOFsize, 1);
+    tracking.setZero();
 
-        //PRINT("torques : ");PRINTNL(out_torques_var.torques.transpose());
-        // write it to port
-        out_torques_port.write(out_torques_var);
-        /*
-    }
-    catch (...)
-    {
-        tracking = Eigen::VectorXf::Zero(this->DOFsize);
+    //out_torques_var.torques = torques+in_inertia_var*acceleration+in_h_var;
+    out_torques_var.torques = torques+in_h_var; // +in_inertia_var*acceleration+ now taken into account in QP
 
-        //tracking[0] = 100;
-        out_torques_var.torques = tracking;
-        out_torques_port.write(out_torques_var);
-    }// */
-
-
-
-    /*
-    try {
-      //tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, limitsMatrix, limits);
-      tracking = this->solveNextStep(jointTrackPos.conditions, jointTrackPos.goal, Eigen::MatrixXf::Zero(1, 1), Eigen::VectorXf::Zero(1));
-    }
-    catch (...)
-    {
-      // catch all
-      tracking.setZero();
-      PRINTNL("Exeption in looking for a solution");
-      PRINT("matrix size : (");PRINT(jointTrackPos.conditions.rows());PRINT(", ");PRINT(jointTrackPos.conditions.cols());PRINTNL(")");
-      PRINTNL(jointTrackPos.conditions);
-      return;
-    }
-    PRINTNL("Succeed indeed !");
-    */
+    // write it to port
+    out_torques_port.write(out_torques_var);
 
     if (this->getSimulationTime() > 60)
     {
