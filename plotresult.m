@@ -41,54 +41,62 @@ display_index = 1;
 col = 1;
 t = datalog(:,col);col += 1;
 
-desPosx = datalog(:,col);col += 1;
-desPosy = datalog(:,col);col += 1;
-desPosz = datalog(:,col);col += 1;
-desVelx = datalog(:,col);col += 1;
-desVely = datalog(:,col);col += 1;
-desVelz = datalog(:,col);col += 1;
-desAccx = datalog(:,col);col += 1;
-desAccy = datalog(:,col);col += 1;
-desAccz = datalog(:,col);col += 1;
-curPosx = datalog(:,col);col += 1;
-curPosy = datalog(:,col);col += 1;
-curPosz = datalog(:,col);col += 1;
-curVelx = datalog(:,col);col += 1;
-curVely = datalog(:,col);col += 1;
-curVelz = datalog(:,col);col += 1;
-curAccx = datalog(:,col);col += 1;
-curAccy = datalog(:,col);col += 1;
-curAccz = datalog(:,col);col += 1;
+% limitting the experiment to 60 seconds
+index60 = find (t >= 60);
+if (length(index60) == 0)
+  index60 = length(t);
+end
+
+t = t(1:index60, 1);
+
+desPosx = datalog(1:index60,col);col += 1;
+desPosy = datalog(1:index60,col);col += 1;
+desPosz = datalog(1:index60,col);col += 1;
+desVelx = datalog(1:index60,col);col += 1;
+desVely = datalog(1:index60,col);col += 1;
+desVelz = datalog(1:index60,col);col += 1;
+desAccx = datalog(1:index60,col);col += 1;
+desAccy = datalog(1:index60,col);col += 1;
+desAccz = datalog(1:index60,col);col += 1;
+curPosx = datalog(1:index60,col);col += 1;
+curPosy = datalog(1:index60,col);col += 1;
+curPosz = datalog(1:index60,col);col += 1;
+curVelx = datalog(1:index60,col);col += 1;
+curVely = datalog(1:index60,col);col += 1;
+curVelz = datalog(1:index60,col);col += 1;
+curAccx = datalog(1:index60,col);col += 1;
+curAccy = datalog(1:index60,col);col += 1;
+curAccz = datalog(1:index60,col);col += 1;
 if JOINT_OP
-desPosJ1= datalog(:,col);col += 1; % ===== des pos joints
-curPosJ1= datalog(:,col);col += 1; % ===== cur pos vel tor joints
-curPosJ2= datalog(:,col);col += 1;
-curPosJ3= datalog(:,col);col += 1;
-curPosJ4= datalog(:,col);col += 1;
-curPosJ5= datalog(:,col);col += 1;
-curPosJ6= datalog(:,col);col += 1;
-curPosJ7= datalog(:,col);col += 1;
-curVelJ1= datalog(:,col);col += 1;
-curVelJ2= datalog(:,col);col += 1;
-curVelJ3= datalog(:,col);col += 1;
-curVelJ4= datalog(:,col);col += 1;
-curVelJ5= datalog(:,col);col += 1;
-curVelJ6= datalog(:,col);col += 1;
-curVelJ7= datalog(:,col);col += 1;
-curTorJ1= datalog(:,col);col += 1;
-curTorJ2= datalog(:,col);col += 1;
-curTorJ3= datalog(:,col);col += 1;
-curTorJ4= datalog(:,col);col += 1;
-curTorJ5= datalog(:,col);col += 1;
-curTorJ6= datalog(:,col);col += 1;
-curTorJ7= datalog(:,col);col += 1;
-desTorJ1= datalog(:,col);col += 1;
-desTorJ2= datalog(:,col);col += 1;
-desTorJ3= datalog(:,col);col += 1;
-desTorJ4= datalog(:,col);col += 1;
-desTorJ5= datalog(:,col);col += 1;
-desTorJ6= datalog(:,col);col += 1;
-desTorJ7= datalog(:,col);col += 1;
+desPosJ1= datalog(1:index60,col);col += 1; % ===== des pos joints
+curPosJ1= datalog(1:index60,col);col += 1; % ===== cur pos vel tor joints
+curPosJ2= datalog(1:index60,col);col += 1;
+curPosJ3= datalog(1:index60,col);col += 1;
+curPosJ4= datalog(1:index60,col);col += 1;
+curPosJ5= datalog(1:index60,col);col += 1;
+curPosJ6= datalog(1:index60,col);col += 1;
+curPosJ7= datalog(1:index60,col);col += 1;
+curVelJ1= datalog(1:index60,col);col += 1;
+curVelJ2= datalog(1:index60,col);col += 1;
+curVelJ3= datalog(1:index60,col);col += 1;
+curVelJ4= datalog(1:index60,col);col += 1;
+curVelJ5= datalog(1:index60,col);col += 1;
+curVelJ6= datalog(1:index60,col);col += 1;
+curVelJ7= datalog(1:index60,col);col += 1;
+curTorJ1= datalog(1:index60,col);col += 1;
+curTorJ2= datalog(1:index60,col);col += 1;
+curTorJ3= datalog(1:index60,col);col += 1;
+curTorJ4= datalog(1:index60,col);col += 1;
+curTorJ5= datalog(1:index60,col);col += 1;
+curTorJ6= datalog(1:index60,col);col += 1;
+curTorJ7= datalog(1:index60,col);col += 1;
+desTorJ1= datalog(1:index60,col);col += 1;
+desTorJ2= datalog(1:index60,col);col += 1;
+desTorJ3= datalog(1:index60,col);col += 1;
+desTorJ4= datalog(1:index60,col);col += 1;
+desTorJ5= datalog(1:index60,col);col += 1;
+desTorJ6= datalog(1:index60,col);col += 1;
+desTorJ7= datalog(1:index60,col);col += 1;
 end
 
 % plotting computation time
