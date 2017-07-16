@@ -370,5 +370,6 @@ legend({"desired", "actual"}, 'Location', 'southeast');
 endif
 xlabel("Time [sec]");
 ylabel("torque [N/m]");
+axis([-inf inf -1.5 1]); 
 title("Base joint position tracking");
 end

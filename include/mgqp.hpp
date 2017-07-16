@@ -195,7 +195,7 @@ private:
 
     bool receiveTranslationOnly;
     unsigned int TaskSpaceDimension;
-    float gainTranslationP, gainTranslationD, gainOrientationP, gainOrientationD;
+    float gainTranslationP, gainTranslationD, gainOrientationP, gainOrientationD, gainJointP, gainJointD;
     unsigned int numEndEffectors;
     unsigned int WorkspaceDimension;
     float velocityLimit;

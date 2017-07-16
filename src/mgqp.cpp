@@ -104,6 +104,9 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     gainTranslationP = 100;
     gainTranslationD = 25;
 
+    gainJointP = 200;
+    gainJointD = 100;
+
     quaternion_desired = Eigen::Vector4f::Zero();
     quaternion_current = Eigen::Vector4f::Zero();
     quaternion_current_conj = Eigen::Vector4f::Zero();
@@ -608,6 +611,7 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   *res = Eigen::VectorXf(JG.cols());
 
   QuadProgpp::Solver quadprog;
+
   sum = quadprog.solve(G, g0, CE.transpose(),  ce0, CI.transpose(), ci0, x);
 
   for (int i=0; i<JG.cols(); i++)
@@ -653,51 +657,7 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         matrixAppend(&Bcumul, &p->constraints);
         matrixAppend(&bcumul, &p->limits);
         // in hierarchy solving, the constraints are simply stacked upon each other
-
         last_res = res;
-        Eigen::MatrixXf a1, a2, a3, a4, a5, a6, a;
-        /*
-        a1 = p->constraints;
-        a = a1;
-        PRINT("p->constraints : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        a1 = p->conditions;
-        a = a1;
-        PRINT("p->conditions : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        PRINTNL(p->conditions);
-        a1 = p->conditions * Z;
-        a = a1;
-        PRINT("p->conditions * Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        a2 = p->goal + p->conditions * res;
-        a = a2;
-        PRINT("p->goal + p->conditions * res; : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        a3 = Bcumul;
-        a = a3;
-        PRINT("Bcumul : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        a4 = bcumul;
-        a = a4;
-        PRINT("bcumul : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        a5 = Acumul;
-        a = a5;
-        PRINT("Acumul : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        a6 = acumul;
-        a = a6;
-        PRINT("acumul : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        a = Z;
-        PRINT("Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-
-        if (p->constraints.rows() > 0)
-        {
-            a = p->constraints;
-            PRINT("p->constraints : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-            a = Bcumul * Z;
-            PRINT("Bcumul * Z : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-            a = bcumul - p->constraints * res;
-            PRINT("bcumul - p->constraints * res : (");PRINT(a.rows());PRINT("x");PRINT(a.cols());PRINTNL(")");
-        }
-
-        a = res.transpose();
-        PRINT("res : ");PRINTNL(a); // */
-
 
         // NOTE : protection against partial problems
         /*
@@ -713,15 +673,23 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() > 0 && Bcumul.rows() > 0)
         {
-            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul - p->constraints * last_res, &u);
+            //PRINTNL("Solve pb1 ...");
+            //stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul + Bcumul * last_res, &u);
+            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul*Z, bcumul, &u);
+            //PRINTNL("... pb1 Success !");
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() > 0)
         {
-            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul, &u);
+            //PRINTNL("Solve pb2 ...");
+            //stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul * Z, bcumul, &u);
+            stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res, Bcumul*Z, bcumul, &u);
+            //PRINTNL("... pb2 Success !");
         }
         else if (p->conditions.rows() > 0 && p->constraints.rows() == 0 && Bcumul.rows() == 0)
         {
+            //PRINTNL("Solve pb3 ...");
             stepSuccess = solveNextStep(p->conditions * Z, p->goal - p->conditions * last_res,  Eigen::MatrixXf::Zero(1, Z.cols()), Eigen::VectorXf::Zero(1), &u);
+            //PRINTNL("... pb3 Success !");
         }
         /*
         else if (p->conditions.rows() == 0 && p->constraints.rows() > 0)
@@ -778,7 +746,8 @@ Eigen::VectorXf MotionGenerationQuadraticProgram::solveNextHierarchy()
             }
             Z = Eigen::MatrixXf::Identity(this->DOFsize*2, this->DOFsize*2) - svd.matrixV() * A * svd.matrixV().transpose();
         }
-
+        //PRINTNL(Acumul);
+        //PRINTNL(res.transpose());
 
     }
     return res;
@@ -980,8 +949,8 @@ void MotionGenerationQuadraticProgram::updateHook() {
                 // Position tracking in Task space
                 A(0, jointN) = 1;
                 a = Eigen::VectorXf(1);
-                a(0) = -(this->gainTranslationP*(desiredJointPosition - in_robotstatus_var.angles[jointN]) +
-                    this->gainTranslationD*(desiredJointVelocity - in_robotstatus_var.velocities[jointN]));
+                a(0) = -(this->gainJointP*(desiredJointPosition - in_robotstatus_var.angles[jointN]) +
+                    this->gainJointD*(desiredJointVelocity - in_robotstatus_var.velocities[jointN]));
                 addToProblem(A, a, *prob);
             }
         }
@@ -1047,7 +1016,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
-    int effective_limit = 1;
+    int effective_limit = 0;//4*this->DOFsize;
     this->stack_of_tasks.getQP(0)->constraints = limitsMatrix.block(0,0,effective_limit,2*this->DOFsize);
     this->stack_of_tasks.getQP(0)->limits = limits.block(0, 0, effective_limit, 1);
     // and adding the relation between acceleration and torques inside the QP, so that all constraints shall be respected
