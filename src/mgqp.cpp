@@ -596,6 +596,8 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   int pbDOF = A.cols();
   Eigen::MatrixXf JG = Eigen::MatrixXf::Identity(pbDOF, pbDOF); // the size of the problem now depends on the level in the hierarchy
   Eigen::VectorXf jg = Eigen::VectorXf::Zero(pbDOF);
+
+  /*
   QPPP_MATRIX(double) G, CE, CI;
   QPPP_VECTOR(double) g0, ce0, ci0, x;
 	int n, m, p;
@@ -608,11 +610,29 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   ci0.resize((int)b.rows());COPYVECE(b, ci0);// = QuadProgpp::Vector<double>(); ci0.resize((int)b.rows());COPYVEC(b, ci0);
   x = Eigen::VectorXd::Zero(JG.rows()); //x.resize((int)JG.cols());
   g0 = Eigen::VectorXd::Zero(JG.rows());// = QuadProgpp::Vector<double>();g0.resize((int)JG.cols());COPYVEC(Eigen::VectorXf::Zero(JG.cols()),g0)//g0*=0;
-  *res = Eigen::VectorXf(JG.cols());
+
 
   QuadProgpp::Solver quadprog;
 
   sum = quadprog.solve(G, g0, CE.transpose(),  ce0, CI.transpose(), ci0, x);
+  */
+
+  ArrayHH::Matrix<double> G, CE, CI;
+  ArrayHH::Vector<double> g0, ce0, ci0, x;
+  int n, m, p;
+  double sum;
+
+  G.resize((int)JG.rows(), (int)JG.cols());COPYMAT(JG, G);
+  CE.resize((int)A.rows(), (int)A.cols());COPYMAT(A, CE);
+  CI.resize((int)B.rows(), (int)B.cols());COPYMAT(B, CI);
+  ce0.resize((int)a.rows());COPYVEC(a, ce0);
+  ci0.resize((int)b.rows());COPYVEC(b, ci0);
+  x.resize((int)JG.cols());
+  g0.resize((int)JG.cols());COPYVEC(Eigen::VectorXf::Zero(JG.cols()),g0)//g0*=0;
+
+  sum = solve_quadprog(G, g0, ArrayHH::t(CE),  ce0, ArrayHH::t(CI), ci0, x);
+
+  *res = Eigen::VectorXf(JG.cols());
 
   for (int i=0; i<JG.cols(); i++)
   {
