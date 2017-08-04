@@ -180,6 +180,16 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
         // removign the old ports
         ports()->removePort("in_robotstatus_port");
         ports()->removePort("out_torques_port");
+        ports()->removePort("out_jointPosLimitInf");
+        ports()->removePort("out_jointPosLimitSup");
+        ports()->removePort("out_jointVelLimitInf");
+        ports()->removePort("out_jointVelLimitSup");
+        ports()->removePort("out_jointAccLimitInf");
+        ports()->removePort("out_jointAccLimitSup");
+        ports()->removePort("out_jointAccDynLimitInf");
+        ports()->removePort("out_jointAccDynLimitSup");
+        ports()->removePort("out_jointTorqueLimitInf");
+        ports()->removePort("out_jointTorqueLimitSup");
         PRINTNL("removing iterative ports");
 
         for (i=1; i<=this->DOFsize; i++)
@@ -393,6 +403,67 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
     out_torques_port.doc("Output port for sending torque values");
     out_torques_port.setDataSample(out_torques_var);
     ports()->addPort(out_torques_port);
+
+    out_jointPosLimitInf_var = Eigen::VectorXf::Zero();
+    out_jointPosLimitInf_port.setName("out_jointPosLimitInf_port");
+    out_jointPosLimitInf_port.doc("Output port to give insight in robot's limit computed values");
+    out_jointPosLimitInf_port.setDataSample(out_jointPosLimitInf_var);
+    ports()->addPort(out_jointPosLimitInf_port);
+
+    out_jointPosLimitSup_var = Eigen::VectorXf::Zero();
+    out_jointPosLimitSup_port.setName("out_jointPosLimitSup_port");
+    out_jointPosLimitSup_port.doc("Output port to give insight in robot's limit computed values");
+    out_jointPosLimitSup_port.setDataSample(out_jointPosLimitSup_var);
+    ports()->addPort(out_jointPosLimitSup_port);
+
+    out_jointVelLimitInf_var = Eigen::VectorXf::Zero();
+    out_jointVelLimitInf_port.setName("out_jointVelLimitInf_port");
+    out_jointVelLimitInf_port.doc("Output port to give insight in robot's limit computed values");
+    out_jointVelLimitInf_port.setDataSample(out_jointVelLimitInf_var);
+    ports()->addPort(out_jointVelLimitInf_port);
+
+    out_jointVelLimitSup_var = Eigen::VectorXf::Zero();
+    out_jointVelLimitSup_port.setName("out_jointVelLimitSup_port");
+    out_jointVelLimitSup_port.doc("Output port to give insight in robot's limit computed values");
+    out_jointVelLimitSup_port.setDataSample(out_jointVelLimitSup_var);
+    ports()->addPort(out_jointVelLimitSup_port);
+
+    out_jointAccLimitInf_var = Eigen::VectorXf::Zero();
+    out_jointAccLimitInf_port.setName("out_jointAccLimitInf_port");
+    out_jointAccLimitInf_port.doc("Output port to give insight in robot's limit computed values");
+    out_jointAccLimitInf_port.setDataSample(out_jointAccLimitInf_var);
+    ports()->addPort(out_jointAccLimitInf_port);
+
+    out_jointAccLimitSup_var = Eigen::VectorXf::Zero();
+    out_jointAccLimitSup_port.setName("out_jointAccLimitSup_port");
+    out_jointAccLimitSup_port.doc("Output port to give insight in robot's limit computed values");
+    out_jointAccLimitSup_port.setDataSample(out_jointAccLimitSup_var);
+    ports()->addPort(out_jointAccLimitSup_port);
+
+    out_jointAccDynLimitInf_var = Eigen::VectorXf::Zero();
+    out_jointAccDynLimitInf_port.setName("out_jointAccDynLimitInf_port");
+    out_jointAccDynLimitInf_port.doc("Output port to give insight in robot's limit computed values");
+    out_jointAccDynLimitInf_port.setDataSample(out_jointAccDynLimitInf_var);
+    ports()->addPort(out_jointAccDynLimitInf_port);
+
+    out_jointAccDynLimitSup_var = Eigen::VectorXf::Zero();
+    out_jointAccDynLimitSup_port.setName("out_jointAccDynLimitSup_port");
+    out_jointAccDynLimitSup_port.doc("Output port to give insight in robot's limit computed values");
+    out_jointAccDynLimitSup_port.setDataSample(out_jointAccDynLimitSup_var);
+    ports()->addPort(out_jointAccDynLimitSup_port);
+
+    out_jointTorqueLimitInf_var = Eigen::VectorXf::Zero();
+    out_jointTorqueLimitInf_port.setName("out_jointTorqueLimitInf_port");
+    out_jointTorqueLimitInf_port.doc("Output port to give insight in robot's limit computed values");
+    out_jointTorqueLimitInf_port.setDataSample(out_jointTorqueLimitInf_var);
+    ports()->addPort(out_jointTorqueLimitInf_port);
+
+    out_jointTorqueLimitSup_var = Eigen::VectorXf::Zero();
+    out_jointTorqueLimitSup_port.setName("out_jointTorqueLimitSup_port");
+    out_jointTorqueLimitSup_port.doc("Output port to give insight in robot's limit computed values");
+    out_jointTorqueLimitSup_port.setDataSample(out_jointTorqueLimitSup_var);
+    ports()->addPort(out_jointTorqueLimitSup_port);
+
 
     portsPrepared = true;
 
@@ -641,7 +712,7 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   //* Here the problem seems never feasible but still returns a good result ...
   if (std::isnan(sum) || sum == std::numeric_limits<double>::infinity())
   {
-      PRINTNL("unsolvable");
+      //PRINTNL("unsolvable");
       *res =  Eigen::VectorXf::Zero(res->rows());
       return false;
   }
@@ -1036,7 +1107,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
-    int effective_limit = 0;//4*this->DOFsize;
+    int effective_limit = this->DOFsize;//4*this->DOFsize;
     this->stack_of_tasks.getQP(0)->constraints = limitsMatrix.block(0,0,effective_limit,2*this->DOFsize);
     this->stack_of_tasks.getQP(0)->limits = limits.block(0, 0, effective_limit, 1);
     // and adding the relation between acceleration and torques inside the QP, so that all constraints shall be respected
@@ -1056,6 +1127,27 @@ void MotionGenerationQuadraticProgram::updateHook() {
     //out_torques_var.torques = torques+in_inertia_var*acceleration+in_h_var;
     out_torques_var.torques = torques+in_h_var; // +in_inertia_var*acceleration+ now taken into account in QP
 
+    out_jointPosLimitInf_var = this->JointLimitsInf;
+    out_jointPosLimitSup_var = this->JointLimitsSup;
+    out_jointVelLimitInf_var = Eigen::VectorXf::Zero(this->DOFsize);
+    out_jointVelLimitSup_var = Eigen::VectorXf::Zero(this->DOFsize);
+    out_jointAccLimitInf_var = this->JointAccelerationLimitsN;
+    out_jointAccLimitSup_var = this->JointAccelerationLimitsP;
+    out_jointAccDynLimitInf_var = jointAccelAndAngleLimitN;
+    out_jointAccDynLimitSup_var = JointAccelerationLimitsP;
+    out_jointTorqueLimitInf_var = this->JointTorquesLimitsN;
+    out_jointTorqueLimitSup_var = this->JointTorquesLimitsP;
+
+    out_jointPosLimitInf_port.write(out_jointPosLimitInf_var);
+    out_jointPosLimitSup_port.write(out_jointPosLimitSup_var);
+    out_jointVelLimitInf_port.write(out_jointVelLimitInf_var);
+    out_jointVelLimitSup_port.write(out_jointVelLimitSup_var);
+    out_jointAccLimitInf_port.write(out_jointAccLimitInf_var);
+    out_jointAccLimitSup_port.write(out_jointAccLimitSup_var);
+    out_jointAccDynLimitInf_port.write(out_jointAccDynLimitInf_var);
+    out_jointAccDynLimitSup_port.write(out_jointAccDynLimitSup_var);
+    out_jointTorqueLimitInf_port.write(out_jointTorqueLimitInf_var);
+    out_jointTorqueLimitSup_port.write(out_jointTorqueLimitSup_var);
     // write it to port
     out_torques_port.write(out_torques_var);
 

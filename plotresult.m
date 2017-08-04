@@ -97,6 +97,16 @@ desTorJ4= datalog(1:index60,col);col += 1;
 desTorJ5= datalog(1:index60,col);col += 1;
 desTorJ6= datalog(1:index60,col);col += 1;
 desTorJ7= datalog(1:index60,col);col += 1;
+out_jointPosLimitInf= datalog(1:index60,col);col += 1;
+out_jointPosLimitSup= datalog(1:index60,col);col += 1;
+out_jointVelLimitInf= datalog(1:index60,col);col += 1;
+out_jointVelLimitSup= datalog(1:index60,col);col += 1;
+out_jointAccLimitInf= datalog(1:index60,col);col += 1;
+out_jointAccLimitSup= datalog(1:index60,col);col += 1;
+out_jointAccDynLimitInf= datalog(1:index60,col);col += 1;
+out_jointAccDynLimitSup= datalog(1:index60,col);col += 1;
+out_jointTorqueLimitInf= datalog(1:index60,col);col += 1;
+out_jointTorqueLimitSup= datalog(1:index60,col);col += 1;
 end
 
 % plotting computation time
