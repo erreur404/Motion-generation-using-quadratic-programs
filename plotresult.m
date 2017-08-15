@@ -97,16 +97,87 @@ desTorJ4= datalog(1:index60,col);col += 1;
 desTorJ5= datalog(1:index60,col);col += 1;
 desTorJ6= datalog(1:index60,col);col += 1;
 desTorJ7= datalog(1:index60,col);col += 1;
-out_jointPosLimitInf= datalog(1:index60,col);col += 1;
-out_jointPosLimitSup= datalog(1:index60,col);col += 1;
-out_jointVelLimitInf= datalog(1:index60,col);col += 1;
-out_jointVelLimitSup= datalog(1:index60,col);col += 1;
-out_jointAccLimitInf= datalog(1:index60,col);col += 1;
-out_jointAccLimitSup= datalog(1:index60,col);col += 1;
-out_jointAccDynLimitInf= datalog(1:index60,col);col += 1;
-out_jointAccDynLimitSup= datalog(1:index60,col);col += 1;
-out_jointTorqueLimitInf= datalog(1:index60,col);col += 1;
-out_jointTorqueLimitSup= datalog(1:index60,col);col += 1;
+
+out_jointPosLimitInfJ1 = datalog(1:index60,col);col += 1;
+out_jointPosLimitInfJ2 = datalog(1:index60,col);col += 1;
+out_jointPosLimitInfJ3 = datalog(1:index60,col);col += 1;
+out_jointPosLimitInfJ4 = datalog(1:index60,col);col += 1;
+out_jointPosLimitInfJ5 = datalog(1:index60,col);col += 1;
+out_jointPosLimitInfJ6 = datalog(1:index60,col);col += 1;
+out_jointPosLimitInfJ7 = datalog(1:index60,col);col += 1;
+
+out_jointPosLimitSupJ1 = datalog(1:index60,col);col += 1;
+out_jointPosLimitSupJ2 = datalog(1:index60,col);col += 1;
+out_jointPosLimitSupJ3 = datalog(1:index60,col);col += 1;
+out_jointPosLimitSupJ4 = datalog(1:index60,col);col += 1;
+out_jointPosLimitSupJ5 = datalog(1:index60,col);col += 1;
+out_jointPosLimitSupJ6 = datalog(1:index60,col);col += 1;
+out_jointPosLimitSupJ7 = datalog(1:index60,col);col += 1;
+
+out_jointVelLimitInfJ1 = datalog(1:index60,col);col += 1;
+out_jointVelLimitInfJ2 = datalog(1:index60,col);col += 1;
+out_jointVelLimitInfJ3 = datalog(1:index60,col);col += 1;
+out_jointVelLimitInfJ4 = datalog(1:index60,col);col += 1;
+out_jointVelLimitInfJ5 = datalog(1:index60,col);col += 1;
+out_jointVelLimitInfJ6 = datalog(1:index60,col);col += 1;
+out_jointVelLimitInfJ7 = datalog(1:index60,col);col += 1;
+
+out_jointVelLimitSupJ1 = datalog(1:index60,col);col += 1;
+out_jointVelLimitSupJ2 = datalog(1:index60,col);col += 1;
+out_jointVelLimitSupJ3 = datalog(1:index60,col);col += 1;
+out_jointVelLimitSupJ4 = datalog(1:index60,col);col += 1;
+out_jointVelLimitSupJ5 = datalog(1:index60,col);col += 1;
+out_jointVelLimitSupJ6 = datalog(1:index60,col);col += 1;
+out_jointVelLimitSupJ7 = datalog(1:index60,col);col += 1;
+
+out_jointAccLimitInfJ1 = datalog(1:index60,col);col += 1;
+out_jointAccLimitInfJ2 = datalog(1:index60,col);col += 1;
+out_jointAccLimitInfJ3 = datalog(1:index60,col);col += 1;
+out_jointAccLimitInfJ4 = datalog(1:index60,col);col += 1;
+out_jointAccLimitInfJ5 = datalog(1:index60,col);col += 1;
+out_jointAccLimitInfJ6 = datalog(1:index60,col);col += 1;
+out_jointAccLimitInfJ7 = datalog(1:index60,col);col += 1;
+
+out_jointAccLimitSupJ1 = datalog(1:index60,col);col += 1;
+out_jointAccLimitSupJ2 = datalog(1:index60,col);col += 1;
+out_jointAccLimitSupJ3 = datalog(1:index60,col);col += 1;
+out_jointAccLimitSupJ4 = datalog(1:index60,col);col += 1;
+out_jointAccLimitSupJ5 = datalog(1:index60,col);col += 1;
+out_jointAccLimitSupJ6 = datalog(1:index60,col);col += 1;
+out_jointAccLimitSupJ7 = datalog(1:index60,col);col += 1;
+
+out_jointAccDynLimitInfJ1 = datalog(1:index60,col);col += 1;
+out_jointAccDynLimitInfJ2 = datalog(1:index60,col);col += 1;
+out_jointAccDynLimitInfJ3 = datalog(1:index60,col);col += 1;
+out_jointAccDynLimitInfJ4 = datalog(1:index60,col);col += 1;
+out_jointAccDynLimitInfJ5 = datalog(1:index60,col);col += 1;
+out_jointAccDynLimitInfJ6 = datalog(1:index60,col);col += 1;
+out_jointAccDynLimitInfJ7 = datalog(1:index60,col);col += 1;
+
+out_jointAccDynLimitSupJ1 = datalog(1:index60,col);col += 1;
+out_jointAccDynLimitSupJ2 = datalog(1:index60,col);col += 1;
+out_jointAccDynLimitSupJ3 = datalog(1:index60,col);col += 1;
+out_jointAccDynLimitSupJ4 = datalog(1:index60,col);col += 1;
+out_jointAccDynLimitSupJ5 = datalog(1:index60,col);col += 1;
+out_jointAccDynLimitSupJ6 = datalog(1:index60,col);col += 1;
+out_jointAccDynLimitSupJ7 = datalog(1:index60,col);col += 1;
+
+out_jointTorqueLimitInfJ1 = datalog(1:index60,col);col += 1;
+out_jointTorqueLimitInfJ2 = datalog(1:index60,col);col += 1;
+out_jointTorqueLimitInfJ3 = datalog(1:index60,col);col += 1;
+out_jointTorqueLimitInfJ4 = datalog(1:index60,col);col += 1;
+out_jointTorqueLimitInfJ5 = datalog(1:index60,col);col += 1;
+out_jointTorqueLimitInfJ6 = datalog(1:index60,col);col += 1;
+out_jointTorqueLimitInfJ7 = datalog(1:index60,col);col += 1;
+
+out_jointTorqueLimitSupJ1 = datalog(1:index60,col);col += 1;
+out_jointTorqueLimitSupJ2 = datalog(1:index60,col);col += 1;
+out_jointTorqueLimitSupJ3 = datalog(1:index60,col);col += 1;
+out_jointTorqueLimitSupJ4 = datalog(1:index60,col);col += 1;
+out_jointTorqueLimitSupJ5 = datalog(1:index60,col);col += 1;
+out_jointTorqueLimitSupJ6 = datalog(1:index60,col);col += 1;
+out_jointTorqueLimitSupJ7 = datalog(1:index60,col);col += 1;
+
 end
 
 % plotting computation time
@@ -254,120 +325,103 @@ xlabel("Time [sec]");
 ylabel("position [m]");
 title("z acceleration tracking");
 
+
+
 % ========================= plotting joint values
 if JOINT_OP
 figure()
 display_x = 4;
-display_y = 2;
+display_y = 7;
 display_index = 1;
 
-subplot(display_y, display_x, display_index);display_index += 1; % 1
-des = desTorJ1; cur = curTorJ1;
-plot(t, des, "-b");
-hold on;
-plot(t, cur, "-r");
-hold off;
-if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
-legend({"desired", "actual"}, 'Location', 'northeast');
-else
-legend({"desired", "actual"}, 'Location', 'southeast');
-endif
-xlabel("Time [sec]");
-ylabel("torque [N/m]");
-title("Joint 1 torques");
-
-subplot(display_y, display_x, display_index);display_index += 1; % 2
-des = desTorJ2; cur = curTorJ2;
-plot(t, des, "-b");
-hold on;
-plot(t, cur, "-r");
-hold off;
-if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
-legend({"desired", "actual"}, 'Location', 'northeast');
-else
-legend({"desired", "actual"}, 'Location', 'southeast');
-endif
-xlabel("Time [sec]");
-ylabel("torque [N/m]");
-title("Joint 2 torques");
-
-subplot(display_y, display_x, display_index);display_index += 1; % 3
-des = desTorJ3; cur = curTorJ3;
-plot(t, des, "-b");
-hold on;
-plot(t, cur, "-r");
-hold off;
-if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
-legend({"desired", "actual"}, 'Location', 'northeast');
-else
-legend({"desired", "actual"}, 'Location', 'southeast');
-endif
-xlabel("Time [sec]");
-ylabel("torque [N/m]");
-title("Joint 3 torques");
-
-subplot(display_y, display_x, display_index);display_index += 1; % 4
-des = desTorJ4; cur = curTorJ4;
-plot(t, des, "-b");
-hold on;
-plot(t, cur, "-r");
-hold off;
-if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
-legend({"desired", "actual"}, 'Location', 'northeast');
-else
-legend({"desired", "actual"}, 'Location', 'southeast');
-endif
-xlabel("Time [sec]");
-ylabel("torque [N/m]");
-title("Joint 4 torques");
-
-subplot(display_y, display_x, display_index);display_index += 1; % 5
-des = desTorJ5; cur = curTorJ5;
-plot(t, des, "-b");
-hold on;
-plot(t, cur, "-r");
-hold off;
-if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
-legend({"desired", "actual"}, 'Location', 'northeast');
-else
-legend({"desired", "actual"}, 'Location', 'southeast');
-endif
-xlabel("Time [sec]");
-ylabel("torque [N/m]");
-title("Joint 5 torques");
-
-subplot(display_y, display_x, display_index);display_index += 1; % 6
-des = desTorJ6; cur = curTorJ6;
-plot(t, des, "-b");
-hold on;
-plot(t, cur, "-r");
-hold off;
-if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
-legend({"desired", "actual"}, 'Location', 'northeast');
-else
-legend({"desired", "actual"}, 'Location', 'southeast');
-endif
-xlabel("Time [sec]");
-ylabel("torque [N/m]");
-title("Joint 6 torques");
-
-subplot(display_y, display_x, display_index);display_index += 1; % 7
-des = desTorJ7; cur = curTorJ7;
-plot(t, des, "-b");
-hold on;
-plot(t, cur, "-r");
-hold off;
-if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
-legend({"desired", "actual"}, 'Location', 'northeast');
-else
-legend({"desired", "actual"}, 'Location', 'southeast');
-endif
-xlabel("Time [sec]");
-ylabel("torque [N/m]");
-title("Joint 7 torques");
+% plotting torque values
+for joint=1:display_y
+    sprintf("displaying torque graph")
+    subplot(display_y, display_x, display_index);display_index += 1; % 1
+    des = eval(sprintf("desTorJ%d",joint)); cur = eval(sprintf("curTorJ%d", joint));
+    sup = eval(sprintf("out_jointTorqueLimitSupJ%d", joint)); inf = eval(sprintf("out_jointTorqueLimitInfJ%d", joint));
+    plot(t, des, "-b");
+    hold on;
+    plot(t, cur, "-r");
+    hold on;
+    plot(t, inf, "-y");
+    hold on;
+    plot(t, sup, "-k");
+    hold off;
+    if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+        %legend({"desired", "actual", "inf limit", "sup limit"}, 'Location', 'northeast');
+    else
+        %legend({"desired", "actual", "inf limit", "sup limit"}, 'Location', 'southeast');
+    endif
+    xlabel("Time [sec]");
+    ylabel("torque [N/m]");
+    title(sprintf("Joint %d torques", joint));
+    
+    sprintf("displaying accel graph") % no accel feedback ?
+    subplot(display_y, display_x, display_index);display_index += 1; % 1
+    des = eval(sprintf("out_jointAccLimitInfJ%d",joint)); cur = eval(sprintf("out_jointAccLimitSupJ%d", joint));
+    sup = eval(sprintf("out_jointAccDynLimitInfJ%d", joint)); inf = eval(sprintf("out_jointAccDynLimitSupJ%d", joint));
+    plot(t, des, "-b");
+    hold on;
+    plot(t, cur, "-r");
+    hold on;
+    plot(t, inf, "-y");
+    hold on;
+    plot(t, sup, "-k");
+    hold off;
+    if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+        %legend({"static inf limit", "static sup limit", "dyn inf limit", "dyn sup limit"}, 'Location', 'northeast');
+    else
+        %legend({"static inf limit", "static sup limit", "dyn inf limit", "dyn sup limit"}, 'Location', 'northeast');
+    endif
+    xlabel("Time [sec]");
+    ylabel("torque [N/m]");
+    title(sprintf("Joint %d acceleration", joint));
+    
+    sprintf("displaying velocity graph")
+    subplot(display_y, display_x, display_index);display_index += 1; % 1
+    cur = eval(sprintf("curVelJ%d", joint));
+    sup = eval(sprintf("out_jointVelLimitSupJ%d", joint)); inf = eval(sprintf("out_jointVelLimitInfJ%d", joint));
+    plot(t, cur, "-r");
+    hold on;
+    plot(t, inf, "-y");
+    hold on;
+    plot(t, sup, "-b");
+    hold off;
+    if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+        %legend({"actual", "inf limit", "sup limit"}, 'Location', 'northeast');
+    else
+        %legend({"actual", "inf limit", "sup limit"}, 'Location', 'southeast');
+    endif
+    xlabel("Time [sec]");
+    ylabel("speed [rad/s]");
+    title(sprintf("Joint %d speeds", joint));
+    
+    sprintf("displaying position graph")
+    subplot(display_y, display_x, display_index);display_index += 1; % 1
+    cur = eval(sprintf("curPosJ%d", joint));
+    sup = eval(sprintf("out_jointPosLimitSupJ%d", joint)); inf = eval(sprintf("out_jointPosLimitInfJ%d", joint));
+    plot(t, cur, "-r");
+    hold on;
+    plot(t, inf, "-y");
+    hold on;
+    plot(t, sup, "-k");
+    hold off;
+    if (mean(cur(floor(size(cur)(1)/2):size(cur)(1))) < (max(cur) + min(cur))/2)
+        %legend({"actual", "inf limit", "sup limit"}, 'Location', 'northeast');
+    else
+        %legend({"actual", "inf limit", "sup limit"}, 'Location', 'southeast');
+    endif
+    xlabel("Time [sec]");
+    ylabel("position [rad]");
+    title(sprintf("Joint %d positions", joint));
+    
+    sprintf("                    for joint %d", joint)
+end
 
 % ==================================== joint space tracking
-subplot(display_y, display_x, display_index);display_index += 1; % 3
+
+figure();
 des = desPosJ1; cur = curPosJ1;
 plot(t, des, "-b");
 hold on;
@@ -379,7 +433,6 @@ else
 legend({"desired", "actual"}, 'Location', 'southeast');
 endif
 xlabel("Time [sec]");
-ylabel("torque [N/m]");
-axis([-inf inf -1.5 1.5]); 
+ylabel("position (rad)");
 title("Base joint position tracking");
 end
