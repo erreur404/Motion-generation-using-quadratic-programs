@@ -135,6 +135,8 @@ MotionGenerationQuadraticProgram::MotionGenerationQuadraticProgram(std::string c
     quaternion_current1 = Eigen::Vector4f::Zero();
     quaternion_desired2 = Eigen::Vector4f::Zero();
     quaternion_current2 = Eigen::Vector4f::Zero();
+
+    countSecond = 0;
 }
 
 bool MotionGenerationQuadraticProgram::configureHook() {
@@ -513,7 +515,7 @@ bool MotionGenerationQuadraticProgram::setAngularLimits(std::vector<double> limi
   assert(limitSup.size()==limitInf.size());
   doubleVToEigenV(limitSup, &s);
   doubleVToEigenV(limitInf, &i);
-  return setAccelerationLimitsE(s, i);
+  return setAngularLimitsE(s, i);
 }
 // */
 
@@ -714,10 +716,11 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   //* Here the problem seems never feasible but still returns a good result ...
   if (std::isnan(sum) || sum == std::numeric_limits<double>::infinity())
   {
-      //PRINTNL("unsolvable");
+      //PRINT("unsolvable");
       if (TRY_TO_CONVERGE)
       {
-          CI.resize(0, 0);
+
+          CI.resize(0, pbDOF);
           ci0.resize(0);
           sum = solve_quadprog(G, g0, ArrayHH::t(CE),  ce0, ArrayHH::t(CI), ci0, x);
           for (int i=0; i<JG.cols(); i++)
@@ -729,7 +732,7 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
               *res = Eigen::VectorXf::Zero(pbDOF);
               return false;
           }
-          return false;
+          return true;
       }
       else
       {
@@ -1128,7 +1131,7 @@ void MotionGenerationQuadraticProgram::updateHook() {
     Eigen::VectorXf tracking = Eigen::VectorXf(this->DOFsize * 2);
     tracking.setZero();
     // setting these inequalities as part of the top priority
-    int effective_limit = 0; //this->DOFsize;//4*this->DOFsize;
+    int effective_limit = 4*this->DOFsize;
     this->stack_of_tasks.getQP(0)->constraints = limitsMatrix.block(0,0,effective_limit,2*this->DOFsize);
     this->stack_of_tasks.getQP(0)->limits = limits.block(0, 0, effective_limit, 1);
     // and adding the relation between acceleration and torques inside the QP, so that all constraints shall be respected
@@ -1172,7 +1175,13 @@ void MotionGenerationQuadraticProgram::updateHook() {
     // write it to port
     out_torques_port.write(out_torques_var);
 
-    if (this->getSimulationTime() > 60)
+    float simTime = this->getSimulationTime();
+    if (this->countSecond < (int) simTime)
+    {
+        this->countSecond = (int)simTime;
+        PRINT  (">>          ");PRINT((int)(100*this->countSecond/(60+10+1)));PRINTNL("%");
+    }
+    if (simTime> 60+10+1)
     {
         this->stopHook();
     }
@@ -1183,7 +1192,7 @@ void MotionGenerationQuadraticProgram::stopHook() {
     // stops the component (update hook wont be  called anymore)
     PRINTNL("######################################");
     PRINTNL("##                                  ##");
-    PRINTNL("##    ALL BASES ARE BELONG TO US    ##");
+    PRINTNL("##       END OF THE EXPERIMENT      ##");
     PRINTNL("##                                  ##");
     PRINTNL("######################################");
 }
