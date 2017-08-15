@@ -336,7 +336,7 @@ display_index = 1;
 
 % plotting torque values
 for joint=1:display_y
-    sprintf("displaying torque graph")
+    %sprintf("displaying torque graph")
     subplot(display_y, display_x, display_index);display_index += 1; % 1
     des = eval(sprintf("desTorJ%d",joint)); cur = eval(sprintf("curTorJ%d", joint));
     sup = eval(sprintf("out_jointTorqueLimitSupJ%d", joint)); inf = eval(sprintf("out_jointTorqueLimitInfJ%d", joint));
@@ -357,7 +357,7 @@ for joint=1:display_y
     ylabel("torque [N/m]");
     title(sprintf("Joint %d torques", joint));
     
-    sprintf("displaying accel graph") % no accel feedback ?
+    %sprintf("displaying accel graph") % no accel feedback ?
     subplot(display_y, display_x, display_index);display_index += 1; % 1
     des = eval(sprintf("out_jointAccLimitInfJ%d",joint)); cur = eval(sprintf("out_jointAccLimitSupJ%d", joint));
     sup = eval(sprintf("out_jointAccDynLimitInfJ%d", joint)); inf = eval(sprintf("out_jointAccDynLimitSupJ%d", joint));
@@ -378,7 +378,7 @@ for joint=1:display_y
     ylabel("torque [N/m]");
     title(sprintf("Joint %d acceleration", joint));
     
-    sprintf("displaying velocity graph")
+    %sprintf("displaying velocity graph")
     subplot(display_y, display_x, display_index);display_index += 1; % 1
     cur = eval(sprintf("curVelJ%d", joint));
     sup = eval(sprintf("out_jointVelLimitSupJ%d", joint)); inf = eval(sprintf("out_jointVelLimitInfJ%d", joint));
@@ -397,7 +397,8 @@ for joint=1:display_y
     ylabel("speed [rad/s]");
     title(sprintf("Joint %d speeds", joint));
     
-    sprintf("displaying position graph")
+    
+    %sprintf("displaying position graph")
     subplot(display_y, display_x, display_index);display_index += 1; % 1
     cur = eval(sprintf("curPosJ%d", joint));
     sup = eval(sprintf("out_jointPosLimitSupJ%d", joint)); inf = eval(sprintf("out_jointPosLimitInfJ%d", joint));
@@ -416,7 +417,7 @@ for joint=1:display_y
     ylabel("position [rad]");
     title(sprintf("Joint %d positions", joint));
     
-    sprintf("                    for joint %d", joint)
+    %sprintf("                    for joint %d", joint)
 end
 
 % ==================================== joint space tracking

@@ -129,9 +129,9 @@ print.ln("");
 
 
 # LETS PLAY HERE !!
-var int AngleLimit = 120;
-var int AccelLimit = 1000;
-var int TorqueLimit = 1000;
+var int AngleLimit = 3.1415926535;
+var int AccelLimit = 1000000;
+var int TorqueLimit = 1000000;
 
 
 import("RttExamples1")
@@ -183,9 +183,17 @@ import("MotionGenerationQuadraticProgram")
 loadComponent("myTorqueController", "MotionGenerationQuadraticProgram");
 setActivity("myTorqueController", 0.05, 50, ORO_SCHED_OTHER);
 myTorqueController.setDOFsize(DOFsize);
-myTorqueController.setTorqueLimits(array(DOFsize, TorqueLimit), array(DOFsize, -TorqueLimit))
-myTorqueController.setAccelerationLimits(array(DOFsize, AccelLimit), array(DOFsize, -AccelLimit))
-myTorqueController.setAngularLimits(array(DOFsize, AngleLimit), array(DOFsize, -AngleLimit))
+if (DOFsize == 7) then {
+    myTorqueController.setTorqueLimits(array(DOFsize, TorqueLimit), array(DOFsize, -TorqueLimit))
+    myTorqueController.setAccelerationLimits(array(DOFsize, AccelLimit), array(DOFsize, -AccelLimit))
+    myTorqueController.setAngularLimits([0.8, 1.5, 2.5, 1.5, 3, 1.5, 3], -[0.8, 1.5, 2.5, 1.5, 3, 1.5, 3])
+}
+else {
+    myTorqueController.setTorqueLimits(array(DOFsize, TorqueLimit), array(DOFsize, -TorqueLimit))
+    myTorqueController.setAccelerationLimits(array(DOFsize, AccelLimit), array(DOFsize, -AccelLimit))
+    myTorqueController.setAngularLimits(array(DOFsize, AngleLimit), array(DOFsize, -AngleLimit))
+}
+
 
 var ConnPolicy cp
 # send joint status to the controller
