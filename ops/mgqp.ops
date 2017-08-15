@@ -184,14 +184,15 @@ loadComponent("myTorqueController", "MotionGenerationQuadraticProgram");
 setActivity("myTorqueController", 0.05, 50, ORO_SCHED_OTHER);
 myTorqueController.setDOFsize(DOFsize);
 if (DOFsize == 7) then {
-    myTorqueController.setTorqueLimits(array(DOFsize, TorqueLimit), array(DOFsize, -TorqueLimit))
-    myTorqueController.setAccelerationLimits(array(DOFsize, AccelLimit), array(DOFsize, -AccelLimit))
-    myTorqueController.setAngularLimits([0.8, 1.5, 2.5, 1.5, 3, 1.5, 3], -[0.8, 1.5, 2.5, 1.5, 3, 1.5, 3])
+    myTorqueController.setTorqueLimits(array(DOFsize, TorqueLimit), array(DOFsize, -TorqueLimit));
+    myTorqueController.setAccelerationLimits(array(DOFsize, AccelLimit), array(DOFsize, -AccelLimit));
+    myTorqueController.setAngularLimits(array(0.8, 1.5, 2.5, 1.5, 3.0, 1.5, 3.0), array(-0.8, -1.5, -2.5, -1.5, -3.0, -1.5, -3.0));
 }
-else {
-    myTorqueController.setTorqueLimits(array(DOFsize, TorqueLimit), array(DOFsize, -TorqueLimit))
-    myTorqueController.setAccelerationLimits(array(DOFsize, AccelLimit), array(DOFsize, -AccelLimit))
-    myTorqueController.setAngularLimits(array(DOFsize, AngleLimit), array(DOFsize, -AngleLimit))
+else
+{
+    myTorqueController.setTorqueLimits(array(DOFsize, TorqueLimit), array(DOFsize, -TorqueLimit));
+    myTorqueController.setAccelerationLimits(array(DOFsize, AccelLimit), array(DOFsize, -AccelLimit));
+    myTorqueController.setAngularLimits(array(DOFsize, AngleLimit), array(DOFsize, -AngleLimit));
 }
 
 
