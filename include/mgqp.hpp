@@ -227,7 +227,7 @@ private:
     QuaternionHelper qh;
     Eigen::Vector4f quaternion_desired1, quaternion_current1, quaternion_desired2, quaternion_current2;
 
-
+    int countSecond;
 
 
     // methods

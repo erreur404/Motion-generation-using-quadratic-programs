@@ -17,6 +17,8 @@
 #define PRINT(txt) RTT::log(RTT::Info) << txt
 #define PRINTNL(txt) RTT::log(RTT::Info) << txt << RTT::endlog()
 
+#define TRY_TO_CONVERGE true
+
 std::string cat (std::string str, int i)
 {
   std::stringstream sstm;
@@ -478,12 +480,12 @@ void MotionGenerationQuadraticProgram::setDOFsize(unsigned int DOFsize){
 }
 
 //*
-void doubleVToEigenV(std::vector<double> v, Eigen::VectorXf &e)
+void doubleVToEigenV(std::vector<double> v, Eigen::VectorXf * e)
 {
-  e = Eigen::VectorXf(v.size());
+  *e = Eigen::VectorXf(v.size());
   for (int i=0; i<v.size(); i++)
   {
-    e[i] = v[i];
+    (*e)[i] = v[i];
   }
 }
 
@@ -491,8 +493,8 @@ bool MotionGenerationQuadraticProgram::setTorqueLimits(std::vector<double> torqu
 {
   Eigen::VectorXf p, n;
   assert(torquesP.size()==torquesN.size());
-  doubleVToEigenV(torquesP, p);
-  doubleVToEigenV(torquesN, n);
+  doubleVToEigenV(torquesP, &p);
+  doubleVToEigenV(torquesN, &n);
   return setTorqueLimitsE(p, n);
 }
 
@@ -500,8 +502,8 @@ bool MotionGenerationQuadraticProgram::setAccelerationLimits(std::vector<double>
 {
   Eigen::VectorXf p, n;
   assert(accelerationsP.size()==accelerationsN.size());
-  doubleVToEigenV(accelerationsP, p);
-  doubleVToEigenV(accelerationsN, n);
+  doubleVToEigenV(accelerationsP, &p);
+  doubleVToEigenV(accelerationsN, &n);
   return setAccelerationLimitsE(p, n);
 }
 
@@ -509,8 +511,8 @@ bool MotionGenerationQuadraticProgram::setAngularLimits(std::vector<double> limi
 {
   Eigen::VectorXf s, i;
   assert(limitSup.size()==limitInf.size());
-  doubleVToEigenV(limitSup, s);
-  doubleVToEigenV(limitInf, i);
+  doubleVToEigenV(limitSup, &s);
+  doubleVToEigenV(limitInf, &i);
   return setAccelerationLimitsE(s, i);
 }
 // */
@@ -713,8 +715,27 @@ bool MotionGenerationQuadraticProgram::solveNextStep(const Eigen::MatrixXf A, co
   if (std::isnan(sum) || sum == std::numeric_limits<double>::infinity())
   {
       //PRINTNL("unsolvable");
-      *res =  Eigen::VectorXf::Zero(res->rows());
-      return false;
+      if (TRY_TO_CONVERGE)
+      {
+          CI.resize(0, 0);
+          ci0.resize(0);
+          sum = solve_quadprog(G, g0, ArrayHH::t(CE),  ce0, ArrayHH::t(CI), ci0, x);
+          for (int i=0; i<JG.cols(); i++)
+          {
+            (*res)[i] = x[i];
+          }
+          if (std::isnan(sum) || sum == std::numeric_limits<double>::infinity())
+          {
+              *res = Eigen::VectorXf::Zero(pbDOF);
+              return false;
+          }
+          return false;
+      }
+      else
+      {
+        *res = Eigen::VectorXf::Zero(pbDOF);
+        return false;
+      }
   }
   else
   {
