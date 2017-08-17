@@ -119,6 +119,16 @@ private:
     // Declare output ports and their datatypes
     RTT::OutputPort<rstrt::dynamics::JointTorques> out_torques_port;
     RTT::OutputPort<Eigen::VectorXf> out_force_port;
+    RTT::OutputPort<Eigen::VectorXf> out_jointPosLimitInf_port;
+    RTT::OutputPort<Eigen::VectorXf> out_jointPosLimitSup_port;
+    RTT::OutputPort<Eigen::VectorXf> out_jointVelLimitInf_port;
+    RTT::OutputPort<Eigen::VectorXf> out_jointVelLimitSup_port;
+    RTT::OutputPort<Eigen::VectorXf> out_jointAccLimitInf_port;
+    RTT::OutputPort<Eigen::VectorXf> out_jointAccLimitSup_port;
+    RTT::OutputPort<Eigen::VectorXf> out_jointAccDynLimitInf_port;
+    RTT::OutputPort<Eigen::VectorXf> out_jointAccDynLimitSup_port;
+    RTT::OutputPort<Eigen::VectorXf> out_jointTorqueLimitInf_port;
+    RTT::OutputPort<Eigen::VectorXf> out_jointTorqueLimitSup_port;
 
     // Data flow:
     RTT::FlowStatus in_robotstatus_flow;
@@ -172,6 +182,16 @@ private:
     // commands sent to the robot
     rstrt::dynamics::JointTorques out_torques_var;
     Eigen::VectorXf out_force_var;
+    Eigen::VectorXf out_jointPosLimitInf_var;
+    Eigen::VectorXf out_jointPosLimitSup_var;
+    Eigen::VectorXf out_jointVelLimitInf_var;
+    Eigen::VectorXf out_jointVelLimitSup_var;
+    Eigen::VectorXf out_jointAccLimitInf_var;
+    Eigen::VectorXf out_jointAccLimitSup_var;
+    Eigen::VectorXf out_jointAccDynLimitInf_var;
+    Eigen::VectorXf out_jointAccDynLimitSup_var;
+    Eigen::VectorXf out_jointTorqueLimitInf_var;
+    Eigen::VectorXf out_jointTorqueLimitSup_var;
 
     Eigen::Vector4f quaternion_desired, quaternion_current, quaternion_current_conj, quaternion_diff;
     Eigen::Quaternionf quat_target,quat_current,quat_diff;
@@ -207,7 +227,7 @@ private:
     QuaternionHelper qh;
     Eigen::Vector4f quaternion_desired1, quaternion_current1, quaternion_desired2, quaternion_current2;
 
-
+    int countSecond;
 
 
     // methods
