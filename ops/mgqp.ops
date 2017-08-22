@@ -130,8 +130,8 @@ print.ln("");
 
 # LETS PLAY HERE !!
 var int AngleLimit = 3.1415926535;
-var int AccelLimit = 1000000;
-var int TorqueLimit = 1000000;
+var int AccelLimit = 5;
+var int TorqueLimit = 100;
 
 
 import("RttExamples1")
